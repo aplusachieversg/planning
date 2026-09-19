@@ -84,7 +84,10 @@
       application:read("spApplication")||"unknown"
     };
 
-    const legacyTarget=read("uni");
+    const targetField=read("spTargetField")||"Medicine";
+    const targetUniversity=read("spTargetUniversity")||"Not decided yet";
+    const targetEntryYear=read("spEntryYear")||"2027";
+    const legacyTarget=targetUniversity;
     const isUK=/^UK Medicine$/i.test(legacyTarget);
     const isAustralia=/^Australia Medicine$/i.test(legacyTarget);
     const targetUniversity=/^NUS Medicine$/i.test(legacyTarget)?"NUS":/^NTU Medicine$/i.test(legacyTarget)?"NTU":legacyTarget;
@@ -92,11 +95,11 @@
     const targetCountry=isUK?"United Kingdom":isAustralia?"Australia":"Singapore";
 
     const raw={
-      field:read("field"),
-      university:targetUniversity,
+      field:targetField,
+      university:/^NUS Medicine$/i.test(targetUniversity)?"NUS":/^NTU Medicine$/i.test(targetUniversity)?"NTU":targetUniversity,
       course:targetCourse,
       country:targetCountry,
-      entryYear:read("entryYear")||read("dbEntryYear")||"2027",
+      entryYear:targetEntryYear||read("dbEntryYear")||"2027",
       scholarship:read("targetScholarship"),
       currentLevel:read("spLevel")||read("level")||"Not specified",
       qualification:read("spQualification"),
@@ -313,6 +316,12 @@
       });
     }
     renderSubjects();
+    const targetSync=function(){
+      const pairs=[["spTargetField","field"],["spTargetUniversity","uni"],["spEntryYear","entryYear"]];
+      pairs.forEach(function(pair){const src=document.getElementById(pair[0]),dst=document.getElementById(pair[1]);if(src&&dst)dst.value=src.value;});
+    };
+    ["spTargetField","spTargetUniversity","spEntryYear"].forEach(function(id){const el=document.getElementById(id);if(el)el.addEventListener("change",targetSync);});
+    targetSync();
     const weakToggle=document.getElementById("spWeakToggle");
     const weakPanel=document.getElementById("spWeakSelector");
     const weakSummary=document.getElementById("spWeakSummary");
