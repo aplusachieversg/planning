@@ -1,4 +1,4 @@
-/* APLUS STUDENT PROFILE DIAGNOSTIC v3.0
+/* APLUS STUDENT PROFILE DIAGNOSTIC v4.0
    Diagnostic 01: establish the student's current academic and development baseline.
    Output is diagnostic, not an admissions prediction or ranking.
 */
@@ -7,7 +7,38 @@
   const esc=v=>String(v==null?"":v).replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));
   const arr=v=>Array.isArray(v)?v:[];
   const read=id=>{const e=document.getElementById(id);return e?e.value:"";};
-  const split=id=>read(id).split(",").map(x=>x.trim()).filter(Boolean);
+  const split=id=>{const e=document.getElementById(id);if(e&&e.tagName==="SELECT"&&e.multiple)return Array.from(e.selectedOptions).map(o=>o.value).filter(Boolean);return read(id).split(",").map(x=>x.trim()).filter(Boolean);};
+  const tax=()=>window.APLUS_SUBJECT_TAXONOMY;
+  function selectedSubjects(){
+    const out=[];
+    document.querySelectorAll("#spSubjectSelector input[data-subject-key]:checked").forEach(cb=>{
+      const level=cb.dataset.level, subject=cb.dataset.subject, category=cb.dataset.category;
+      const gradeEl=document.querySelector('select[data-grade-key="'+CSS.escape(cb.dataset.subjectKey)+'"]');
+      out.push({level,subject,category,grade:gradeEl?gradeEl.value:"not_available"});
+    });
+    return out;
+  }
+  function renderSubjects(){
+    const host=document.getElementById("spSubjectSelector");
+    if(!host||!tax())return;
+    const grades=['<option value="not_available">Not available yet</option>'].concat(tax().gradeOptions.map(g=>'<option value="'+g+'">'+g+'</option>')).join("");
+    const groups=["H2","H1","H3","CORE"];
+    host.innerHTML=groups.map(level=>{
+      const title=level==="CORE"?"Core / Other":"Higher "+level.slice(1);
+      return '<div class="subject-group"><div class="subject-group-title">'+title+'</div><div class="subject-options">'+
+        tax().list(level).map(x=>{
+          const k=level+"__"+x.subject.replace(/[^a-z0-9]+/gi,"_");
+          return '<div class="subject-option"><label><input type="checkbox" data-subject-key data-subject-key-value="'+k+'" data-subject-key="'+k+'" data-level="'+esc(x.level)+'" data-subject="'+esc(x.subject)+'" data-category="'+esc(x.category)+'"> '+esc(x.subject)+'</label><select data-grade-key="'+k+'" disabled>'+grades+'</select></div>';
+        }).join("")+'</div></div>';
+    }).join("");
+    host.querySelectorAll("input[data-subject-key]").forEach(cb=>{
+      cb.addEventListener("change",()=>{
+        const sel=host.querySelector('select[data-grade-key="'+CSS.escape(cb.dataset.subjectKey)+'"]');
+        if(sel)sel.disabled=!cb.checked;
+        if(cb.checked&&sel&&sel.value==="not_available")sel.value="not_available";
+      });
+    });
+  }
 
   const labels={
     strong:"Strong",
@@ -55,8 +86,8 @@
       currentLevel:read("spLevel")||read("level")||"Not specified",
       qualification:read("spQualification"),
       academicProfile:read("spAcademicProfile"),
-      subjects:split("spSubjects"),
-      strengths:split("spStrengths"),
+      subjects:selectedSubjects(),
+      strengths:[],
       weakTopics:split("spWeakTopics"),
       readiness,
       activities
@@ -64,7 +95,10 @@
 
     const base=window.APLUS_MASTER_PROFILE.create(raw);
     base.studentName=read("studentName")||"";
-    base.schemaVersion="3.0";
+    const graded=base.profile.subjects.filter(x=>x.grade&&x.grade!=="not_available");
+    base.profile.strengths=graded.filter(x=>["A","B"].includes(x.grade)).map(x=>x.level+" "+x.subject);
+    base.profile.weakTopics=split("spWeakTopics");
+    base.schemaVersion="4.0";
     base.profile.profileCompleteness={
       subjects:base.profile.subjects.length>0,
       academicDescription:!!base.profile.academicProfile,
@@ -138,7 +172,7 @@
     const base=collect();
     const diag=diagnosticState(base);
     base.diagnostic01={
-      version:"3.0",
+      version:"4.0",
       completedAt:new Date().toISOString(),
       dimensions:diag.state,
       nextActions:diag.next
@@ -213,7 +247,7 @@
       '.diag-box{border:1px solid #e8ebf2;border-radius:14px;padding:15px;background:#fff}'+
       '.diag-box.good{border-color:#ccebdd;background:#f2fbf6}.diag-box.warn{border-color:#f5dfb5;background:#fff9ed}.diag-box.mid{border-color:#dbe4ff;background:#f7f9ff}.diag-box.neutral{background:#fafbfc}'+
       '.diag-label{font-size:12px;font-weight:850}.diag-status{font-size:11px;color:#667085;margin-top:6px}'+
-      '.sp2-callout{margin-top:14px;padding:14px;border-radius:12px;background:#fff7e8;border:1px solid #f5dfb5;font-size:11px;line-height:1.6}.sp2-callout.good{background:#eaf7f1;border-color:#ccebdd}.sp2-callout ul{margin:7px 0 0;padding-left:18px}.sp2-callout li{margin:4px 0}.sp2-foot{font-size:10px;color:#98a2b3;margin-top:13px}'+
+      '.sp2-callout{margin-top:14px;padding:14px;border-radius:12px;background:#fff7e8;border:1px solid #f5dfb5;font-size:11px;line-height:1.6}.sp2-callout.good{background:#eaf7f1;border-color:#ccebdd}.sp2-callout ul{margin:7px 0 0;padding-left:18px}.sp2-callout li{margin:4px 0}.sp2-foot{font-size:10px;color:#98a2b3;margin-top:13px}.subject-group{border:1px solid #e8ebf2;border-radius:14px;padding:14px;margin:9px 0;background:#fbfcfe}.subject-group-title{font-size:12px;font-weight:900;margin-bottom:9px}.subject-options{display:grid;grid-template-columns:repeat(2,1fr);gap:7px}.subject-option{display:grid;grid-template-columns:1fr 78px;gap:6px;align-items:center;padding:7px 8px;background:#fff;border:1px solid #edf0f5;border-radius:9px}.subject-option label{font-size:11px;margin:0;font-weight:650}.subject-option select{padding:7px 6px;font-size:11px}.sp-auto-note{font-size:11px;color:#667085;line-height:1.5;padding:11px;border:1px dashed #dbe1eb;border-radius:10px;background:#fafbfc}@media(max-width:700px){.subject-options{grid-template-columns:1fr}}'+
       '@media(max-width:700px){.sp2-stats{grid-template-columns:1fr 1fr}.sp2-header{flex-direction:column}.diag-grid{grid-template-columns:1fr}}';
     document.head.appendChild(s);
   }
@@ -237,10 +271,10 @@
       '<div class="formgrid">'+
         '<div><label>Current education level</label><select id="spLevel"><option>Primary</option><option>Secondary 1</option><option>Secondary 2</option><option>Secondary 3</option><option>Secondary 4</option><option>JC 1</option><option>JC 2</option><option>Poly Year 1</option><option>Poly Year 2</option><option>Poly Year 3</option></select></div>'+
         '<div><label>Qualification pathway</label><select id="spQualification"><option>A-Level</option><option>IB</option><option>NUS High School Diploma</option><option>Polytechnic Diploma</option><option>Other / undecided</option></select></div>'+
-        '<div style="grid-column:1/-1"><label>Current / planned subjects</label><input id="spSubjects" placeholder="e.g. H2 Chemistry, H2 Biology, H1 GP"></div>'+
+        '<div style="grid-column:1/-1"><label>Current / planned subjects</label><p style="font-size:11px;color:#667085;margin:0 0 10px">Select from the structured Singapore GCE A-Level subject list. Add grades where available.</p><div id="spSubjectSelector"></div></div>'+
         '<div style="grid-column:1/-1"><label>Academic profile</label><input id="spAcademicProfile" placeholder="Include recent grades, grade trend, learning strengths and key gaps"></div>'+
-        '<div><label>Strengths</label><input id="spStrengths" placeholder="e.g. communication, mathematics"></div>'+
-        '<div><label>Weak topics / gaps</label><input id="spWeakTopics" placeholder="e.g. organic chemistry, time management"></div>'+
+        '<div><label>Academic strengths</label><div class="sp-auto-note">Calculated from selected subject grades (A/B). You do not need to type this.</div></div>'+
+        '<div><label>Areas to improve</label><select id="spWeakTopics" multiple style="height:110px"><option>Subject knowledge</option><option>Concept application</option><option>Data analysis</option><option>Problem solving</option><option>Essay / written response</option><option>Time management</option><option>Exam technique</option><option>Revision consistency</option><option>Not identified yet</option></select>'+
         '<div><label>Academic foundation</label><select id="spAcademic"><option value="unknown">Not assessed</option><option value="strong">Strong</option><option value="developing">Developing</option><option value="needs_work">Needs building</option></select></div>'+
         '<div><label>Assessment readiness</label><select id="spTest"><option value="unknown">Not assessed</option><option value="strong">Strong</option><option value="developing">Developing</option><option value="needs_work">Needs building</option></select></div>'+
         '<div><label>Communication readiness</label><select id="spCommunication"><option value="unknown">Not assessed</option><option value="strong">Strong</option><option value="developing">Developing</option><option value="needs_work">Needs building</option></select></div>'+
@@ -253,6 +287,7 @@
       '<div id="studentProfileResult" class="result"></div>';
 
     planner.appendChild(box);
+    renderSubjects();
   }
 
   window.APLUS_BUILD_STUDENT_PROFILE=build;
