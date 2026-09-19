@@ -96,7 +96,13 @@
       '<span class="chip">'+esc(base.target.course||"Target course not selected")+'</span>'+
       '<span class="chip">Entry '+esc(base.target.entryYear||"—")+'</span>';
     result.scrollIntoView({behavior:"smooth",block:"center"});
-    if(window.APLUS_REFRESH_PLANNING_INTELLIGENCE)setTimeout(window.APLUS_REFRESH_PLANNING_INTELLIGENCE,50);
+    if(window.APLUS_REFRESH_PLANNING_INTELLIGENCE){
+      try{ await window.APLUS_REFRESH_PLANNING_INTELLIGENCE(); }
+      catch(e){
+        const pi=document.getElementById("planningIntelligenceHost");
+        if(pi) pi.innerHTML='<div class="pi-panel"><b>Planning Intelligence refresh error</b><p>Please refresh the page and try again.</p></div>';
+      }
+    }
   }
 
   function injectStyle(){
