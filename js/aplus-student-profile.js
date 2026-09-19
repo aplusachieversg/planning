@@ -91,7 +91,7 @@
     const isUK=/^UK Medicine$/i.test(legacyTarget);
     const isAustralia=/^Australia Medicine$/i.test(legacyTarget);
     const targetUniversity=/^NUS Medicine$/i.test(legacyTarget)?"NUS":/^NTU Medicine$/i.test(legacyTarget)?"NTU":legacyTarget;
-    const targetCourse=/(Medicine)$/i.test(legacyTarget)?"Medicine":legacyTarget;
+    const targetCourse=targetField||(/(Medicine)$/i.test(legacyTarget)?"Medicine":legacyTarget);
     const targetCountry=isUK?"United Kingdom":isAustralia?"Australia":"Singapore";
 
     const raw={
