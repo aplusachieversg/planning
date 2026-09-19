@@ -108,15 +108,6 @@
     box.id="studentProfileEngine";box.className="planner";box.style.marginTop="22px";
     box.innerHTML=
       '<div class="section-title" style="text-align:left;margin-bottom:20px"><div class="eyebrow" style="color:#2563eb">STUDENT PROFILE 2.0</div><h2 style="font-size:28px">Build one profile that grows with the student.</h2><p>Capture academic context, development readiness and evidence once. APLUS can reuse the profile across multiple target courses and planning cycles.</p></div>'+
-      '<div class="section-title" style="text-align:left;margin:26px 0 16px"><div class="eyebrow" style="color:#2563eb">TARGET PLANNING</div><h3 style="font-size:20px;margin:7px 0">Define the target before analysing the gap.</h3><p>Select the target university, programme and entry year. This becomes the planning anchor for requirements and next-step recommendations.</p></div>'+
-      '<div class="formgrid">'+
-      '<div><label>Target field</label><select id="targetField"><option value="">Select field</option><option>Medicine</option><option>Dentistry</option><option>Law</option><option>Business</option><option>Computer Science</option><option>Computer Engineering</option><option>Engineering</option><option>Other</option></select></div>'+
-      '<div><label>Target university</label><select id="targetUniversity"><option value="">Select university</option><option>NUS</option><option>NTU</option><option>Other Singapore University</option><option>UK University</option><option>Australian University</option><option>Other</option></select></div>'+
-      '<div><label>Target programme / course</label><input id="targetCourse" placeholder="e.g. Medicine (MBBS)"></div>'+
-      '<div><label>Target country</label><select id="targetCountry"><option>Singapore</option><option>United Kingdom</option><option>Australia</option><option>United States</option><option>Other</option></select></div>'+
-      '<div><label>Entry year</label><select id="entryYear"><option>2026</option><option>2027</option><option>2028</option><option>2029</option><option>2030</option></select></div>'+
-      '<div><label>Scholarship interest</label><select id="targetScholarship"><option value="">Not decided</option><option value="yes">Yes</option><option value="no">No</option></select></div>'+
-      '<div style="grid-column:1/-1"><hr style="border:0;border-top:1px solid #e8ebf2;margin:4px 0 2px"></div>'+
       '<div><label>Current education level</label><select id="spLevel"><option>Primary</option><option>Secondary 1</option><option>Secondary 2</option><option>Secondary 3</option><option>Secondary 4</option><option>JC 1</option><option>JC 2</option><option>Poly Year 1</option><option>Poly Year 2</option><option>Poly Year 3</option></select></div>'+
       '<div><label>Qualification pathway</label><select id="spQualification"><option>A-Level</option><option>IB</option><option>NUS High School Diploma</option><option>Polytechnic Diploma</option><option>Other / undecided</option></select></div>'+
       '<div style="grid-column:1/-1"><label>Current / planned subjects</label><input id="spSubjects" placeholder="e.g. H2 Chemistry, H2 Biology, H1 GP"></div>'+
