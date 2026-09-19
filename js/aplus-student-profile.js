@@ -56,8 +56,15 @@
     }catch(e){}
   }
 
-  function build(){
+  async function build(){
     const base=collect(); save(base);
+    let dbSync="local_only";
+    if(window.APLUS_DATABASE&&window.APLUS_DATABASE.saveStudentProfile){
+      const db=await window.APLUS_DATABASE.saveStudentProfile(base);
+      dbSync=db.ok?"synced":(db.code||"not_synced");
+      base.metadata.databaseSync=dbSync;
+      save(base);
+    }
     const rr=window.APLUS_MASTER_PROFILE.readiness(base);
     const result=document.getElementById("studentProfileResult");
     if(!result)return;
