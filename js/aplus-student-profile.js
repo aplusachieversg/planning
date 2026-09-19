@@ -85,9 +85,9 @@
     };
 
     const targetField=read("spTargetField")||"Medicine";
-    const targetUniversity=read("spTargetUniversity")||"Not decided yet";
+    const targetUniversityRaw=read("spTargetUniversity")||"Not decided yet";
     const targetEntryYear=read("spEntryYear")||"2027";
-    const legacyTarget=targetUniversity;
+    const legacyTarget=targetUniversityRaw;
     const isUK=/^UK Medicine$/i.test(legacyTarget);
     const isAustralia=/^Australia Medicine$/i.test(legacyTarget);
     const targetUniversity=/^NUS Medicine$/i.test(legacyTarget)?"NUS":/^NTU Medicine$/i.test(legacyTarget)?"NTU":legacyTarget;
@@ -96,7 +96,7 @@
 
     const raw={
       field:targetField,
-      university:/^NUS Medicine$/i.test(targetUniversity)?"NUS":/^NTU Medicine$/i.test(targetUniversity)?"NTU":targetUniversity,
+      university:targetUniversity,
       course:targetCourse,
       country:targetCountry,
       entryYear:targetEntryYear||read("dbEntryYear")||"2027",
