@@ -11,24 +11,48 @@
   function assess(profile){
     const t=profile.target||{}, p=profile.profile||{}, r=profile.readiness||{};
     const req=(window.APLUS_REQUIREMENTS&&window.APLUS_REQUIREMENTS.get(t.university,t.course,t.entryYear))||[];
-    const subjects=arr(p.subjects).join(" ").toLowerCase();
+    const subjects=arr(p.subjects);
+    const norm=v=>String(v||"").toLowerCase().replace(/[^a-z0-9]+/g," ");
+    const subjectText=subjects.map(norm).join(" ");
+    const hasSubject=(...terms)=>terms.some(term=>subjectText.includes(norm(term)));
     const items=[];
+
     req.forEach(x=>{
-      const text=(String(x.requirement||"")+" "+String(x.threshold||"")).toLowerCase();
+      const text=norm(String(x.requirement||"")+" "+String(x.threshold||""));
       const targetYearStatus=x.status==="pending"?"reference_pending":"verified";
       let evidenceStatus="unknown", evidenceReason="Student evidence has not yet been assessed.";
-      if(/ucat/.test(text)){
-        if(/not required/.test(text)){evidenceStatus="not_applicable"; evidenceReason="The latest recorded requirement states that UCAT is not required."; }
-        else { evidenceStatus=(profile.application&&profile.application.ucatScore)?"recorded":"missing"; evidenceReason=evidenceStatus==="recorded"?"A UCAT result is recorded.":"No actual UCAT result is recorded in the student profile."; }
-      }else if(/chemistry/.test(text)){
-        evidenceStatus=subjects.includes("chem")?"recorded":"missing";
-        evidenceReason=evidenceStatus==="recorded"?"Chemistry is recorded in the student's subject profile.":"Chemistry is not recorded in the student's subject profile.";
-      }else if(/biology/.test(text)){
-        evidenceStatus=subjects.includes("biolog")?"recorded":"missing";
-        evidenceReason=evidenceStatus==="recorded"?"Biology is recorded in the student's subject profile.":"Biology is not recorded in the student's subject profile.";
-      }else if(/physics/.test(text)){
-        evidenceStatus=subjects.includes("phys")?"recorded":"missing";
-        evidenceReason=evidenceStatus==="recorded"?"Physics is recorded in the student's subject profile.":"Physics is not recorded in the student's subject profile.";
+      let evidenceComponents=[];
+
+      if(x.category==="Intake"){
+        evidenceStatus="not_applicable";
+        evidenceReason="Intake size is an official programme fact, not student evidence.";
+      }else if(/ucat/.test(text)){
+        if(/not required/.test(text)){
+          evidenceStatus="not_applicable";
+          evidenceReason="The latest recorded requirement states that UCAT is not required.";
+        }else{
+          evidenceStatus=(profile.application&&profile.application.ucatScore)?"recorded":"missing";
+          evidenceReason=evidenceStatus==="recorded"?"A UCAT result is recorded.":"No actual UCAT result is recorded in the student profile.";
+        }
+      }else if(x.category==="Academic"){
+        const chemistry=hasSubject("chemistry","chem");
+        const biology=hasSubject("biology","bio");
+        const physics=hasSubject("physics","phys");
+        const h2Count=subjects.filter(s=>/h2/i.test(String(s))).length;
+        const gp=hasSubject("general paper","gp");
+        evidenceComponents=[
+          ["H2 Chemistry",chemistry?"recorded":"missing"],
+          ["H2 Biology / Physics",(biology||physics)?"recorded":"missing"],
+          ["3 H2 content subjects",h2Count>=3?"recorded":"needs_verification"],
+          ["General Paper",gp?"recorded":"needs_verification"],
+          ["Project Work","needs_verification"],
+          ["Actual grades","needs_verification"]
+        ];
+        const hardMissing=evidenceComponents.some(x=>x[1]==="missing");
+        evidenceStatus=hardMissing?"missing":"recorded";
+        evidenceReason=hardMissing
+          ?"One or more required subject components are not recorded in the student profile."
+          :"Required subject evidence is recorded; grades, Project Work and final eligibility still require verification.";
       }else if(/personal statement/.test(text)){
         evidenceStatus=profile.application&&profile.application.personalStatementReady?"recorded":"missing";
         evidenceReason=evidenceStatus==="recorded"?"Personal statement readiness is recorded.":"Personal statement readiness has not yet been evidenced.";
@@ -36,18 +60,16 @@
         evidenceStatus=(profile.application&&Number(profile.application.refereeCount)>=2)?"recorded":"missing";
         evidenceReason=evidenceStatus==="recorded"?"Two or more referees are recorded.":"The required referee evidence is not yet recorded.";
       }else if(/fsa|mmi/.test(text)){
-        evidenceStatus=r.communication==="strong"?"recorded":r.communication==="developing"?"developing":"unknown";
-        evidenceReason="Communication readiness is a planning indicator, not an admission prediction.";
+        evidenceStatus=r.test==="strong"?"recorded":r.test==="developing"?"developing":r.test==="needs_work"?"missing":"unknown";
+        evidenceReason="Assessment readiness is a planning indicator, not an admission prediction.";
       }else if(x.category==="Assessment"){
-        evidenceStatus=r.test==="strong"?"recorded":r.test==="needs_work"?"missing":r.test==="developing"?"developing":"unknown";
-        evidenceReason="Assessment readiness is a planning proxy and must not be treated as an admission result.";
-      }else if(/academic|general paper|project work/.test(text)){
-        evidenceStatus=(subjects&&p.academicProfile)?"recorded":"unknown";
-        evidenceReason=evidenceStatus==="recorded"?"Academic subjects and profile evidence are recorded.":"More academic evidence is needed to assess this requirement.";
+        evidenceStatus=r.test==="strong"?"recorded":r.test==="developing"?"developing":r.test==="needs_work"?"missing":"unknown";
+        evidenceReason="Assessment readiness is a planning indicator, not an admission prediction.";
       }
+
       items.push({
         category:x.category, requirement:x.requirement, threshold:x.threshold,
-        targetYearStatus, evidenceStatus, evidenceReason,
+        targetYearStatus, evidenceStatus, evidenceReason, evidenceComponents,
         official:true, source:x.source, verified:x.verified
       });
     });
@@ -61,25 +83,30 @@
     ];
     factors.forEach(x=>{
       const evidenceStatus=x[1]==="strong"?"recorded":x[1]==="developing"?"developing":x[1]==="needs_work"?"missing":"unknown";
-      items.push({category:"APLUS planning factor",requirement:x[0],targetYearStatus:"not_applicable",evidenceStatus,evidenceReason:x[2],official:false});
+      items.push({category:"APLUS planning factor",requirement:x[0],targetYearStatus:"not_applicable",evidenceStatus,evidenceReason:x[2],official:false,evidenceComponents:[]});
     });
 
     const evidence={recorded:0,developing:0,missing:0,unknown:0,not_applicable:0};
     const verification={verified:0,reference_pending:0};
-    items.forEach(x=>{ evidence[x.evidenceStatus]=(evidence[x.evidenceStatus]||0)+1; if(x.official)verification[x.targetYearStatus]=(verification[x.targetYearStatus]||0)+1; });
+    items.forEach(x=>{
+      if(x.evidenceStatus==="recorded"||x.evidenceStatus==="developing"||x.evidenceStatus==="missing"||x.evidenceStatus==="unknown") evidence[x.evidenceStatus]++;
+      if(x.official) verification[x.targetYearStatus]=(verification[x.targetYearStatus]||0)+1;
+    });
 
-    const actions=items.filter(x=>x.evidenceStatus==="missing"||x.evidenceStatus==="developing").map(x=>({
-      priority:x.evidenceStatus==="missing"?"High":"Develop",
-      requirement:x.requirement||x.category,
-      action:x.evidenceReason
-    })).slice(0,8);
+    const actions=items.filter(x=>!x.official || x.evidenceStatus==="missing" || x.evidenceStatus==="developing")
+      .filter(x=>x.evidenceStatus==="missing"||x.evidenceStatus==="developing")
+      .map(x=>({
+        priority:x.evidenceStatus==="missing"?"High":"Develop",
+        requirement:x.requirement||x.category,
+        action:x.evidenceReason
+      }));
     items.filter(x=>x.official&&x.targetYearStatus==="reference_pending").slice(0,4).forEach(x=>actions.push({
       priority:"Monitor", requirement:x.requirement||x.category,
       action:"Verify the target-year rule when the new cycle is published; use the latest verified cycle only as a reference."
     }));
 
     return {
-      version:"1.2", completedAt:new Date().toISOString(),
+      version:"1.3", completedAt:new Date().toISOString(),
       target:{university:t.university||"",course:t.course||"",entryYear:t.entryYear||null},
       summary:{evidence,verification,total:items.length},
       items, priorityActions:actions.slice(0,8)
@@ -129,7 +156,9 @@
         const verification=x.official&&x.targetYearStatus==="reference_pending"
           ?'<br><small><b>Target-year status:</b> Reference pending — latest verified cycle shown for planning only.</small>':"";
         const source=x.official&&x.source?'<br><small>Source: '+esc(x.source)+' · Verified: '+esc(x.verified||"—")+'</small>':"";
-        return '<div style="margin:7px 0;padding:12px;border-radius:10px;background:'+bg+'"><b>'+esc(x.evidenceStatus.toUpperCase())+' · '+esc(x.category)+'</b><br>'+esc(x.requirement||"")+'<br><small>'+esc(x.evidenceReason)+'</small>'+verification+source+'</div>';
+        const components=(x.evidenceComponents&&x.evidenceComponents.length)
+          ?'<div style="margin-top:7px;padding:8px 10px;border-left:3px solid #cbd5e1;background:#ffffff88"><small>'+x.evidenceComponents.map(c=>esc(c[0])+': <b>'+esc(c[1].replace("_"," ").toUpperCase())+'</b>').join(' · ')+'</small></div>':"";
+        return '<div style="margin:7px 0;padding:12px;border-radius:10px;background:'+bg+'"><b>'+esc(x.evidenceStatus.toUpperCase())+' · '+esc(x.category)+'</b><br>'+esc(x.requirement||"")+'<br><small>'+esc(x.evidenceReason)+'</small>'+components+verification+source+'</div>';
       }).join("")+'</div>'+
       '<h4 style="margin:20px 0 8px">Priority actions</h4>'+
       '<ol>'+diagnostic.priorityActions.map(x=>'<li style="margin:8px 0"><b>'+esc(x.priority)+' · '+esc(x.requirement)+'</b><br><small>'+esc(x.action)+'</small></li>').join("")+'</ol>'+
