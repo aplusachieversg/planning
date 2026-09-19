@@ -253,7 +253,7 @@
     const s=document.createElement("style");
     s.id="sp3Styles";
     s.textContent=
-      '.sp2-header{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;margin-bottom:18px}'+
+      '.sp1-title{text-align:left;margin:0 0 24px;padding-bottom:4px}.sp1-title .eyebrow{margin-bottom:8px}.sp1-title h2{font-size:30px!important;line-height:1.2;margin:0 0 9px!important}.sp1-title p{max-width:760px;margin:0!important;line-height:1.6}.sp1-form{margin-top:4px}.sp1-form>.sp1-full{grid-column:1/-1}.sp1-form>div{min-width:0}.sp2-header{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;margin-bottom:18px}'+
       '.sp2-header h3{font-size:22px;margin:7px 0}.sp2-header p{font-size:12px;color:#667085;margin:0;line-height:1.5}'+
       '.sp2-badge{font-size:9px;font-weight:900;letter-spacing:.12em;padding:7px 9px;border-radius:999px;background:#eef2ff;color:#3157ff;white-space:nowrap}'+
       '.sp2-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:14px}'+
@@ -278,7 +278,7 @@
     box.style.marginTop="22px";
 
     box.innerHTML=
-      '<div class="section-title" style="text-align:left;margin-bottom:20px">'+
+      '<div class="section-title sp1-title">'+
         '<div class="eyebrow" style="color:#3157ff">DIAGNOSTIC 01 · STUDENT BASELINE</div>'+
         '<h2 style="font-size:28px">Understand the student before analysing the target.</h2>'+
         '<p>Capture the student\'s current academic position, development readiness and evidence baseline. This diagnostic is the starting point for every later planning analysis.</p>'+
