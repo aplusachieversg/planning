@@ -175,10 +175,18 @@
   }
   function inject(){
     injectStyle();
-    if(document.getElementById("planningIntelligence"))return;
+    let section=document.getElementById("planningIntelligence");
+    if(section){
+      if(!document.getElementById("planningIntelligenceHost")){
+        const shell=section.querySelector(".pi-shell")||section;
+        shell.innerHTML='<div id="planningIntelligenceHost"></div><button class="pi-refresh" onclick="APLUS_REFRESH_PLANNING_INTELLIGENCE()">Refresh Planning Intelligence ↻</button>';
+      }
+      refresh();
+      return;
+    }
     const dash=document.getElementById("dashboard");
     if(!dash)return;
-    const section=document.createElement("section");
+    section=document.createElement("section");
     section.id="planningIntelligence";
     section.className="aplus-intelligence";
     section.innerHTML='<div class="pi-shell"><div id="planningIntelligenceHost"></div><button class="pi-refresh" onclick="APLUS_REFRESH_PLANNING_INTELLIGENCE()">Refresh Planning Intelligence ↻</button></div>';
