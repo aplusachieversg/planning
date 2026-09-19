@@ -4,8 +4,8 @@
 */
 (function(){
   const CONFIG = window.APLUS_DB_CONFIG || {
-    url: "YOUR_SUPABASE_PROJECT_URL",
-    anonKey: "YOUR_SUPABASE_ANON_KEY"
+    url: "https://cbtzzkfcukkjmskvdngc.supabase.co",
+    anonKey: "sb_publishable_zKnEj0AjLYDwUu3vGAnyPw_H0RNIG99"
   };
   window.APLUS_DB_CONFIG = CONFIG;
   const ready = !!CONFIG.url && !!CONFIG.anonKey &&
