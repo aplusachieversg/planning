@@ -52,4 +52,64 @@ function loadAPLUSDatabase(){
     });
 }
 loadAPLUSDatabase();
+</script><script>
+(function(){
+  var planner=document.getElementById("planner");
+  if(!planner || document.getElementById("evidencePanel")) return;
+  var panel=document.createElement("div");
+  panel.id="evidencePanel";
+  panel.style.cssText="margin-top:22px;padding:22px;border:1px solid #dbe4f2;border-radius:16px;background:#f8fbff";
+  panel.innerHTML='<h3 style="margin:0 0 6px">Requirement Evidence</h3><p style="margin:0 0 18px;color:#647084;font-size:13px">Tell APLUS what is already completed. The engine compares these facts with the verified target requirements.</p>'+
+  '<div class="formgrid">'+
+  '<div><label>Qualification pathway</label><select id="qualification"><option>Singapore-Cambridge GCE A-Level</option><option>IB Diploma</option><option>NUS High School Diploma</option><option>Local Polytechnic Diploma</option><option>Relevant international qualifications</option></select></div>'+
+  '<div><label>First-choice course</label><select id="firstChoice"><option>Medicine</option><option>Another course</option><option>Not decided</option></select></div>'+
+  '<div style="grid-column:1/-1"><label>Completed / planned subjects</label><select id="evidenceSubjects" multiple size="5" style="width:100%;padding:10px;border:1px solid #dbe1eb;border-radius:11px;background:#fff"><option>H2 Chemistry</option><option>H2 Biology</option><option>H2 Physics</option><option>HL Chemistry</option><option>HL Biology</option><option>HL Physics</option></select><small style="color:#7a8496">Hold Ctrl/Cmd to select more than one.</small></div>'+
+  '<div><label>UCAT</label><select id="ucatStatus"><option>Not taken</option><option>Taken</option></select></div>'+
+  '<div><label>Referee reports</label><select id="refereeCount"><option>0</option><option>1</option><option>2</option></select></div>'+
+  '<div><label>Personal Statement</label><select id="psReady"><option>No</option><option>Yes</option></select></div>'+
+  '<div><label>MMI / FSA preparation</label><select id="assessmentReady"><option>Not yet</option><option>Started</option><option>Ready</option></select></div>'+
+  '</div>';
+  var btn=planner.querySelector(".next");
+  btn.parentNode.insertBefore(panel,btn);
+
+  window.generate=function(){
+    var l=document.getElementById("level").value,fld=document.getElementById("field").value,u=document.getElementById("uni").value,a=document.getElementById("academic").value,y=document.getElementById("entryYear").value;
+    var subjects=Array.from(document.getElementById("evidenceSubjects").selectedOptions).map(function(o){return o.value});
+    var student={
+      qualification:document.getElementById("qualification").value,
+      subjects:subjects,
+      testsTaken:document.getElementById("ucatStatus").value==="Taken"?["UCAT"]:[],
+      firstChoice:document.getElementById("firstChoice").value,
+      refereeCount:Number(document.getElementById("refereeCount").value),
+      personalStatementReady:document.getElementById("psReady").value==="Yes",
+      mmiReady:document.getElementById("assessmentReady").value==="Ready",
+      fsaReady:document.getElementById("assessmentReady").value==="Ready"
+    };
+    var target={university:u==="NTU Medicine"?"NTU":u==="NUS Medicine"?"NUS":u,course:"Medicine",entryYear:Number(y)};
+    var db=window.APLUS_DB||{};
+    var analysis=(window.APLUS_RULES&&db.loaded)?window.APLUS_RULES.buildGapAnalysis(db,target,student):null;
+    var result=document.getElementById("result");
+    result.style.display="block";
+    if(analysis && analysis.status==="ok"){
+      var s=analysis.summary;
+      document.getElementById("scorecard").innerHTML='<h3>APLUS Requirement Gap Analysis</h3><p><b>'+s.met+'</b> met · <b>'+s.missing+'</b> missing · <b>'+s.unknown+'</b> need verification. This is a planning analysis, not an admissions prediction.</p>'+
+      analysis.gaps.filter(function(g){return g.status!=="not_applicable"}).map(function(g){
+        var icon=g.status==="met"?"✓":g.status==="missing"?"!":"?";
+        var bg=g.status==="met"?"#eaf7f1":g.status==="missing"?"#fff4e5":"#eef2ff";
+        return '<div style="padding:12px;margin:7px 0;border-radius:10px;background:'+bg+'"><b>'+icon+' '+g.requirement+'</b><br><small>'+g.reason+' '+(g.rule||"")+'</small></div>';
+      }).join("");
+      document.getElementById("summary").textContent="Target: "+u+" · Entry year: "+y+" · Qualification: "+student.qualification;
+      document.getElementById("chips").innerHTML='<span class="chip">'+l+'</span><span class="chip">'+fld+'</span><span class="chip">'+u+'</span><span class="chip">Entry '+y+'</span>';
+      document.getElementById("actions").innerHTML=analysis.actions.map(function(x){return '<li><b>'+x.priority.toUpperCase()+'</b> — '+x.title+'<br><small>'+x.description+'</small></li>'}).join("")||"<li>No unresolved requirement gaps recorded.</li>";
+      var timeline=window.APLUS_RULES.getTimeline(db,target);
+      document.getElementById("roadmapList").innerHTML=(timeline.length?timeline:[{title:"Profile review",window:"Now",studentAction:"Complete and verify your student evidence."}]).map(function(v,i){return '<div class="rstep"><div class="ryear">'+String(i+1).padStart(2,"0")+'</div><div><div class="rtitle">'+v.title+'</div><div class="rdesc">'+(v.window||"")+ " · "+(v.studentAction||"")+'</div></div><div class="rstatus">'+(v.status==="published_window"?"DATE":"PLAN")+'</div></div>'}).join("");
+    }else{
+      document.getElementById("scorecard").innerHTML='<h3>Planning Snapshot</h3><p>The selected target does not yet have a verified APLUS database record for this entry year. No requirement has been invented.</p>';
+      document.getElementById("summary").textContent="Target: "+u+" · Entry year: "+y;
+      document.getElementById("actions").innerHTML="<li>Add or verify the target-year requirements before relying on the plan.</li>";
+    }
+    result.scrollIntoView({behavior:"smooth",block:"center"});
+    if(u==="NTU Medicine") openNTU();
+  };
+})();
 </script></body></html>
