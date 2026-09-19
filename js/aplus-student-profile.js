@@ -16,10 +16,16 @@
       communication:read("spCommunication")||"unknown",leadership:read("spLeadership")||"unknown",
       service:read("spService")||"unknown",application:read("spApplication")||"unknown"
     };
+    const legacyTarget=read("uni");
+    const isUK=/^UK Medicine$/i.test(legacyTarget);
+    const isAustralia=/^Australia Medicine$/i.test(legacyTarget);
+    const targetUniversity=/^NUS Medicine$/i.test(legacyTarget)?"NUS":/^NTU Medicine$/i.test(legacyTarget)?"NTU":legacyTarget;
+    const targetCourse=/(Medicine)$/i.test(legacyTarget)?"Medicine":legacyTarget;
+    const targetCountry=isUK?"United Kingdom":isAustralia?"Australia":"Singapore";
     const raw={
-      field:read("targetField")||read("field"),university:read("targetUniversity")||read("uni"),course:read("targetCourse")||read("uni"),
-      country:read("targetCountry")||"Singapore",entryYear:read("entryYear")||read("dbEntryYear")||"2027",
-      scholarship:read("targetScholarship"),currentLevel:read("spLevel"),qualification:read("spQualification"),
+      field:read("field"),university:targetUniversity,course:targetCourse,
+      country:targetCountry,entryYear:read("entryYear")||read("dbEntryYear")||"2027",
+      scholarship:read("targetScholarship"),currentLevel:read("spLevel")||read("level"),qualification:read("spQualification"),
       academicProfile:read("spAcademicProfile"),subjects:split("spSubjects"),strengths:split("spStrengths"),
       weakTopics:split("spWeakTopics"),readiness,activities
     };
