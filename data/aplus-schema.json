@@ -1,0 +1,298 @@
+{
+  "schemaVersion": "1.0",
+  "schemaName": "APLUS MASTER DATABASE SCHEMA",
+  "purpose": "Evidence-first academic planning from target course to dated student actions.",
+  "principles": [
+    "Every requirement is scoped by university, course, entry year, applicant type and qualification.",
+    "Current facts and historical facts are stored separately.",
+    "Not disclosed is never converted to zero.",
+    "Official evidence is primary; analysis and APLUS model factors are separate.",
+    "AI explains verified records and rules-engine outputs; it does not invent requirements."
+  ],
+  "layers": {
+    "target": {
+      "required": [
+        "country",
+        "university",
+        "school",
+        "course",
+        "degree",
+        "entryYear",
+        "applicantType",
+        "citizenship",
+        "qualification"
+      ],
+      "fields": {
+        "country": "string",
+        "university": "string",
+        "school": "string",
+        "course": "string",
+        "degree": "string",
+        "entryYear": "integer",
+        "applicantType": "enum:local|international|transfer|other",
+        "citizenship": "enum:Singapore Citizen|Singapore PR|International|Other",
+        "qualification": "string",
+        "pathway": "string|null",
+        "status": "enum:current|historical|planned"
+      }
+    },
+    "academic": {
+      "fields": {
+        "subject": "string",
+        "level": "string",
+        "required": "boolean",
+        "requirementStatus": "enum:required|recommended|accepted_alternative|not_applicable",
+        "minimumGrade": "string|null",
+        "prerequisite": "string|null",
+        "qualificationRule": "string|null",
+        "predictedGradeRule": "string|null",
+        "retakeRule": "string|null",
+        "subjectCombination": "string|null",
+        "effectiveFrom": "integer|null",
+        "effectiveTo": "integer|null",
+        "sourceId": "string"
+      }
+    },
+    "test": {
+      "fields": {
+        "testName": "string",
+        "required": "boolean",
+        "applicantScope": "string",
+        "registrationOpen": "date|null",
+        "registrationClose": "date|null",
+        "testWindowStart": "date|null",
+        "testWindowEnd": "date|null",
+        "validityRule": "string|null",
+        "acceptedCycle": "string|null",
+        "minimumThreshold": "string|null",
+        "subtests": [
+          "string"
+        ],
+        "retakePolicy": "string|null",
+        "resultSubmissionRule": "string|null",
+        "sourceId": "string"
+      }
+    },
+    "application": {
+      "fields": {
+        "platform": "string",
+        "openDate": "date|null",
+        "closeDate": "date|null",
+        "closeTime": "string|null",
+        "firstChoiceRule": "string|null",
+        "documents": [
+          "string"
+        ],
+        "personalStatementWordLimit": "integer|null",
+        "refereeCount": "integer|null",
+        "refereeDeadline": "date|null",
+        "portfolioFields": [
+          "string"
+        ],
+        "fee": "string|null",
+        "formatRule": "string|null",
+        "lateRule": "string|null",
+        "sourceId": "string"
+      }
+    },
+    "assessment": {
+      "fields": {
+        "stage": "string",
+        "trigger": "string",
+        "format": "string",
+        "stations": "integer|null",
+        "duration": "string|null",
+        "domains": [
+          "string"
+        ],
+        "shortlistingRule": "string|null",
+        "scoringRule": "string|null",
+        "preparationLeadTime": "string|null",
+        "sourceId": "string"
+      }
+    },
+    "scholarship": {
+      "fields": {
+        "name": "string",
+        "university": "string",
+        "course": "string",
+        "entryYear": "integer|null",
+        "citizenship": [
+          "string"
+        ],
+        "prStatus": "enum:eligible|not_eligible|conditional|unknown",
+        "academicThreshold": "string|null",
+        "financialNeed": "enum:required|preferred|not_required|unknown",
+        "leadership": "enum:required|preferred|not_required|unknown",
+        "service": "enum:required|preferred|not_required|unknown",
+        "sportingAchievement": "enum:required|preferred|not_required|unknown",
+        "benefitAmount": "string|null",
+        "tuitionCoverage": "string|null",
+        "livingAllowance": "string|null",
+        "otherAllowance": "string|null",
+        "duration": "string|null",
+        "bond": "string|null",
+        "bondingOrganisation": "string|null",
+        "renewalRule": "string|null",
+        "terminationRule": "string|null",
+        "applicationMethod": "string|null",
+        "interview": "enum:yes|no|same_admissions_assessment|unknown",
+        "annualAwardCount": "integer|null",
+        "awardCountStatus": "enum:official_annual_quota|official_new_entrant_count|historical_count_only|not_disclosed|unclear",
+        "historicalRecipients": "string|null",
+        "sourceId": "string",
+        "lastVerified": "date",
+        "confidence": "enum:high|medium|low"
+      }
+    },
+    "timeline": {
+      "fields": {
+        "eventId": "string",
+        "targetId": "string",
+        "eventType": "enum:information|registration|preparation|test|application|document|assessment|offer|acceptance|financial_aid",
+        "title": "string",
+        "start": "date|null",
+        "end": "date|null",
+        "studentAction": "string",
+        "dependency": [
+          "string"
+        ],
+        "status": "enum:known|estimated|not_published",
+        "sourceId": "string"
+      }
+    },
+    "student": {
+      "fields": {
+        "school": "string|null",
+        "currentLevel": "string",
+        "currentYear": "string|null",
+        "qualification": "string|null",
+        "citizenship": "string|null",
+        "subjects": [
+          "string"
+        ],
+        "currentGrades": "object",
+        "predictedGrades": "object",
+        "targetGrades": "object",
+        "trend": "enum:improving|stable|declining|unknown",
+        "weakTopics": [
+          "string"
+        ],
+        "strongTopics": [
+          "string"
+        ],
+        "studyHoursPerWeek": "number|null",
+        "testExperience": [
+          "string"
+        ],
+        "leadershipEvidence": [
+          "string"
+        ],
+        "serviceEvidence": [
+          "string"
+        ],
+        "competitionEvidence": [
+          "string"
+        ],
+        "medicineExposure": [
+          "string"
+        ],
+        "reflectionEvidence": [
+          "string"
+        ],
+        "communicationReadiness": "enum:strong|developing|unknown",
+        "interviewReadiness": "enum:strong|developing|unknown"
+      }
+    },
+    "evidence": {
+      "fields": {
+        "evidenceId": "string",
+        "category": "enum:leadership|service|teamwork|competition|work_experience|medicine_exposure|academic|communication|other",
+        "organisation": "string|null",
+        "role": "string|null",
+        "startDate": "date|null",
+        "endDate": "date|null",
+        "duration": "string|null",
+        "responsibilities": [
+          "string"
+        ],
+        "impact": [
+          "string"
+        ],
+        "learningReflection": "string|null",
+        "verificationSource": "string|null",
+        "qualityStatus": "enum:verified|self_reported|needs_verification"
+      }
+    },
+    "gap": {
+      "fields": {
+        "gapId": "string",
+        "targetId": "string",
+        "studentField": "string",
+        "requirementId": "string|null",
+        "status": "enum:met|partial|missing|unknown",
+        "priority": "enum:critical|high|medium|low",
+        "reason": "string",
+        "evidenceNeeded": [
+          "string"
+        ],
+        "recommendedActionIds": [
+          "string"
+        ]
+      }
+    },
+    "action": {
+      "fields": {
+        "actionId": "string",
+        "title": "string",
+        "description": "string",
+        "category": "string",
+        "startDate": "date|null",
+        "deadline": "date|null",
+        "dependsOn": [
+          "string"
+        ],
+        "completionStandard": "string",
+        "linkedGapIds": [
+          "string"
+        ],
+        "sourceId": "string|null"
+      }
+    },
+    "source": {
+      "fields": {
+        "sourceId": "string",
+        "institution": "string",
+        "title": "string",
+        "url": "string",
+        "publicationDate": "date|null",
+        "effectiveDate": "date|null",
+        "lastVerified": "date",
+        "sourceType": "enum:official_admissions|official_scholarship|official_annual_report|official_news|official_donor_material|secondary_analysis",
+        "status": "enum:current|historical|superseded",
+        "confidence": "enum:high|medium|low",
+        "notes": "string|null"
+      }
+    }
+  },
+  "enums": {
+    "evidenceStatus": [
+      "verified",
+      "self_reported",
+      "needs_verification"
+    ],
+    "disclosure": [
+      "official_annual_quota",
+      "official_new_entrant_count",
+      "historical_count_only",
+      "not_disclosed",
+      "unclear"
+    ],
+    "priority": [
+      "critical",
+      "high",
+      "medium",
+      "low"
+    ]
+  }
+}
