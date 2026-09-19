@@ -23,7 +23,7 @@
       academicProfile:read("spAcademicProfile"),subjects:split("spSubjects"),strengths:split("spStrengths"),
       weakTopics:split("spWeakTopics"),readiness,activities
     };
-    const base=window.APLUS_MASTER_PROFILE.create(raw);
+    const base=window.APLUS_MASTER_PROFILE.create(raw);\n    base.studentName=read("studentName")||"";
     base.schemaVersion="2.0";
     base.profile.profileCompleteness={
       subjects:base.profile.subjects.length>0,
@@ -69,7 +69,7 @@
       '<div class="sp2-stats"><div><b>'+esc(rr.known)+'/6</b><span>readiness dimensions assessed</span></div><div><b>'+esc(a.total)+'</b><span>activities recorded</span></div><div><b>'+esc(a.withOutcome)+'</b><span>activities with outcomes</span></div><div><b>'+esc(a.withReflection)+'</b><span>activities with reflection</span></div></div>'+
       '<div class="pgrid">'+rr.items.map(x=>'<div class="pbox"><b>'+esc(x[0])+'</b><br><span class="status">'+esc(labels[x[1]]||x[1])+'</span></div>').join("")+'</div>'+
       (gaps.length?'<div class="sp2-callout"><b>Evidence to clarify next</b><div>'+esc(gaps.map(x=>x[0]).join(" · "))+'</div></div>':'<div class="sp2-callout good"><b>Core readiness recorded</b><div>Next step: map this profile against the target-year requirements and Planning Intelligence.</div></div>')+
-      '<div class="sp2-foot">Last updated '+esc(new Date().toLocaleDateString("en-SG"))+' · '+esc(base.studentId)+'</div>';
+      '<div class="sp2-foot">Database sync: '+esc(base.metadata.databaseSync||"local_only")+' · Last updated '+esc(new Date().toLocaleDateString("en-SG"))+' · '+esc(base.studentId)+'</div>';
     const summary=document.getElementById("spSummary");
     if(summary)summary.innerHTML=
       '<span class="chip">'+esc(base.profile.currentLevel||"Level not recorded")+'</span>'+
