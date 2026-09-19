@@ -28,13 +28,13 @@
       return '<div class="subject-group"><div class="subject-group-title">'+title+'</div><div class="subject-options">'+
         tax().list(level).map(x=>{
           const k=level+"__"+x.subject.replace(/[^a-z0-9]+/gi,"_");
-          return '<div class="subject-option"><label><input type="checkbox" data-subject-key data-subject-key-value="'+k+'" data-subject-key="'+k+'" data-level="'+esc(x.level)+'" data-subject="'+esc(x.subject)+'" data-category="'+esc(x.category)+'"> '+esc(x.subject)+'</label><select data-grade-key="'+k+'" disabled>'+grades+'</select></div>';
+          return '<div class="subject-option"><label><input type="checkbox" data-subject-key data-subject-key-value="'+k+'" data-subject-key="'+k+'" data-level="'+esc(x.level)+'" data-subject="'+esc(x.subject)+'" data-category="'+esc(x.category)+'"> '+esc(x.subject)+'</label></div>';
         }).join("")+'</div></div>';
     }).join("");
     host.querySelectorAll("input[data-subject-key]").forEach(cb=>{
       cb.addEventListener("change",()=>{
         const sel=host.querySelector('select[data-grade-key="'+CSS.escape(cb.dataset.subjectKey)+'"]');
-        if(sel)sel.disabled=!cb.checked; updateSubjectSummary();
+        if(sel)sel.disabled=!cb.checked; updateSubjectSummary(); updateSubjectGrades();
         if(cb.checked&&sel&&sel.value==="not_available")sel.value="not_available";
       });
     });
@@ -53,6 +53,29 @@
     if(h2)parts.push("H2: "+h2);
     if(h3)parts.push("H3: "+h3);
     el.textContent=selected.length+" subjects selected · "+parts.join(" · ");
+  }
+
+  function updateSubjectGrades(){
+    const host=document.getElementById("spStrengthSummary");
+    if(!host)return;
+    const selected=selectedSubjects();
+    if(!selected.length){
+      host.innerHTML='<div class="sp-grade-empty">Select subjects above first.</div>';
+      return;
+    }
+    const gradeOptions=['<option value="not_available">Not available yet</option>'].concat((tax()?tax().gradeOptions:[]).map(g=>'<option value="'+g+'">'+g+'</option>')).join("");
+    host.innerHTML='<div class="sp-grade-list">'+selected.map(x=>{
+      const k=x.level+"__"+x.subject.replace(/[^a-z0-9]+/gi,"_");
+      return '<div class="sp-grade-row"><div><span class="sp-grade-level">'+esc(x.level)+'</span><span class="sp-grade-subject">'+esc(x.subject)+'</span></div><select data-grade-key="'+esc(k)+'">'+gradeOptions+'</select></div>';
+    }).join("")+'</div>';
+    selected.forEach(x=>{
+      const k=x.level+"__"+x.subject.replace(/[^a-z0-9]+/gi,"_");
+      const el=host.querySelector('select[data-grade-key="'+CSS.escape(k)+'"]');
+      if(el){
+        el.value=x.grade||"not_available";
+        el.addEventListener("change",()=>{ updateSubjectSummary(); });
+      }
+    });
   }
 
   const labels={
@@ -265,7 +288,7 @@
       '.diag-box{border:1px solid #e8ebf2;border-radius:14px;padding:15px;background:#fff}'+
       '.diag-box.good{border-color:#ccebdd;background:#f2fbf6}.diag-box.warn{border-color:#f5dfb5;background:#fff9ed}.diag-box.mid{border-color:#dbe4ff;background:#f7f9ff}.diag-box.neutral{background:#fafbfc}'+
       '.diag-label{font-size:12px;font-weight:850}.diag-status{font-size:11px;color:#667085;margin-top:6px}'+
-      '.sp2-callout{margin-top:14px;padding:14px;border-radius:12px;background:#fff7e8;border:1px solid #f5dfb5;font-size:11px;line-height:1.6}.sp2-callout.good{background:#eaf7f1;border-color:#ccebdd}.sp2-callout ul{margin:7px 0 0;padding-left:18px}.sp2-callout li{margin:4px 0}.sp2-foot{font-size:10px;color:#98a2b3;margin-top:13px}.sp-subject-toggle{width:100%;display:flex;justify-content:space-between;align-items:center;text-align:left;padding:13px 15px;border:1px solid #dbe1eb;border-radius:12px;background:#fff;font-size:12px;font-weight:750;cursor:pointer}.sp-subject-toggle:hover{border-color:#b9c4d6}.sp-subject-toggle.open{border-radius:12px 12px 0 0;border-bottom-color:#eef1f5}.sp-chevron{font-size:18px;transition:transform .2s}.sp-subject-toggle.open .sp-chevron{transform:rotate(180deg)}.sp-subject-panel{padding-top:6px}.subject-group{border:1px solid #e8ebf2;border-radius:14px;padding:14px;margin:9px 0;background:#fbfcfe}.subject-group-title{font-size:12px;font-weight:900;margin-bottom:9px}.subject-options{display:grid;grid-template-columns:repeat(2,1fr);gap:7px}.subject-option{display:grid;grid-template-columns:1fr 78px;gap:6px;align-items:center;padding:7px 8px;background:#fff;border:1px solid #edf0f5;border-radius:9px}.subject-option label{font-size:11px;margin:0;font-weight:650}.subject-option select{padding:7px 6px;font-size:11px}.sp-auto-note{font-size:11px;color:#667085;line-height:1.5;padding:11px;border:1px dashed #dbe1eb;border-radius:10px;background:#fafbfc}.sp-weak-panel{padding:8px 0}.weak-options{display:grid;grid-template-columns:repeat(2,1fr);gap:7px;padding:10px;border:1px solid #e8ebf2;border-top:0;border-radius:0 0 12px 12px;background:#fbfcfe}.weak-option{display:flex;align-items:center;gap:7px;padding:9px 10px;border:1px solid #edf0f5;border-radius:9px;background:#fff;font-size:11px;font-weight:650;cursor:pointer}.weak-option input{margin:0}.weak-option:has(input:checked){border-color:#b9c4d6;background:#f7f9ff}@media(max-width:700px){.subject-options{grid-template-columns:1fr}.weak-options{grid-template-columns:1fr}}'+
+      '.sp2-callout{margin-top:14px;padding:14px;border-radius:12px;background:#fff7e8;border:1px solid #f5dfb5;font-size:11px;line-height:1.6}.sp2-callout.good{background:#eaf7f1;border-color:#ccebdd}.sp2-callout ul{margin:7px 0 0;padding-left:18px}.sp2-callout li{margin:4px 0}.sp2-foot{font-size:10px;color:#98a2b3;margin-top:13px}.sp-subject-toggle{width:100%;display:flex;justify-content:space-between;align-items:center;text-align:left;padding:13px 15px;border:1px solid #dbe1eb;border-radius:12px;background:#fff;font-size:12px;font-weight:750;cursor:pointer}.sp-subject-toggle:hover{border-color:#b9c4d6}.sp-subject-toggle.open{border-radius:12px 12px 0 0;border-bottom-color:#eef1f5}.sp-chevron{font-size:18px;transition:transform .2s}.sp-subject-toggle.open .sp-chevron{transform:rotate(180deg)}.sp-subject-panel{padding-top:6px}.subject-group{border:1px solid #e8ebf2;border-radius:14px;padding:14px;margin:9px 0;background:#fbfcfe}.subject-group-title{font-size:12px;font-weight:900;margin-bottom:9px}.subject-options{display:grid;grid-template-columns:repeat(2,1fr);gap:7px}.subject-option{display:flex;align-items:center;padding:7px 8px;background:#fff;border:1px solid #edf0f5;border-radius:9px}.subject-option label{font-size:11px;margin:0;font-weight:650}.subject-option select{padding:7px 6px;font-size:11px}.sp-strength-summary{margin-top:9px}.sp-grade-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.sp-grade-row{display:grid;grid-template-columns:1fr 100px;gap:10px;align-items:center;padding:10px 11px;border:1px solid #e8ebf2;border-radius:10px;background:#fbfcfe}.sp-grade-row>div{min-width:0}.sp-grade-level{font-size:10px;font-weight:850;color:#667085;margin-right:6px}.sp-grade-subject{font-size:11px;font-weight:750}.sp-grade-row select{width:100%;padding:7px 6px;font-size:11px}.sp-grade-empty{padding:11px;border:1px dashed #dbe1eb;border-radius:10px;background:#fafbfc;color:#667085;font-size:11px}.sp-auto-note{font-size:11px;color:#667085;line-height:1.5;padding:11px;border:1px dashed #dbe1eb;border-radius:10px;background:#fafbfc}.sp-weak-panel{padding:8px 0}.weak-options{display:grid;grid-template-columns:repeat(2,1fr);gap:7px;padding:10px;border:1px solid #e8ebf2;border-top:0;border-radius:0 0 12px 12px;background:#fbfcfe}.weak-option{display:flex;align-items:center;gap:7px;padding:9px 10px;border:1px solid #edf0f5;border-radius:9px;background:#fff;font-size:11px;font-weight:650;cursor:pointer}.weak-option input{margin:0}.weak-option:has(input:checked){border-color:#b9c4d6;background:#f7f9ff}@media(max-width:700px){.subject-options{grid-template-columns:1fr}.weak-options{grid-template-columns:1fr}.sp-grade-list{grid-template-columns:1fr}.sp-grade-row{grid-template-columns:1fr 92px}}'+
       '@media(max-width:700px){.sp2-stats{grid-template-columns:1fr 1fr}.sp2-header{flex-direction:column}.diag-grid{grid-template-columns:1fr}}';
     document.head.appendChild(s);
   }
@@ -297,7 +320,7 @@
         '<div><label>Qualification pathway</label><select id="spQualification"><option>A-Level</option><option>IB</option><option>NUS High School Diploma</option><option>Polytechnic Diploma</option><option>Other / undecided</option></select></div>'+
         '<div class="sp1-full"><label>Current / planned subjects</label><button type="button" id="spSubjectToggle" class="sp-subject-toggle" aria-expanded="false"><span id="spSubjectSummary">Select your subjects</span><span class="sp-chevron">⌄</span></button><div id="spSubjectSelector" class="sp-subject-panel" hidden></div></div>'+
         '<div class="sp1-full"><label>Academic profile</label><input id="spAcademicProfile" placeholder="Include recent grades, grade trend, learning strengths and key gaps"></div>'+
-        '<div><label>Academic strengths</label><div class="sp-auto-note">Calculated from selected subject grades (A/B). You do not need to type this.</div></div>'+
+        '<div class="sp1-full"><label>Subject grades</label><div class="sp-auto-note">Grades are recorded for the subjects you selected above.</div><div id="spStrengthSummary" class="sp-strength-summary"><div class="sp-grade-empty">Select subjects above first.</div></div></div>'+
         '<div class="sp1-full"><label>Areas to improve</label><button type="button" id="spWeakToggle" class="sp-subject-toggle" aria-expanded="false"><span id="spWeakSummary">Select areas to improve</span><span class="sp-chevron">⌄</span></button><div id="spWeakSelector" class="sp-weak-panel" hidden><div class="weak-options"><label class="weak-option"><input type="checkbox" name="spWeakTopic" value="Subject knowledge"> <span>Subject knowledge</span></label><label class="weak-option"><input type="checkbox" name="spWeakTopic" value="Concept application"> <span>Concept application</span></label><label class="weak-option"><input type="checkbox" name="spWeakTopic" value="Data analysis"> <span>Data analysis</span></label><label class="weak-option"><input type="checkbox" name="spWeakTopic" value="Problem solving"> <span>Problem solving</span></label><label class="weak-option"><input type="checkbox" name="spWeakTopic" value="Essay / written response"> <span>Essay / written response</span></label><label class="weak-option"><input type="checkbox" name="spWeakTopic" value="Time management"> <span>Time management</span></label><label class="weak-option"><input type="checkbox" name="spWeakTopic" value="Exam technique"> <span>Exam technique</span></label><label class="weak-option"><input type="checkbox" name="spWeakTopic" value="Revision consistency"> <span>Revision consistency</span></label><label class="weak-option"><input type="checkbox" name="spWeakTopic" value="Not identified yet"> <span>Not identified yet</span></label></div></div></div><div><label>Academic foundation</label><select id="spAcademic"><option value="unknown">Not assessed</option><option value="strong">Strong</option><option value="developing">Developing</option><option value="needs_work">Needs building</option></select></div>'+
         '<div><label>Assessment readiness</label><select id="spTest"><option value="unknown">Not assessed</option><option value="strong">Strong</option><option value="developing">Developing</option><option value="needs_work">Needs building</option></select></div>'+
         '<div><label>Communication readiness</label><select id="spCommunication"><option value="unknown">Not assessed</option><option value="strong">Strong</option><option value="developing">Developing</option><option value="needs_work">Needs building</option></select></div>'+
