@@ -1,99 +1,430 @@
 {
-  "schemaVersion": "1.0",
+  "schemaVersion": "2.0",
   "lastVerified": "2026-09-19",
+  "methodology": {
+    "scope": "Medicine admissions planning for Singapore undergraduate MBBS targets.",
+    "evidenceRule": "Each atomic record carries a sourceId and verification status. Current, historical and superseded records must not be mixed.",
+    "disclosureRule": "Not publicly disclosed is distinct from zero and from historical recipient counts.",
+    "planningRule": "A gap is an actionable difference between a verified target requirement and recorded student evidence; it is not an admission prediction."
+  },
   "sources": {
     "ntuEntryRequirements": {
       "name": "NTU LKCMedicine Entry Requirements",
-      "url": "https://www.ntu.edu.sg/medicine/education/bachelor-of-medicine-and-bachelor-of-surgery-%28mbbs%29/entry-requirements"
+      "url": "https://www.ntu.edu.sg/medicine/education/bachelor-of-medicine-and-bachelor-of-surgery-%28mbbs%29/entry-requirements",
+      "sourceType": "official_admissions",
+      "status": "current",
+      "lastVerified": "2026-09-19"
     },
     "ntuHowToApply": {
       "name": "NTU How to Apply to LKCMedicine",
-      "url": "https://www.ntu.edu.sg/medicine/education/bachelor-of-medicine-and-bachelor-of-surgery-%28mbbs%29/how-to-apply-to-lkcmedicine"
+      "url": "https://www.ntu.edu.sg/medicine/education/bachelor-of-medicine-and-bachelor-of-surgery-%28mbbs%29/how-to-apply-to-lkcmedicine",
+      "sourceType": "official_admissions",
+      "status": "current",
+      "lastVerified": "2026-09-19"
     },
     "ntuAdmissionsFaq": {
       "name": "NTU LKCMedicine Admissions FAQs",
-      "url": "https://www.ntu.edu.sg/medicine/education/bachelor-of-medicine-and-bachelor-of-surgery-%28mbbs%29/admissions-faqs"
+      "url": "https://www.ntu.edu.sg/medicine/education/bachelor-of-medicine-and-bachelor-of-surgery-%28mbbs%29/admissions-faqs",
+      "sourceType": "official_admissions",
+      "status": "current",
+      "lastVerified": "2026-09-19"
     },
     "nusAdmissions": {
       "name": "NUS Medicine Admissions Assessment",
-      "url": "https://medicine.nus.edu.sg/prospective-students/nus-medicine-admissions-assessment/"
+      "url": "https://medicine.nus.edu.sg/prospective-students/nus-medicine-admissions-assessment/",
+      "sourceType": "official_admissions",
+      "status": "current",
+      "lastVerified": "2026-09-19"
     },
-    "nusHowToApply": {
-      "name": "NUS Medicine How to Apply",
-      "url": "https://medicine.nus.edu.sg/prospective-students/how-to-apply/"
+    "ntuAboutUsFaq": {
+      "name": "NTU LKCMedicine About Us FAQ",
+      "url": "https://www.ntu.edu.sg/medicine/about-us/faqs",
+      "sourceType": "official_admissions",
+      "status": "historical",
+      "lastVerified": "2026-09-19"
     },
-    "nusFacultyDates": {
-      "name": "NUS Faculty Interview and Test Dates",
-      "url": "https://nus.edu.sg/oam/admissions/faculty-interview-and-test-dates"
+    "ntuHistory2023": {
+      "name": "LKCMedicine July 2023 staff message",
+      "url": "https://www.ntu.edu.sg/medicine/news-events/magazines-and-newsletters/the-lkcmedicine-july-2023/message-from-our-staff-go-from-strength-to-strength-with-LKCMedicine",
+      "sourceType": "official_news",
+      "status": "historical",
+      "lastVerified": "2026-09-19"
     }
   },
-  "universities": [
+  "targets": [
     {
-      "id": "ntu-lkcmedicine-mbbs",
+      "targetId": "SG-NTU-LKCM-MBBS-2027",
+      "country": "Singapore",
       "university": "NTU",
       "school": "Lee Kong Chian School of Medicine",
-      "course": "MBBS",
-      "country": "Singapore",
+      "course": "Medicine",
+      "degree": "MBBS",
       "entryYear": 2027,
-      "annualIntake": { "value": 190, "status": "current_approximate", "source": "ntuAdmissionsFaq" },
-      "requirements": [
-        { "category": "Academic", "qualification": "Singapore-Cambridge GCE A-Level", "item": "H2 Chemistry", "status": "Required", "threshold": "Pass", "source": "ntuEntryRequirements" },
-        { "category": "Academic", "qualification": "Singapore-Cambridge GCE A-Level", "item": "H2 Biology or Physics", "status": "Required", "threshold": "Pass", "source": "ntuEntryRequirements" },
-        { "category": "Admissions Test", "item": "UCAT", "status": "Required", "validity": "Only results taken in the 12 months prior to admission are considered", "source": "ntuEntryRequirements" },
-        { "category": "Written", "item": "Personal Statement", "status": "Required", "threshold": "Maximum 300 words", "source": "ntuEntryRequirements" },
-        { "category": "References", "item": "Online Referee Reports", "status": "Required", "quantity": 2, "source": "ntuEntryRequirements" },
-        { "category": "Interview", "item": "Multiple Mini Interview (MMI)", "status": "Shortlisted applicants", "source": "ntuEntryRequirements" },
-        { "category": "Application", "item": "Medicine first choice", "status": "Required for consideration", "source": "ntuHowToApply" }
+      "applicantType": "local",
+      "citizenshipScope": [
+        "Singapore Citizen",
+        "Singapore PR",
+        "International"
       ],
-      "timeline": {
-        "ucat": "May to end September",
-        "application": "October to March, depending on qualification",
-        "mmi": "Around April",
-        "outcome": "Offers and waitlist are handled through NTU admissions"
+      "qualificationScopes": [
+        "Singapore-Cambridge GCE A-Level",
+        "IB Diploma",
+        "NUS High School Diploma",
+        "Local Polytechnic Diploma",
+        "Relevant international qualifications"
+      ],
+      "status": "current",
+      "intake": {
+        "value": 190,
+        "status": "current_approximate",
+        "sourceId": "ntuAdmissionsFaq"
       },
-      "selection": {
-        "criteria": ["Academic results", "UCAT results", "Personal Statement", "Referee Reports", "MMI"],
-        "source": "ntuAdmissionsFaq"
-      }
+      "requirements": [
+        {
+          "id": "NTU27-ACA-001",
+          "type": "academic",
+          "qualification": "Singapore-Cambridge GCE A-Level",
+          "subject": "H2 Chemistry",
+          "rule": "Pass",
+          "sourceId": "ntuEntryRequirements"
+        },
+        {
+          "id": "NTU27-ACA-002",
+          "type": "academic",
+          "qualification": "Singapore-Cambridge GCE A-Level",
+          "subject": "H2 Biology or H2 Physics",
+          "rule": "Pass",
+          "sourceId": "ntuEntryRequirements"
+        },
+        {
+          "id": "NTU27-ACA-003",
+          "type": "academic",
+          "qualification": "IB Diploma",
+          "subject": "HL Chemistry",
+          "rule": "Pass",
+          "sourceId": "ntuEntryRequirements"
+        },
+        {
+          "id": "NTU27-ACA-004",
+          "type": "academic",
+          "qualification": "IB Diploma",
+          "subject": "HL Biology or HL Physics",
+          "rule": "Pass",
+          "sourceId": "ntuEntryRequirements"
+        },
+        {
+          "id": "NTU27-TEST-001",
+          "type": "test",
+          "testName": "UCAT",
+          "rule": "Required; only results taken in the 12 months prior to admission are considered",
+          "sourceId": "ntuEntryRequirements"
+        },
+        {
+          "id": "NTU27-APP-001",
+          "type": "application",
+          "item": "Medicine first choice",
+          "rule": "Required for consideration",
+          "sourceId": "ntuHowToApply"
+        },
+        {
+          "id": "NTU27-APP-002",
+          "type": "application",
+          "item": "Personal Statement",
+          "rule": "Not more than 300 words; motivation/experience and leadership/teamwork",
+          "sourceId": "ntuEntryRequirements"
+        },
+        {
+          "id": "NTU27-APP-003",
+          "type": "application",
+          "item": "Referee Reports",
+          "rule": "2 online reports; one must be the specified school/personal tutor depending on qualification",
+          "sourceId": "ntuEntryRequirements"
+        },
+        {
+          "id": "NTU27-APP-004",
+          "type": "application",
+          "item": "Health requirements",
+          "rule": "Required after offer; MOH requirements may change",
+          "sourceId": "ntuEntryRequirements"
+        },
+        {
+          "id": "NTU27-APP-005",
+          "type": "application",
+          "item": "Criminal Record Declaration",
+          "rule": "Required in NTU online admissions portal",
+          "sourceId": "ntuEntryRequirements"
+        },
+        {
+          "id": "NTU27-ABA-001",
+          "type": "application",
+          "item": "ABA",
+          "rule": "Optional route for applicants with exceptional talents/achievements; essay and 1–2 appraisals",
+          "sourceId": "ntuHowToApply"
+        },
+        {
+          "id": "NTU27-ASSESS-001",
+          "type": "assessment",
+          "item": "MMI",
+          "rule": "Shortlisted applicants; around April",
+          "sourceId": "ntuEntryRequirements"
+        }
+      ],
+      "timeline": [
+        {
+          "id": "NTU27-TL-001",
+          "eventType": "test_registration",
+          "title": "UCAT registration / booking",
+          "window": "May–end September 2026",
+          "studentAction": "Register and book a valid UCAT sitting for the target admission cycle.",
+          "sourceId": "ntuHowToApply",
+          "status": "published_window"
+        },
+        {
+          "id": "NTU27-TL-002",
+          "eventType": "application",
+          "title": "NTU application",
+          "window": "October 2026–March 2027 depending on qualification",
+          "studentAction": "Submit NTU application and complete LKCMedicine-specific components.",
+          "sourceId": "ntuHowToApply",
+          "status": "qualification_dependent"
+        },
+        {
+          "id": "NTU27-TL-003",
+          "eventType": "assessment",
+          "title": "MMI",
+          "window": "End March–April 2027",
+          "studentAction": "Attend MMI if shortlisted.",
+          "sourceId": "ntuHowToApply",
+          "status": "published_window"
+        },
+        {
+          "id": "NTU27-TL-004",
+          "eventType": "outcome",
+          "title": "Offer / waitlist",
+          "window": "End April–July 2027",
+          "studentAction": "Track outcome and acceptance requirements.",
+          "sourceId": "ntuHowToApply",
+          "status": "published_window"
+        }
+      ],
+      "selection": [
+        {
+          "id": "NTU27-SEL-001",
+          "factor": "Academic results",
+          "sourceId": "ntuAdmissionsFaq"
+        },
+        {
+          "id": "NTU27-SEL-002",
+          "factor": "UCAT results",
+          "sourceId": "ntuAdmissionsFaq"
+        },
+        {
+          "id": "NTU27-SEL-003",
+          "factor": "Personal Statement",
+          "sourceId": "ntuAdmissionsFaq"
+        },
+        {
+          "id": "NTU27-SEL-004",
+          "factor": "Referee Reports",
+          "sourceId": "ntuAdmissionsFaq"
+        },
+        {
+          "id": "NTU27-SEL-005",
+          "factor": "MMI",
+          "sourceId": "ntuAdmissionsFaq"
+        },
+        {
+          "id": "NTU27-SEL-006",
+          "factor": "Medical work experience",
+          "rule": "Not required",
+          "sourceId": "ntuAdmissionsFaq"
+        },
+        {
+          "id": "NTU27-SEL-007",
+          "factor": "UCAT total score",
+          "rule": "Cut-off varies yearly; AY2025-26 admitted-student 10th/90th percentiles were 2690/3170",
+          "sourceId": "ntuAdmissionsFaq"
+        }
+      ]
     },
     {
-      "id": "nus-medicine-mbbs",
+      "targetId": "SG-NUS-YLL-MBBS-2027",
+      "country": "Singapore",
       "university": "NUS",
       "school": "Yong Loo Lin School of Medicine",
-      "course": "MBBS",
-      "country": "Singapore",
+      "course": "Medicine",
+      "degree": "MBBS",
       "entryYear": 2027,
-      "annualIntake": { "value": 280, "status": "officially_disclosed", "source": "nusAdmissions" },
-      "requirements": [
-        { "category": "Assessment", "item": "Focused Skills Assessment (FSA)", "status": "Required for shortlisted candidates", "source": "nusAdmissions" },
-        { "category": "Assessment", "item": "Situational Judgement Test (SJT)", "status": "Discontinued from 2026", "source": "nusAdmissions" },
-        { "category": "Portfolio", "item": "Personal Statement", "status": "Required", "threshold": "500 words for the 2026 faculty guidance", "source": "nusFacultyDates" },
-        { "category": "Portfolio", "item": "CCA list", "status": "Required", "source": "nusFacultyDates" },
-        { "category": "Portfolio", "item": "Official testimonial", "status": "Required", "source": "nusFacultyDates" },
-        { "category": "References", "item": "Referee reports", "status": "Required", "source": "nusFacultyDates" }
+      "applicantType": "local",
+      "citizenshipScope": [
+        "Singapore Citizen",
+        "Singapore PR",
+        "International"
       ],
-      "timeline": {
-        "shortlisting": "Last week of March",
-        "fsa": "April",
-        "offer": "Early to mid May",
-        "acceptance": "End May"
+      "status": "current",
+      "intake": {
+        "value": 280,
+        "status": "officially_disclosed",
+        "sourceId": "nusAdmissions"
       },
-      "selection": {
-        "shortlistedCandidatesApprox": 1200,
-        "ranking": "Candidates are ranked based on FSA performance",
-        "source": "nusAdmissions"
-      }
+      "requirements": [
+        {
+          "id": "NUS27-ASSESS-001",
+          "type": "assessment",
+          "item": "Focused Skills Assessment (FSA)",
+          "rule": "Required for shortlisted candidates",
+          "sourceId": "nusAdmissions"
+        },
+        {
+          "id": "NUS27-ASSESS-002",
+          "type": "assessment",
+          "item": "Situational Judgement Test (SJT)",
+          "rule": "Discontinued from 2026",
+          "sourceId": "nusAdmissions"
+        }
+      ],
+      "timeline": [
+        {
+          "id": "NUS27-TL-001",
+          "eventType": "shortlisting",
+          "title": "Shortlisting",
+          "window": "Late March",
+          "studentAction": "Monitor NUS Applicant Portal.",
+          "sourceId": "nusAdmissions",
+          "status": "published_window"
+        },
+        {
+          "id": "NUS27-TL-002",
+          "eventType": "assessment",
+          "title": "FSA",
+          "window": "April",
+          "studentAction": "Attend all required assessment components.",
+          "sourceId": "nusAdmissions",
+          "status": "published_window"
+        },
+        {
+          "id": "NUS27-TL-003",
+          "eventType": "outcome",
+          "title": "Offer outcome",
+          "window": "Early–mid May",
+          "studentAction": "Monitor Applicant Portal and reserve-list communications if applicable.",
+          "sourceId": "nusAdmissions",
+          "status": "published_window"
+        }
+      ],
+      "selection": [
+        {
+          "id": "NUS27-SEL-001",
+          "factor": "FSA performance",
+          "rule": "Shortlisted candidates are ranked based on FSA performance",
+          "sourceId": "nusAdmissions"
+        },
+        {
+          "id": "NUS27-SEL-002",
+          "factor": "Shortlisted candidates",
+          "rule": "Approximately 1,200",
+          "sourceId": "nusAdmissions"
+        },
+        {
+          "id": "NUS27-SEL-003",
+          "factor": "Reserve list",
+          "rule": "Next 80–100 candidates",
+          "sourceId": "nusAdmissions"
+        }
+      ]
     }
   ],
   "scholarships": [
-    { "id": "ntu-lkc-scholarship", "university": "NTU", "course": "MBBS", "name": "LKCMedicine Scholarship", "type": "Merit-based", "eligibility": "Singapore Citizens; outstanding academic achievements plus relevant contributions/attributes", "benefits": "Full subsidised tuition; living allowance and other listed benefits", "annualAwardCount": null, "awardCountStatus": "not_publicly_disclosed", "bond": "5-year MOH bond after MBBS", "source": "ntuEntryRequirements" },
-    { "id": "ntu-toh-kian-chui", "university": "NTU", "course": "MBBS", "name": "Toh Kian Chui Scholarship", "type": "Needs-based", "eligibility": "Singapore Citizens; preference for lower-income applicants", "benefits": "Full subsidised tuition; S$6,500 living allowance/year", "annualAwardCount": null, "awardCountStatus": "not_publicly_disclosed", "bond": "5-year MOH bond after MBBS", "source": "ntuEntryRequirements" },
-    { "id": "ntu-irene-tan", "university": "NTU", "course": "MBBS", "name": "Irene Tan Liang Kheng Scholarship", "type": "Needs-based", "eligibility": "Singapore Citizens; preference for lower-income applicants", "benefits": "Up to S$30,000/year", "annualAwardCount": 1, "awardCountStatus": "historically_disclosed_new_cohort", "historicalNote": "Historical donor material indicated one scholarship per new cohort/year from AY2019; verify before treating as a current annual quota.", "bond": "5-year MOH bond after MBBS", "source": "ntuEntryRequirements" },
-    { "id": "ntu-sim-yung-chong", "university": "NTU", "course": "MBBS", "name": "Sim Yung Chong Medical Scholarship", "type": "Needs-based", "eligibility": "Singapore Citizens and PR; preference for financial need", "benefits": "S$15,000/year", "annualAwardCount": null, "awardCountStatus": "not_publicly_disclosed", "bond": "See current scholarship terms", "source": "ntuEntryRequirements" },
-    { "id": "ntu-temasek-g-muthukumarasamy", "university": "NTU", "course": "MBBS", "name": "Temasek Foundation – G Muthukumarasamy Scholarship", "type": "Needs-based", "eligibility": "See current NTU criteria", "benefits": "See current scholarship terms", "annualAwardCount": null, "awardCountStatus": "not_publicly_disclosed", "bond": "See current scholarship terms", "source": "ntuEntryRequirements" },
-    { "id": "ntu-ng-ghit-cheong", "university": "NTU", "course": "MBBS", "name": "Ng Ghit Cheong Foundation Scholarship", "type": "Needs/merit", "eligibility": "Singapore Citizens and PR; preference for lower-income applicants", "benefits": "Up to S$40,000/year for new cohorts from AY2025", "annualAwardCount": null, "awardCountStatus": "not_publicly_disclosed", "bond": "See current scholarship terms", "source": "ntuEntryRequirements" },
-    { "id": "ntu-asean", "university": "NTU", "course": "MBBS", "name": "ASEAN Undergraduate Scholarship", "type": "Merit-based", "eligibility": "Eligible ASEAN applicants; confirm Medicine eligibility for target year", "benefits": "See current NTU terms", "annualAwardCount": null, "awardCountStatus": "not_publicly_disclosed", "bond": "See current NTU terms", "source": "ntuEntryRequirements" },
-    { "id": "ntu-saf-medicine", "university": "NTU", "course": "MBBS", "name": "SAF Medicine Scholarship", "type": "External", "eligibility": "Subject to SAF criteria", "benefits": "See current SAF terms", "annualAwardCount": null, "awardCountStatus": "historical_recipient_count_only", "historicalNote": "2025 LKCMedicine reporting identified 5 SAF Medicine scholars across cohorts; this is not an annual new-entrant quota.", "bond": "Service bond applies", "source": "ntuEntryRequirements" },
-    { "id": "ntu-psc-medicine", "university": "NTU", "course": "MBBS", "name": "PSC Scholarship (Medicine)", "type": "External", "eligibility": "Subject to PSC criteria", "benefits": "See current PSC terms", "annualAwardCount": null, "awardCountStatus": "not_publicly_disclosed", "bond": "Service bond applies", "source": "ntuEntryRequirements" }
+    {
+      "id": "NTU-SCH-001",
+      "name": "LKCMedicine Scholarship",
+      "course": "Medicine",
+      "eligibility": [
+        "Singapore Citizen"
+      ],
+      "benefit": "Full subsidised tuition; listed allowances/benefits subject to current terms",
+      "annualAwardCount": null,
+      "awardCountStatus": "not_disclosed",
+      "sourceId": "ntuEntryRequirements",
+      "confidence": "medium"
+    },
+    {
+      "id": "NTU-SCH-002",
+      "name": "Toh Kian Chui Scholarship",
+      "course": "Medicine",
+      "eligibility": [
+        "Singapore Citizen"
+      ],
+      "needPreference": "lower-income",
+      "benefit": "Full subsidised tuition; S$6,500 living allowance/year",
+      "annualAwardCount": null,
+      "awardCountStatus": "not_disclosed",
+      "bond": "5-year MOH bond after MBBS",
+      "sourceId": "ntuEntryRequirements",
+      "confidence": "medium"
+    },
+    {
+      "id": "NTU-SCH-003",
+      "name": "Irene Tan Liang Kheng Scholarship",
+      "course": "Medicine",
+      "eligibility": [
+        "Singapore Citizen"
+      ],
+      "needPreference": "lower-income",
+      "benefit": "Up to S$30,000/year",
+      "annualAwardCount": 1,
+      "awardCountStatus": "historical_count_only",
+      "historicalNote": "Historical donor material indicated one scholarship per new cohort/year from AY2019; current annual quota must be separately verified.",
+      "bond": "5-year MOH bond after MBBS",
+      "sourceId": "ntuEntryRequirements",
+      "confidence": "medium"
+    },
+    {
+      "id": "NTU-SCH-004",
+      "name": "Sim Yung Chong Medical Scholarship",
+      "course": "Medicine",
+      "eligibility": [
+        "Singapore Citizen",
+        "Singapore PR"
+      ],
+      "needPreference": "financial need",
+      "benefit": "S$15,000/year",
+      "annualAwardCount": null,
+      "awardCountStatus": "not_disclosed",
+      "sourceId": "ntuEntryRequirements",
+      "confidence": "medium"
+    },
+    {
+      "id": "NTU-SCH-005",
+      "name": "Ng Ghit Cheong Foundation Scholarship",
+      "course": "Medicine",
+      "eligibility": [
+        "Singapore Citizen",
+        "Singapore PR"
+      ],
+      "needPreference": "lower-income",
+      "benefit": "Up to S$40,000/year for new cohorts from AY2025",
+      "annualAwardCount": null,
+      "awardCountStatus": "not_disclosed",
+      "sourceId": "ntuEntryRequirements",
+      "confidence": "medium"
+    }
+  ],
+  "historical": [
+    {
+      "id": "NTU-HIST-001",
+      "targetId": "SG-NTU-LKCM-MBBS",
+      "year": 2023,
+      "fact": "LKCMedicine welcomed 150 new students in the academic year beginning August 2023.",
+      "sourceId": "ntuAboutUsFaq",
+      "status": "historical"
+    },
+    {
+      "id": "NTU-HIST-002",
+      "year": 2028,
+      "fact": "LKCMedicine was scheduled to complete its joint-degree collaboration with Imperial College London and transition to an independent NTU programme.",
+      "sourceId": "ntuHistory2023",
+      "status": "historical_planned"
+    }
   ]
 }
