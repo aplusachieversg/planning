@@ -126,7 +126,12 @@
 
   function inject(){
     const planner=document.getElementById("planner");
-    if(!planner||document.getElementById("gapEngine"))return;
+    if(!planner){
+      return false;
+    }
+    if(document.getElementById("gapEngine")){
+      return true;
+    }
     const box=document.createElement("div");
     box.id="gapEngine";
     box.className="planner";
@@ -141,9 +146,20 @@
       '<div id="gapEngineResult" class="result"></div>';
     planner.parentNode.insertBefore(box,document.getElementById("centralSubmission")||document.getElementById("result"));
     document.getElementById("runDiagnostic02").onclick=run;
+    return true;
+  }
+
+  function boot(){
+    if(inject()) return;
+    let tries=0;
+    const timer=setInterval(()=>{
+      tries++;
+      if(inject() || tries>=30) clearInterval(timer);
+    },500);
   }
 
   window.APLUS_RUN_DIAGNOSTIC_02=run;
   window.APLUS_RUN_GAP_ENGINE=run;
-  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",inject);else inject();
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot);
+  else boot();
 })();
