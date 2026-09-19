@@ -25,7 +25,7 @@
     const raw={
       field:read("field"),university:targetUniversity,course:targetCourse,
       country:targetCountry,entryYear:read("entryYear")||read("dbEntryYear")||"2027",
-      scholarship:read("targetScholarship"),currentLevel:read("spLevel")||read("level")||"Not specified",qualification:read("spQualification"),
+      scholarship:read("targetScholarship"),currentLevel:read("level")||read("spLevel")||"Not specified",qualification:read("spQualification"),
       academicProfile:read("spAcademicProfile"),subjects:split("spSubjects"),strengths:split("spStrengths"),
       weakTopics:split("spWeakTopics"),readiness,activities
     };
