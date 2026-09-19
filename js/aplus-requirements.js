@@ -1,4 +1,4 @@
-/* APLUS REQUIREMENTS DATABASE v2.0
+/* APLUS REQUIREMENTS DATABASE v2.1
    Supabase-backed normalized requirements with a safe local fallback.
 */
 (function(){
@@ -8,14 +8,22 @@
   async function sync(u,c,y){
     try{
       const sb=window.APLUS_DATABASE&&window.APLUS_DATABASE.client&&window.APLUS_DATABASE.client();
-      if(!sb)return local(u,c,y);
+      if(!sb){window.APLUS_REQUIREMENTS.records=local(u,c,y);return window.APLUS_REQUIREMENTS.records;}
       const {data,error}=await sb.from("requirements").select("id,applicant_type,category,requirement,threshold,assessment,deadline,status,source_url,last_verified,entry_cycles!inner(entry_year,programmes!inner(name,universities!inner(code)))").eq("entry_cycles.entry_year",Number(y));
-      if(error||!data)return local(u,c,y);
-      const rows=data.filter(x=>x.entry_cycles.programmes.universities.code===u&&x.entry_cycles.programmes.name===c);
-      return rows.length?rows.map(x=>({university:u,course:c,entryYear:Number(y),qualification:x.applicant_type,category:x.category,requirement:x.requirement,threshold:x.threshold,assessment:x.assessment,deadline:x.deadline,source:x.source_url,verified:x.last_verified,status:x.status})):local(u,c,y);
-    }catch(e){return local(u,c,y);}
+      if(error||!data){window.APLUS_REQUIREMENTS.records=local(u,c,y);return window.APLUS_REQUIREMENTS.records;}
+      const rows=data.filter(x=>x.entry_cycles&&x.entry_cycles.programmes&&x.entry_cycles.programmes.universities&&x.entry_cycles.programmes.universities.code===u&&x.entry_cycles.programmes.name===c);
+      window.APLUS_REQUIREMENTS.records=rows.length?rows.map(x=>({university:u,course:c,entryYear:Number(y),qualification:x.applicant_type,category:x.category,requirement:x.requirement,threshold:x.threshold,assessment:x.assessment,deadline:x.deadline,source:x.source_url,verified:x.last_verified,status:x.status})):local(u,c,y);
+      return window.APLUS_REQUIREMENTS.records;
+    }catch(e){
+      window.APLUS_REQUIREMENTS.records=local(u,c,y);
+      return window.APLUS_REQUIREMENTS.records;
+    }
   }
-  function get(u,c,y){return local(u,c,y);}
+  function get(u,c,y){
+    const rows=Array.isArray(window.APLUS_REQUIREMENTS.records)?window.APLUS_REQUIREMENTS.records:[];
+    const matched=rows.filter(r=>r.university===u&&r.course===c&&Number(r.entryYear)===Number(y));
+    return matched.length?matched:local(u,c,y);
+  }
   function summary(u,c,y){const a=get(u,c,y);return {count:a.length,current:a.filter(x=>x.status==="verified").length,pending:a.filter(x=>x.status==="pending").length,records:a};}
-  window.APLUS_REQUIREMENTS={records:fallback,get,summary,sync,version:"2.0",source:"supabase"};
+  window.APLUS_REQUIREMENTS={records:fallback,get,summary,sync,version:"2.1",source:"supabase"};
 })();
