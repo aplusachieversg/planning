@@ -1,4 +1,4 @@
-/* APLUS DIAGNOSTIC 02 · REQUIREMENT-EVIDENCE GAP ANALYSIS v1.0 */
+/* APLUS DIAGNOSTIC 02 · REQUIREMENT-EVIDENCE GAP ANALYSIS v1.2 */
 (function(){
   "use strict";
   const esc=v=>String(v==null?"":v).replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));
@@ -79,7 +79,7 @@
     }));
 
     return {
-      version:"1.1", completedAt:new Date().toISOString(),
+      version:"1.2", completedAt:new Date().toISOString(),
       target:{university:t.university||"",course:t.course||"",entryYear:t.entryYear||null},
       summary:{evidence,verification,total:items.length},
       items, priorityActions:actions.slice(0,8)
@@ -122,12 +122,14 @@
       '<div class="pbox"><b>'+diagnostic.summary.evidence.recorded+'</b><br><small>Evidence recorded</small></div>'+
       '<div class="pbox"><b>'+diagnostic.summary.evidence.developing+'</b><br><small>Evidence developing</small></div>'+
       '<div class="pbox"><b>'+diagnostic.summary.evidence.missing+'</b><br><small>Evidence gaps</small></div>'+
-      '<div class="pbox"><b>'+diagnostic.summary.verification.reference_pending+'</b><br><small>Target-year verification pending</small></div>'+
+      '<div class="pbox"><b>'+diagnostic.summary.verification.reference_pending+'</b><br><small>Requirement verification pending</small></div>'+
       '</div>'+
       '<div style="margin-top:16px">'+items.map(x=>{
-        const bg=x.evidenceStatus==="recorded"?"#eaf7f1":x.evidenceStatus==="missing"?"#fff4e5":"#eef2ff";
+        const bg=x.evidenceStatus==="recorded"?"#eaf7f1":x.evidenceStatus==="missing"?"#fff4e5":x.evidenceStatus==="developing"?"#fff8e1":"#eef2ff";
+        const verification=x.official&&x.targetYearStatus==="reference_pending"
+          ?'<br><small><b>Target-year status:</b> Reference pending — latest verified cycle shown for planning only.</small>':"";
         const source=x.official&&x.source?'<br><small>Source: '+esc(x.source)+' · Verified: '+esc(x.verified||"—")+'</small>':"";
-        return '<div style="margin:7px 0;padding:12px;border-radius:10px;background:'+bg+'"><b>'+esc(x.evidenceStatus.toUpperCase())+' · '+esc(x.category)+'</b><br>'+esc(x.requirement||"")+'<br><small>'+esc(x.evidenceReason)+'</small>'+source+'</div>';
+        return '<div style="margin:7px 0;padding:12px;border-radius:10px;background:'+bg+'"><b>'+esc(x.evidenceStatus.toUpperCase())+' · '+esc(x.category)+'</b><br>'+esc(x.requirement||"")+'<br><small>'+esc(x.evidenceReason)+'</small>'+verification+source+'</div>';
       }).join("")+'</div>'+
       '<h4 style="margin:20px 0 8px">Priority actions</h4>'+
       '<ol>'+diagnostic.priorityActions.map(x=>'<li style="margin:8px 0"><b>'+esc(x.priority)+' · '+esc(x.requirement)+'</b><br><small>'+esc(x.action)+'</small></li>').join("")+'</ol>'+
