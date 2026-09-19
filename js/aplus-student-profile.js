@@ -34,13 +34,28 @@
     host.querySelectorAll("input[data-subject-key]").forEach(cb=>{
       cb.addEventListener("change",()=>{
         const sel=host.querySelector('select[data-grade-key="'+CSS.escape(cb.dataset.subjectKey)+'"]');
-        if(sel)sel.disabled=!cb.checked;
+        if(sel)sel.disabled=!cb.checked; updateSubjectSummary();
         if(cb.checked&&sel&&sel.value==="not_available")sel.value="not_available";
       });
     });
   }
 
-  const labels={
+  function updateSubjectSummary(){
+    const el=document.getElementById("spSubjectSummary");
+    if(!el)return;
+    const selected=selectedSubjects();
+    if(!selected.length){el.textContent="Select your subjects";return;}
+    const h1=selected.filter(x=>x.level==="H1").length;
+    const h2=selected.filter(x=>x.level==="H2").length;
+    const h3=selected.filter(x=>x.level==="H3").length;
+    const parts=[];
+    if(h1)parts.push("H1: "+h1);
+    if(h2)parts.push("H2: "+h2);
+    if(h3)parts.push("H3: "+h3);
+    el.textContent=selected.length+" subjects selected · "+parts.join(" · ");
+  }
+
+
     strong:"Strong",
     developing:"Developing",
     needs_work:"Needs building",
@@ -247,7 +262,7 @@
       '.diag-box{border:1px solid #e8ebf2;border-radius:14px;padding:15px;background:#fff}'+
       '.diag-box.good{border-color:#ccebdd;background:#f2fbf6}.diag-box.warn{border-color:#f5dfb5;background:#fff9ed}.diag-box.mid{border-color:#dbe4ff;background:#f7f9ff}.diag-box.neutral{background:#fafbfc}'+
       '.diag-label{font-size:12px;font-weight:850}.diag-status{font-size:11px;color:#667085;margin-top:6px}'+
-      '.sp2-callout{margin-top:14px;padding:14px;border-radius:12px;background:#fff7e8;border:1px solid #f5dfb5;font-size:11px;line-height:1.6}.sp2-callout.good{background:#eaf7f1;border-color:#ccebdd}.sp2-callout ul{margin:7px 0 0;padding-left:18px}.sp2-callout li{margin:4px 0}.sp2-foot{font-size:10px;color:#98a2b3;margin-top:13px}.subject-group{border:1px solid #e8ebf2;border-radius:14px;padding:14px;margin:9px 0;background:#fbfcfe}.subject-group-title{font-size:12px;font-weight:900;margin-bottom:9px}.subject-options{display:grid;grid-template-columns:repeat(2,1fr);gap:7px}.subject-option{display:grid;grid-template-columns:1fr 78px;gap:6px;align-items:center;padding:7px 8px;background:#fff;border:1px solid #edf0f5;border-radius:9px}.subject-option label{font-size:11px;margin:0;font-weight:650}.subject-option select{padding:7px 6px;font-size:11px}.sp-auto-note{font-size:11px;color:#667085;line-height:1.5;padding:11px;border:1px dashed #dbe1eb;border-radius:10px;background:#fafbfc}@media(max-width:700px){.subject-options{grid-template-columns:1fr}}'+
+      '.sp2-callout{margin-top:14px;padding:14px;border-radius:12px;background:#fff7e8;border:1px solid #f5dfb5;font-size:11px;line-height:1.6}.sp2-callout.good{background:#eaf7f1;border-color:#ccebdd}.sp2-callout ul{margin:7px 0 0;padding-left:18px}.sp2-callout li{margin:4px 0}.sp2-foot{font-size:10px;color:#98a2b3;margin-top:13px}.sp-subject-toggle{width:100%;display:flex;justify-content:space-between;align-items:center;text-align:left;padding:13px 15px;border:1px solid #dbe1eb;border-radius:12px;background:#fff;font-size:12px;font-weight:750;cursor:pointer}.sp-subject-toggle:hover{border-color:#b9c4d6}.sp-subject-toggle.open{border-radius:12px 12px 0 0;border-bottom-color:#eef1f5}.sp-chevron{font-size:18px;transition:transform .2s}.sp-subject-toggle.open .sp-chevron{transform:rotate(180deg)}.sp-subject-panel{padding-top:6px}.subject-group{border:1px solid #e8ebf2;border-radius:14px;padding:14px;margin:9px 0;background:#fbfcfe}.subject-group-title{font-size:12px;font-weight:900;margin-bottom:9px}.subject-options{display:grid;grid-template-columns:repeat(2,1fr);gap:7px}.subject-option{display:grid;grid-template-columns:1fr 78px;gap:6px;align-items:center;padding:7px 8px;background:#fff;border:1px solid #edf0f5;border-radius:9px}.subject-option label{font-size:11px;margin:0;font-weight:650}.subject-option select{padding:7px 6px;font-size:11px}.sp-auto-note{font-size:11px;color:#667085;line-height:1.5;padding:11px;border:1px dashed #dbe1eb;border-radius:10px;background:#fafbfc}@media(max-width:700px){.subject-options{grid-template-columns:1fr}}'+
       '@media(max-width:700px){.sp2-stats{grid-template-columns:1fr 1fr}.sp2-header{flex-direction:column}.diag-grid{grid-template-columns:1fr}}';
     document.head.appendChild(s);
   }
@@ -271,7 +286,7 @@
       '<div class="formgrid">'+
         '<div><label>Current education level</label><select id="spLevel"><option>Primary</option><option>Secondary 1</option><option>Secondary 2</option><option>Secondary 3</option><option>Secondary 4</option><option>JC 1</option><option>JC 2</option><option>Poly Year 1</option><option>Poly Year 2</option><option>Poly Year 3</option></select></div>'+
         '<div><label>Qualification pathway</label><select id="spQualification"><option>A-Level</option><option>IB</option><option>NUS High School Diploma</option><option>Polytechnic Diploma</option><option>Other / undecided</option></select></div>'+
-        '<div style="grid-column:1/-1"><label>Current / planned subjects</label><p style="font-size:11px;color:#667085;margin:0 0 10px">Select from the structured Singapore GCE A-Level subject list. Add grades where available.</p><div id="spSubjectSelector"></div></div>'+
+        '<div style="grid-column:1/-1"><label>Current / planned subjects</label><button type="button" id="spSubjectToggle" class="sp-subject-toggle" aria-expanded="false"><span id="spSubjectSummary">Select your subjects</span><span class="sp-chevron">⌄</span></button><div id="spSubjectSelector" class="sp-subject-panel" hidden></div></div>'+
         '<div style="grid-column:1/-1"><label>Academic profile</label><input id="spAcademicProfile" placeholder="Include recent grades, grade trend, learning strengths and key gaps"></div>'+
         '<div><label>Academic strengths</label><div class="sp-auto-note">Calculated from selected subject grades (A/B). You do not need to type this.</div></div>'+
         '<div><label>Areas to improve</label><select id="spWeakTopics" multiple style="height:110px"><option>Subject knowledge</option><option>Concept application</option><option>Data analysis</option><option>Problem solving</option><option>Essay / written response</option><option>Time management</option><option>Exam technique</option><option>Revision consistency</option><option>Not identified yet</option></select>'+
@@ -287,6 +302,16 @@
       '<div id="studentProfileResult" class="result"></div>';
 
     planner.appendChild(box);
+    const toggle=document.getElementById("spSubjectToggle");
+    const panel=document.getElementById("spSubjectSelector");
+    if(toggle&&panel){
+      toggle.addEventListener("click",()=>{
+        const open=toggle.getAttribute("aria-expanded")==="true";
+        toggle.setAttribute("aria-expanded",String(!open));
+        panel.hidden=open;
+        toggle.classList.toggle("open",!open);
+      });
+    }
     renderSubjects();
   }
 
