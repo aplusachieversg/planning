@@ -185,8 +185,16 @@
     dash.insertAdjacentElement("afterend",section);
     refresh();
   }
-  function refresh(){
-    const result=build(loadProfile()||{});
+  async function refresh(){
+    const profile=loadProfile()||{};
+    try{
+      const t=profile.target||{};
+      if(window.APLUS_REQUIREMENTS&&window.APLUS_REQUIREMENTS.sync&&t.university&&t.course&&t.entryYear){
+        const records=await window.APLUS_REQUIREMENTS.sync(t.university,t.course,t.entryYear);
+        if(records&&records.length) window.APLUS_REQUIREMENTS.records=records;
+      }
+    }catch(e){}
+    const result=build(profile);
     const host=document.getElementById("planningIntelligenceHost");
     if(host)render(result,host);
     try{localStorage.setItem("APLUS_PLANNING_INTELLIGENCE",JSON.stringify(result));}catch(e){}
