@@ -23,12 +23,12 @@
         strengths:arr(raw.strengths), weakTopics:arr(raw.weakTopics)
       },
       readiness:{
-        academic:clean(raw.academicReadiness)||"unknown",
-        test:clean(raw.testReadiness)||"unknown",
-        communication:clean(raw.communicationReadiness)||"unknown",
-        leadership:clean(raw.leadershipReadiness)||"unknown",
-        service:clean(raw.serviceReadiness)||"unknown",
-        application:clean(raw.applicationReadiness)||"unknown"
+        academic:clean((raw.readiness&&raw.readiness.academic)||raw.academicReadiness)||"unknown",
+        test:clean((raw.readiness&&raw.readiness.test)||raw.testReadiness)||"unknown",
+        communication:clean((raw.readiness&&raw.readiness.communication)||raw.communicationReadiness)||"unknown",
+        leadership:clean((raw.readiness&&raw.readiness.leadership)||raw.leadershipReadiness)||"unknown",
+        service:clean((raw.readiness&&raw.readiness.service)||raw.serviceReadiness)||"unknown",
+        application:clean((raw.readiness&&raw.readiness.application)||raw.applicationReadiness)||"unknown"
       },
       evidence:{activities:arr(raw.activities),activityCount:arr(raw.activities).length},
       application:{
