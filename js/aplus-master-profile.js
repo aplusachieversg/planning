@@ -1,4 +1,4 @@
-/* APLUS Student Master Profile v1.1
+/* APLUS Student Master Profile v1.2
    Canonical student state + structured readiness model.
 */
 (function(){
@@ -9,7 +9,7 @@
   function create(raw){
     raw=raw||{};
     return {
-      schemaVersion:"1.1",
+      schemaVersion:"1.2",
       studentId:clean(raw.studentId)||("STU-"+Date.now()),
       updatedAt:new Date().toISOString(),
       target:{
@@ -19,8 +19,8 @@
       },
       profile:{
         currentLevel:clean(raw.currentLevel), qualification:clean(raw.qualification),
-        academicProfile:clean(raw.academicProfile), subjects:arr(raw.subjects),
-        strengths:arr(raw.strengths), weakTopics:arr(raw.weakTopics)
+        academicProfile:clean(raw.academicProfile), subjects:(window.APLUS_SUBJECT_TAXONOMY?window.APLUS_SUBJECT_TAXONOMY.normalizeList(raw.subjects):arr(raw.subjects)),
+        strengths:arr(raw.strengths), weakTopics:arr(raw.weakTopics), subjectGrades:(window.APLUS_SUBJECT_TAXONOMY?window.APLUS_SUBJECT_TAXONOMY.normalizeList(raw.subjects).map(x=>({level:x.level,subject:x.subject,grade:x.grade||"not_available"})):[])
       },
       readiness:{
         academic:clean((raw.readiness&&raw.readiness.academic)||raw.academicReadiness)||"unknown",
