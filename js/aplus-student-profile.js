@@ -23,7 +23,8 @@
       academicProfile:read("spAcademicProfile"),subjects:split("spSubjects"),strengths:split("spStrengths"),
       weakTopics:split("spWeakTopics"),readiness,activities
     };
-    const base=window.APLUS_MASTER_PROFILE.create(raw);\n    base.studentName=read("studentName")||"";
+    const base=window.APLUS_MASTER_PROFILE.create(raw);
+    base.studentName=read("studentName")||"";
     base.schemaVersion="2.0";
     base.profile.profileCompleteness={
       subjects:base.profile.subjects.length>0,
