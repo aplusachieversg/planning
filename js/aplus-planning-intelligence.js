@@ -156,7 +156,25 @@
       '<p class="pi-note">'+esc(result.disclaimer)+'</p>';
   }
 
+  function injectStyle(){
+    if(document.getElementById("piStyles"))return;
+    const s=document.createElement("style");s.id="piStyles";
+    s.textContent=`
+      .aplus-intelligence{background:#f7f8fc;padding:22px 5% 70px;border-bottom:1px solid #e9edf4}
+      .pi-shell{max-width:1240px;margin:auto}.pi-head{display:flex;justify-content:space-between;gap:28px;align-items:flex-end;margin-bottom:16px}
+      .pi-kicker,.pi-label{font-size:10px;letter-spacing:.15em;font-weight:900;color:#3157ff}.pi-head h2{font-size:34px;letter-spacing:-.04em;margin:7px 0}.pi-head p{color:#667085;max-width:720px;line-height:1.6}
+      .pi-target{background:#111936;color:#fff;border-radius:15px;padding:15px 18px;min-width:210px}.pi-target b{display:block;font-size:14px}.pi-target span{display:block;color:#b9c4df;font-size:11px;margin-top:5px}
+      .pi-grid{display:grid;grid-template-columns:1.6fr .8fr;gap:14px;margin-top:14px}.pi-horizons{grid-template-columns:repeat(3,1fr)}
+      .pi-panel{background:#fff;border:1px solid #e8ebf2;border-radius:18px;padding:21px;box-shadow:0 7px 24px rgba(16,24,40,.045)}
+      .pi-panel h3{margin:7px 0 16px;font-size:17px}.pi-layers{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.pi-layers>div{border:1px solid #edf0f5;border-radius:12px;padding:14px}.pi-layers b{display:block;font-size:12px}.pi-layers span{display:block;color:#667085;font-size:11px;line-height:1.5;margin-top:6px}
+      .pi-big{font-size:28px;font-weight:900;margin-top:9px}.pi-panel>p{margin:3px 0 13px;color:#667085;font-size:11px}
+      .pi-action{display:flex;gap:10px;padding:13px 0;border-bottom:1px solid #eef0f4}.pi-action:last-child{border-bottom:0}.pi-num{width:25px;height:25px;border-radius:8px;background:#eef2ff;color:#3157ff;display:grid;place-items:center;font-size:10px;font-weight:900;flex:none}.pi-action b{font-size:12px}.pi-action p{font-size:11px!important;line-height:1.5;margin:5px 0!important}.pi-source,.pi-reason{display:inline-block;font-size:9px;margin:2px 5px 0 0;padding:4px 6px;border-radius:999px;background:#f3f5f9;color:#475467}.pi-official-requirement{background:#eaf2ff;color:#3157ff}.pi-data-gap{background:#fff7e8;color:#a15c00}.pi-aplus-planning-factor{background:#f2edff;color:#6941c6}.pi-empty{font-size:11px;color:#98a2b3;padding:14px 0}.pi-evidence{padding:12px 0;border-bottom:1px solid #eef0f4}.pi-evidence b{display:block;font-size:12px}.pi-evidence span{display:block;color:#667085;font-size:11px;line-height:1.5;margin:4px 0}.pi-count{display:flex;justify-content:space-between;gap:10px;padding:12px 0;border-bottom:1px solid #eef0f4}.pi-count b{font-size:18px}.pi-count span{font-size:11px;color:#667085}.pi-note{font-size:11px;color:#7b8495;margin:14px 2px}.pi-refresh{margin-top:14px;border:1px solid #dbe1eb;background:#fff;color:#111936;padding:11px 15px;border-radius:10px;font-weight:800;cursor:pointer}
+      @media(max-width:900px){.pi-grid,.pi-horizons{grid-template-columns:1fr}.pi-layers{grid-template-columns:1fr}.pi-head{flex-direction:column;align-items:flex-start}.pi-target{width:100%}}
+    `;
+    document.head.appendChild(s);
+  }
   function inject(){
+    injectStyle();
     if(document.getElementById("planningIntelligence"))return;
     const dash=document.getElementById("dashboard");
     if(!dash)return;
