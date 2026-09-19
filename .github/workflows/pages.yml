@@ -1,4 +1,4 @@
-name: Deploy APLUS Academic Planner to GitHub Pages
+name: Deploy APLUS Academic Planner to GitHub Pages (Production)
 
 on:
   push:
