@@ -1,4 +1,4 @@
-/* APLUS DIAGNOSTIC 02 · REQUIREMENT-EVIDENCE GAP ANALYSIS v1.2 */
+/* APLUS DIAGNOSTIC 02 · REQUIREMENT-EVIDENCE GAP ANALYSIS v1.4 */
 (function(){
   "use strict";
   const esc=v=>String(v==null?"":v).replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));
@@ -11,10 +11,10 @@
   function assess(profile){
     const t=profile.target||{}, p=profile.profile||{}, r=profile.readiness||{};
     const req=(window.APLUS_REQUIREMENTS&&window.APLUS_REQUIREMENTS.get(t.university,t.course,t.entryYear))||[];
-    const subjects=arr(p.subjects);
+    const subjects=window.APLUS_SUBJECT_TAXONOMY?window.APLUS_SUBJECT_TAXONOMY.normalizeList(p.subjects):arr(p.subjects).map(x=>({level:"OTHER",subject:String(x)}));
     const norm=v=>String(v||"").toLowerCase().replace(/[^a-z0-9]+/g," ");
-    const subjectText=subjects.map(norm).join(" ");
-    const hasSubject=(...terms)=>terms.some(term=>subjectText.includes(norm(term)));
+    const subjectText=subjects.map(x=>norm(x.level+" "+x.subject)).join(" ");
+    const hasSubject=(level,...terms)=>terms.some(term=>subjects.some(x=>x.level===level&&norm(x.subject)===norm(term)));
     const items=[];
 
     req.forEach(x=>{
@@ -35,18 +35,20 @@
           evidenceReason=evidenceStatus==="recorded"?"A UCAT result is recorded.":"No actual UCAT result is recorded in the student profile.";
         }
       }else if(x.category==="Academic"){
-        const chemistry=hasSubject("chemistry","chem");
-        const biology=hasSubject("biology","bio");
-        const physics=hasSubject("physics","phys");
-        const h2Count=subjects.filter(s=>/h2/i.test(String(s))).length;
-        const gp=hasSubject("general paper","gp");
+        const chemistry=hasSubject("H2","chemistry");
+        const biology=hasSubject("H2","biology");
+        const physics=hasSubject("H2","physics");
+        const h2Count=window.APLUS_SUBJECT_TAXONOMY?window.APLUS_SUBJECT_TAXONOMY.countH2Content(subjects):subjects.filter(s=>s.level==="H2").length;
+        const gp=hasSubject("H1","general paper");
+        const pw=subjects.some(x=>x.subject==="Project Work"||x.level==="CORE");
         evidenceComponents=[
           ["H2 Chemistry",chemistry?"recorded":"missing"],
           ["H2 Biology / Physics",(biology||physics)?"recorded":"missing"],
-          ["3 H2 content subjects",h2Count>=3?"recorded":"needs_verification"],
-          ["General Paper",gp?"recorded":"needs_verification"],
-          ["Project Work","needs_verification"],
-          ["Actual grades","needs_verification"]
+          ["3 H2 content subjects",h2Count>=3?"recorded":"missing"],
+          ["H1 General Paper",gp?"recorded":"needs_verification"],
+          ["Project Work",pw?"recorded":"needs_verification"],
+          ["Actual grades",subjects.some(x=>x.grade&&x.grade!=="not_available")?"recorded":"needs_verification"],
+          ["H3 subjects",subjects.filter(x=>x.level==="H3").length?"recorded":"not_required"]
         ];
         const hardMissing=evidenceComponents.some(x=>x[1]==="missing");
         evidenceStatus=hardMissing?"missing":"recorded";
@@ -106,7 +108,7 @@
     }));
 
     return {
-      version:"1.3", completedAt:new Date().toISOString(),
+      version:"1.4", completedAt:new Date().toISOString(),
       target:{university:t.university||"",course:t.course||"",entryYear:t.entryYear||null},
       summary:{evidence,verification,total:items.length},
       items, priorityActions:actions.slice(0,8)
