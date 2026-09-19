@@ -73,6 +73,47 @@
     if(error) return {ok:false,code:"db_error",message:error.message};
     return {ok:true,data};
   }
+  async function saveStudentProfile(profile){
+    const sb=client();
+    if(!sb) return {ok:false,code:"not_configured"};
+    const {data:{user}}=await sb.auth.getUser();
+    if(!user) return {ok:false,code:"not_authenticated"};
+    const payload={
+      user_id:user.id,
+      display_name:profile.profile.displayName||profile.studentName||profile.studentId||"",
+      qualification:profile.profile.qualification||"",
+      entry_year:profile.target.entryYear||null,
+      target_university:profile.target.university||"",
+      target_programme:profile.target.course||"",
+      academic_profile:{
+        field:profile.target.field||"",
+        currentLevel:profile.profile.currentLevel||"",
+        academicProfile:profile.profile.academicProfile||"",
+        subjects:profile.profile.subjects||[],
+        strengths:profile.profile.strengths||[],
+        weakTopics:profile.profile.weakTopics||[],
+        readiness:profile.readiness||{}
+      },
+      evidence_profile:{
+        activities:profile.evidence.activities||[],
+        activitySummary:profile.evidence.activitySummary||{},
+        metadata:profile.metadata||{}
+      }
+    };
+    const {data,error}=await sb.from("student_profiles").upsert(payload,{onConflict:"user_id"}).select("*").single();
+    if(error) return {ok:false,code:"db_error",message:error.message};
+    return {ok:true,data};
+  }
+  async function getStudentProfile(){
+    const sb=client();
+    if(!sb) return {ok:false,code:"not_configured"};
+    const {data:{user}}=await sb.auth.getUser();
+    if(!user) return {ok:false,code:"not_authenticated"};
+    const {data,error}=await sb.from("student_profiles").select("*").eq("user_id",user.id).maybeSingle();
+    if(error) return {ok:false,code:"db_error",message:error.message};
+    return {ok:true,data};
+  }
+
   async function signIn(email,password){
     const sb=client(); if(!sb) return {ok:false,code:"not_configured"};
     const {data,error}=await sb.auth.signInWithPassword({email,password});
@@ -83,5 +124,5 @@
     const sb=client(); if(sb) await sb.auth.signOut();
     return {ok:true};
   }
-  window.APLUS_DATABASE={ready,submit,list,get,updateStatus,signIn,signOut,client};
+  window.APLUS_DATABASE={ready,submit,list,get,updateStatus,signIn,signOut,saveStudentProfile,getStudentProfile,client};
 })();
