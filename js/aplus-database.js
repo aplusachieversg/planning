@@ -83,5 +83,5 @@
     const sb=client(); if(sb) await sb.auth.signOut();
     return {ok:true};
   }
-  window.APLUS_DATABASE={ready,submit,list,get,updateStatus,signIn,signOut};
+  window.APLUS_DATABASE={ready,submit,list,get,updateStatus,signIn,signOut,client};
 })();
