@@ -49,7 +49,8 @@
 
   function build(){
     const names=selected();
-    const entry=Number((document.getElementById("acEntry")||{}).value||2027);
+    const master=(()=>{try{return JSON.parse(localStorage.getItem("APLUS_MASTER_PROFILE")||"null")}catch(e){return null}})();
+    const entry=Number(master&&master.target&&master.target.entryYear)||2027;
     const targets=names.map(n=>({name:n,...DATA[n]}));
     if(!targets.length)return {ok:false,message:"Select at least one application pathway."};
 
@@ -94,7 +95,7 @@
     box.className="combo";
     box.style.marginTop="22px";
     box.innerHTML='<div class="section-title" style="text-align:left;margin-bottom:18px"><div class="eyebrow" style="color:#2563eb">APPLICATION COMBINATION ENGINE · V2</div><h2 style="font-size:28px">Coordinate multiple application pathways</h2><p>Compare application routes, assessment requirements, preparation overlaps and timing relationships in one planning view.</p></div>'+
-      '<div class="combo-controls"><div><label>Target Entry Year</label><select id="acEntry"><option>2027</option><option>2028</option><option>2029</option><option>2030</option><option>2031</option><option>2032</option></select></div><div><label>Application Pathways</label><div style="padding:12px;border:1px solid #dbe1eb;border-radius:11px;background:#f8fbff"><label><input class="acChoice" type="checkbox" value="NUS Medicine" checked> NUS Medicine</label><label><input class="acChoice" type="checkbox" value="NTU Medicine" checked> NTU Medicine</label><label><input class="acChoice" type="checkbox" value="UK Medicine"> UK Medicine</label></div></div></div>'+
+      '<div class="combo-controls"><div><label>Target Entry Year</label><div id="acEntryInherited" style="padding:13px 14px;border:1px solid #dbe1eb;border-radius:11px;background:#f8fbff;font-weight:800;color:#3157ff">Inherited from Diagnostic 01</div></div><div><label>Application Pathways</label><div style="padding:12px;border:1px solid #dbe1eb;border-radius:11px;background:#f8fbff"><label><input class="acChoice" type="checkbox" value="NUS Medicine" checked> NUS Medicine</label><label><input class="acChoice" type="checkbox" value="NTU Medicine" checked> NTU Medicine</label><label><input class="acChoice" type="checkbox" value="UK Medicine"> UK Medicine</label></div></div></div>'+
       '<button class="next" onclick="APLUS_RUN_APPLICATION_COMBINATION()">Build Application Combination →</button><div id="applicationCombinationResult" class="result"></div>';
     target.appendChild(box);
   }
