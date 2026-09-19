@@ -95,13 +95,15 @@
       '<span class="chip">'+esc(base.profile.qualification||"Qualification not recorded")+'</span>'+
       '<span class="chip">'+esc(base.target.course||"Target course not selected")+'</span>'+
       '<span class="chip">Entry '+esc(base.target.entryYear||"—")+'</span>';
-    result.scrollIntoView({behavior:"smooth",block:"center"});
     if(window.APLUS_REFRESH_PLANNING_INTELLIGENCE){
       try{ await window.APLUS_REFRESH_PLANNING_INTELLIGENCE(); }
       catch(e){
         const pi=document.getElementById("planningIntelligenceHost");
         if(pi) pi.innerHTML='<div class="pi-panel"><b>Planning Intelligence refresh error</b><p>Please refresh the page and try again.</p></div>';
       }
+      const piHost=document.getElementById("planningIntelligenceHost");
+      const piSection=document.getElementById("planningIntelligence");
+      if(piHost&&piSection) piSection.scrollIntoView({behavior:"smooth",block:"start"});
     }
   }
 
