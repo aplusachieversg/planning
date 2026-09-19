@@ -12,6 +12,59 @@
     try{return JSON.parse(localStorage.getItem("APLUS_MASTER_PROFILE")||"null");}
     catch(e){return null;}
   }
+
+  async function loadDatabaseProfile(){
+    try{
+      if(window.APLUS_DATABASE&&window.APLUS_DATABASE.getStudentProfile){
+        const db=await window.APLUS_DATABASE.getStudentProfile();
+        if(db&&db.ok&&db.data)return db.data;
+      }
+    }catch(e){}
+    return null;
+  }
+
+  function databaseToMaster(row){
+    if(!row)return null;
+    const ap=row.academic_profile||{};
+    const ev=row.evidence_profile||{};
+    const readiness=ap.readiness||{};
+    return {
+      schemaVersion:"2.0",
+      studentId:"",
+      updatedAt:row.updated_at||new Date().toISOString(),
+      target:{
+        field:ap.field||"Medicine",
+        university:row.target_university||"",
+        course:row.target_programme||"",
+        country:row.target_university==="NUS"||row.target_university==="NTU"?"Singapore":"",
+        entryYear:Number(row.entry_year)||null,
+        scholarship:"",
+        applications:[]
+      },
+      profile:{
+        currentLevel:ap.currentLevel||"",
+        qualification:row.qualification||"",
+        academicProfile:ap.academicProfile||"",
+        subjects:arr(ap.subjects),
+        strengths:arr(ap.strengths),
+        weakTopics:arr(ap.weakTopics)
+      },
+      readiness:{
+        academic:readiness.academic||"unknown",
+        test:readiness.test||"unknown",
+        communication:readiness.communication||"unknown",
+        leadership:readiness.leadership||"unknown",
+        service:readiness.service||"unknown",
+        application:readiness.application||"unknown"
+      },
+      evidence:{
+        activities:arr(ev.activities),
+        activityCount:arr(ev.activities).length
+      },
+      application:{firstChoice:"",testsTaken:[],refereeCount:0,personalStatementReady:false,assessmentReady:""},
+      metadata:{evidenceQuality:(ev.metadata&&ev.metadata.evidenceQuality)||"self_reported",databaseSource:true}
+    };
+  }
   function level(v){return String(v||"").toLowerCase();}
   function priority(status){
     const s=level(status);
@@ -197,7 +250,13 @@
     refresh();
   }
   async function refresh(){
-    const profile=loadProfile()||{};
+    let profile=loadProfile()||{};
+    const dbProfile=await loadDatabaseProfile();
+    const hydrated=databaseToMaster(dbProfile);
+    if(hydrated){
+      profile=hydrated;
+      try{localStorage.setItem("APLUS_MASTER_PROFILE",JSON.stringify(profile));}catch(e){}
+    }
     try{
       const t=profile.target||{};
       if(window.APLUS_REQUIREMENTS&&window.APLUS_REQUIREMENTS.sync&&t.university&&t.course&&t.entryYear){
