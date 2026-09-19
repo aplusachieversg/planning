@@ -181,4 +181,33 @@ loadAPLUSDatabase();
     if(p.targetUniversity==="NTU") openNTU();
   };
 })();
+</script>
+<script src="js/aplus-activity.js"></script>
+<script src="js/aplus-platform.js"></script>
+<script>
+/* APLUS PLATFORM UI v1.0 */
+(function(){
+  var target=document.getElementById("how");
+  if(!target || document.getElementById("platformArchitecture")) return;
+  var s=document.createElement("section");
+  s.className="wrap";
+  s.id="platformArchitecture";
+  s.innerHTML='<div class="section-title"><div class="eyebrow" style="color:#2563eb">APLUS SYSTEM ARCHITECTURE</div><h2>One student. One planning system.</h2><p>APLUS connects target, requirements, evidence and development into one longitudinal planning loop.</p></div>'+
+  '<div class="grid">'+
+  '<div class="card"><div class="icon">🎯</div><h3>01 · Target</h3><p>University, course, country, entry year, scholarship and application combinations.</p></div>'+
+  '<div class="card"><div class="icon">📋</div><h3>02 · Requirements</h3><p>Atomic, source-linked requirements with target-year verification status.</p></div>'+
+  '<div class="card"><div class="icon">👤</div><h3>03 · Student Profile</h3><p>Education pathway, academics, subjects, strengths, weaknesses and current stage.</p></div>'+
+  '<div class="card"><div class="icon">🧾</div><h3>04 · Evidence</h3><p>Activities, leadership, service, teamwork, reflection and other verifiable evidence.</p></div>'+
+  '<div class="card"><div class="icon">📍</div><h3>05 · Gap Analysis</h3><p>Requirement → evidence → gap → priority → action, without admission prediction.</p></div>'+
+  '<div class="card"><div class="icon">🌱</div><h3>06 · Development</h3><p>Turn gaps into realistic development opportunities appropriate to the student’s stage.</p></div>'+
+  '<div class="card"><div class="icon">🗓️</div><h3>07 · Roadmap</h3><p>Work backward from entry year and place preparation into the right school years.</p></div>'+
+  '<div class="card"><div class="icon">🎓</div><h3>08 · Application & Scholarship</h3><p>Coordinate multiple applications, deadlines, assessments, scholarships and final review.</p></div>'+
+  '</div>'+
+  '<div class="planner" style="margin-top:24px;background:#0b1736;color:#fff;border-color:#0b1736">'+
+  '<div style="font-size:12px;letter-spacing:.12em;font-weight:800;color:#b9d2ff">APLUS LONGITUDINAL LOOP</div>'+
+  '<div style="font-size:22px;font-weight:900;margin-top:10px;line-height:1.5">TARGET → REQUIREMENTS → PROFILE → EVIDENCE → GAP → DEVELOPMENT → ROADMAP → APPLICATION → REVIEW ↺</div>'+
+  '<p style="color:#c8d3e9;line-height:1.6;margin-bottom:0">The key product is not a one-time answer. Each new academic result, activity, project or verified requirement can update the student’s planning state.</p>'+
+  '</div>';
+  target.parentNode.insertBefore(s,target.nextSibling);
+})();
 </script></body></html>
