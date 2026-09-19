@@ -95,7 +95,8 @@
       '<span class="chip">'+esc(base.profile.qualification||"Qualification not recorded")+'</span>'+
       '<span class="chip">'+esc(base.target.course||"Target course not selected")+'</span>'+
       '<span class="chip">Entry '+esc(base.target.entryYear||"—")+'</span>';
-    if(window.APLUS_REFRESH_PLANNING_INTELLIGENCE){
+    if(window.APLUS_REFRESH_SYSTEM){ try{ await window.APLUS_REFRESH_SYSTEM(); }catch(e){} }
+    else if(window.APLUS_REFRESH_PLANNING_INTELLIGENCE){
       try{ await window.APLUS_REFRESH_PLANNING_INTELLIGENCE(); }
       catch(e){
         const pi=document.getElementById("planningIntelligenceHost");
