@@ -121,7 +121,7 @@
       '<div><label>Service / community readiness</label><select id="spService"><option value="unknown">Not assessed</option><option value="strong">Strong</option><option value="developing">Developing</option><option value="needs_work">Needs building</option></select></div>'+
       '<div><label>Application readiness</label><select id="spApplication"><option value="unknown">Not assessed</option><option value="strong">Strong</option><option value="developing">Developing</option><option value="needs_work">Needs building</option></select></div>'+
       '</div><div id="spSummary" style="margin-top:16px"></div><button class="next" onclick="APLUS_BUILD_STUDENT_PROFILE()">Save & Update My Profile →</button><div id="studentProfileResult" class="result"></div>';
-    planner.parentNode.insertBefore(box,document.getElementById("activityEvidencePanel")||document.getElementById("result"));
+    planner.appendChild(box);
   }
 
   window.APLUS_BUILD_STUDENT_PROFILE=build;
