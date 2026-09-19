@@ -144,10 +144,57 @@ loadAPLUSDatabase();
   }
   window.generate=function(){
     const db=window.APLUS_DB||{};
-    const p=buildStudent();
+    const base=buildStudent();
+    const master=window.APLUS_MASTER_PROFILE
+      ? window.APLUS_MASTER_PROFILE.create({
+          field:base.targetCourse,
+          university:base.targetUniversity,
+          course:base.targetCourse,
+          country:"",
+          entryYear:base.targetYear,
+          currentLevel:base.currentLevel,
+          qualification:base.qualification,
+          academicProfile:base.academicProfile,
+          subjects:base.subjects,
+          firstChoice:base.firstChoice,
+          testsTaken:base.testsTaken,
+          refereeCount:base.refereeCount,
+          personalStatementReady:base.personalStatementReady,
+          assessmentReady:base.assessmentReady,
+          activities:window.APLUS_UI_ACTIVITIES||[],
+          evidenceQuality:base.evidenceQuality
+        })
+      : null;
+    if(master){
+      try{localStorage.setItem("APLUS_MASTER_PROFILE",JSON.stringify(master));}catch(e){}
+    }
+    const activityProfile=window.APLUS_ACTIVITY&&master
+      ? window.APLUS_ACTIVITY.profile(master.evidence.activities)
+      : null;
+    const p=Object.assign({},base,{
+      leadershipLevel:activityProfile&&activityProfile.highestLeadershipRole!=="none"?"developing":base.leadershipLevel,
+      serviceLevel:activityProfile&&activityProfile.count?"developing":base.serviceLevel,
+      teamworkLevel:activityProfile&&activityProfile.count?"developing":base.teamworkLevel,
+      evidenceQuality:activityProfile&&activityProfile.evidenceGaps===0&&activityProfile.count?"evidenced":base.evidenceQuality
+    });
     const target={university:p.targetUniversity,course:p.targetCourse,entryYear:p.targetYear};
     const analysis=(window.APLUS_RULES&&db.loaded)?window.APLUS_RULES.buildGapAnalysis(db,target,p):{status:"no_target_record",gaps:[],actions:[]};
     const intel=window.APLUS_INTELLIGENCE.build(p,analysis);
+    const platform=window.APLUS_PLATFORM&&master
+      ? window.APLUS_PLATFORM.build({
+          db:db,
+          university:master.target.university,
+          course:master.target.course,
+          country:master.target.country,
+          entryYear:master.target.entryYear,
+          scholarship:master.target.scholarship,
+          currentLevel:master.profile.currentLevel,
+          qualification:master.profile.qualification,
+          academicProfile:master.profile.academicProfile,
+          subjects:master.profile.subjects,
+          activities:master.evidence.activities
+        })
+      : null;
     const result=document.getElementById("result");
     result.style.display="block";
     let html='<h3>APLUS Student Intelligence</h3>'+
@@ -173,6 +220,10 @@ loadAPLUSDatabase();
     html+='</div>';
     html+='<p style="margin-top:16px;color:#647084;font-size:12px">'+esc(intel.trajectory.implication)+'</p>';
     document.getElementById("scorecard").innerHTML=html;
+    if(platform){
+      html+='<div style="margin-top:18px;padding:12px;border-radius:10px;background:#f8fbff;border:1px solid #dbe4f2"><b>APLUS Master Profile</b><br><small>'+esc(platform.evidence.activityCount)+' activities · '+esc(platform.evidence.verifiedActivities)+' verified · '+esc(platform.evidence.evidenceGaps)+' evidence gaps · profile saved for longitudinal updates.</small></div>';
+      document.getElementById("scorecard").innerHTML=html;
+    }
     document.getElementById("summary").textContent="Target: "+p.targetUniversity+" "+p.targetCourse+" · Entry "+p.targetYear+" · Current level: "+p.currentLevel;
     document.getElementById("chips").innerHTML='<span class="chip">'+esc(p.currentLevel)+'</span><span class="chip">'+esc(p.targetCourse)+'</span><span class="chip">'+esc(p.targetUniversity)+'</span><span class="chip">Entry '+esc(p.targetYear)+'</span>';
     document.getElementById("actions").innerHTML=(analysis.actions||[]).map(x=>'<li><b>'+esc(x.priority.toUpperCase())+'</b> — '+esc(x.title)+'<br><small>'+esc(x.description)+'</small></li>').join("")||'<li>Complete more evidence to create requirement-specific actions.</li>';
