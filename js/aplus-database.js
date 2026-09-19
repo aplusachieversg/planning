@@ -97,7 +97,8 @@
       evidence_profile:{
         activities:profile.evidence.activities||[],
         activitySummary:profile.evidence.activitySummary||{},
-        metadata:profile.metadata||{}
+        metadata:profile.metadata||{},
+        diagnostic01:profile.diagnostic01||null
       }
     };
     const {data,error}=await sb.from("student_profiles").upsert(payload,{onConflict:"user_id"}).select("*").single();
