@@ -145,8 +145,11 @@ loadAPLUSDatabase();
   window.generate=function(){
     const db=window.APLUS_DB||{};
     const base=buildStudent();
+    let savedMaster=null;
+    try{savedMaster=JSON.parse(localStorage.getItem("APLUS_MASTER_PROFILE")||"null");}catch(e){}
     const master=window.APLUS_MASTER_PROFILE
       ? window.APLUS_MASTER_PROFILE.create({
+          studentId:savedMaster&&savedMaster.studentId?savedMaster.studentId:"",
           field:base.targetCourse,
           university:base.targetUniversity,
           course:base.targetCourse,
@@ -222,6 +225,8 @@ loadAPLUSDatabase();
     document.getElementById("scorecard").innerHTML=html;
     if(platform){
       html+='<div style="margin-top:18px;padding:12px;border-radius:10px;background:#f8fbff;border:1px solid #dbe4f2"><b>APLUS Master Profile</b><br><small>'+esc(platform.evidence.activityCount)+' activities · '+esc(platform.evidence.verifiedActivities)+' verified · '+esc(platform.evidence.evidenceGaps)+' evidence gaps · profile saved for longitudinal updates.</small></div>';
+      const validation=window.APLUS_MASTER_PROFILE.validate(master);
+      html+='<div style="margin-top:10px;padding:10px;border-radius:10px;background:'+(validation.ok?"#eaf7f1":"#fff4e5")+'"><small><b>Profile completeness:</b> '+(validation.ok?"ready":"needs information")+(validation.issues.length?" · "+esc(validation.issues.slice(0,3).join(" ")):"")+'</small></div>';
       document.getElementById("scorecard").innerHTML=html;
     }
     document.getElementById("summary").textContent="Target: "+p.targetUniversity+" "+p.targetCourse+" · Entry "+p.targetYear+" · Current level: "+p.currentLevel;
