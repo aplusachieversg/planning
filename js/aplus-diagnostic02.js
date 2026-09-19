@@ -144,7 +144,7 @@
       '</div>'+
       '<button class="next" id="runDiagnostic02">Run Diagnostic 02 →</button>'+
       '<div id="gapEngineResult" class="result"></div>';
-    planner.parentNode.insertBefore(box,document.getElementById("centralSubmission")||document.getElementById("result"));
+    planner.appendChild(box);
     document.getElementById("runDiagnostic02").onclick=run;
     return true;
   }
