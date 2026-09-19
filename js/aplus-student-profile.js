@@ -75,6 +75,11 @@
     const rr=window.APLUS_MASTER_PROFILE.readiness(base);
     const result=document.getElementById("studentProfileResult");
     if(!result)return;
+    if(dbSync!=="synced"){
+      result.style.display="block";
+      result.innerHTML='<div class="sp2-callout"><b>DATABASE SYNC NOT CONFIRMED</b><div>The profile was prepared locally, but the Supabase save was not confirmed. Please try again.</div><div class="sp2-foot">Sync status: '+esc(dbSync)+'</div></div>';
+      return;
+    }
     const gaps=rr.items.filter(x=>x[1]==="needs_work"||x[1]==="unknown");
     const a=base.evidence.activitySummary;
     result.style.display="block";
