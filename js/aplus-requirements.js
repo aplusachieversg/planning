@@ -4,7 +4,25 @@
 (function(){
   "use strict";
   const fallback=[{"university":"NUS","course":"Medicine","entryYear":2026,"qualification":"Singapore-Cambridge GCE A-Level","category":"Academic","requirement":"3 H2 content-based subjects including H2 Chemistry and H2 Biology or Physics; General Paper; Project Work pass","threshold":"Good H2 pass in Chemistry; H2 pass in Biology/Physics; PW pass","assessment":"UAS + FSA","deadline":"See target-cycle application timeline","source":"https://medicine.nus.edu.sg/prospective-students/nus-medicine-pre-requisites/","verified":"2026-09-19","status":"verified"},{"university":"NUS","course":"Medicine","entryYear":2026,"qualification":"Singapore-Cambridge GCE A-Level","category":"Supplementary test","requirement":"UCAT not required","threshold":"Not required","assessment":"FSA","deadline":"N/A","source":"https://medicine.nus.edu.sg/prospective-students/nus-medicine-pre-requisites/","verified":"2026-09-19","status":"verified"},{"university":"NUS","course":"Medicine","entryYear":2026,"qualification":"All shortlisted applicants","category":"Assessment","requirement":"Focused Skills Assessment (FSA); SJT discontinued from 2026","threshold":"Shortlisting precedes FSA","assessment":"FSA","deadline":"2026 FSA dates published by NUS","source":"https://medicine.nus.edu.sg/prospective-students/nus-medicine-admissions-assessment/","verified":"2026-09-19","status":"verified"},{"university":"NUS","course":"Medicine","entryYear":2026,"qualification":"All applicants","category":"Intake","requirement":"Annual places","threshold":"280 places annually","assessment":"FSA ranking","deadline":"N/A","source":"https://medicine.nus.edu.sg/prospective-students/nus-medicine-admissions-assessment/","verified":"2026-09-19","status":"verified"},{"university":"NTU","course":"Medicine","entryYear":2026,"qualification":"Singapore-Cambridge GCE A-Level","category":"Academic","requirement":"Pass H2 Chemistry and H2 Biology/Physics","threshold":"Pass","assessment":"Academic + UCAT + MMI","deadline":"Application cycle specific","source":"https://www.ntu.edu.sg/medicine/education/bachelor-of-medicine-and-bachelor-of-surgery-%28mbbs%29/entry-requirements","verified":"2026-09-19","status":"verified"},{"university":"NTU","course":"Medicine","entryYear":2026,"qualification":"Singapore-Cambridge GCE A-Level","category":"UCAT","requirement":"UCAT result within 12 months prior to admission","threshold":"Yearly cohort-dependent cut-off","assessment":"UCAT","deadline":"Typically May–September testing","source":"https://www.ntu.edu.sg/medicine/education/bachelor-of-medicine-and-bachelor-of-surgery-%28mbbs%29/entry-requirements","verified":"2026-09-19","status":"verified"},{"university":"NTU","course":"Medicine","entryYear":2026,"qualification":"All applicants","category":"Application","requirement":"Personal Statement <=300 words + two referee reports","threshold":"Two referees","assessment":"Application review","deadline":"Typically October–March","source":"https://www.ntu.edu.sg/medicine/education/bachelor-of-medicine-and-bachelor-of-surgery-%28mbbs%29/entry-requirements","verified":"2026-09-19","status":"verified"},{"university":"NTU","course":"Medicine","entryYear":2026,"qualification":"All applicants","category":"Assessment","requirement":"Multiple Mini Interview (MMI)","threshold":"Shortlisting criteria include academic results, UCAT, personal statement and referee reports","assessment":"MMI","deadline":"Around April","source":"https://www.ntu.edu.sg/medicine/education/bachelor-of-medicine-and-bachelor-of-surgery-%28mbbs%29/admissions-faqs","verified":"2026-09-19","status":"verified"},{"university":"NTU","course":"Medicine","entryYear":2026,"qualification":"All applicants","category":"Intake","requirement":"Annual intake","threshold":"Around 190 students","assessment":"N/A","deadline":"N/A","source":"https://www.ntu.edu.sg/medicine/education/bachelor-of-medicine-and-bachelor-of-surgery-%28mbbs%29/admissions-faqs","verified":"2026-09-19","status":"verified"}];
-  function local(u,c,y){return fallback.filter(r=>r.university===u&&r.course===c&&Number(r.entryYear)===Number(y));}
+  function local(u,c,y){
+    const exact=fallback.filter(r=>r.university===u&&r.course===c&&Number(r.entryYear)===Number(y));
+    if(exact.length)return exact;
+    // If the requested target cycle is not yet published in the database,
+    // expose the latest verified cycle as a clearly labelled pending reference.
+    const targetYear=Number(y);
+    const latest=fallback.filter(r=>r.university===u&&r.course===c)
+      .sort((a,b)=>Number(b.entryYear)-Number(a.entryYear))[0];
+    if(latest && targetYear>Number(latest.entryYear)){
+      return fallback.filter(r=>r.university===u&&r.course===c&&Number(r.entryYear)===Number(latest.entryYear))
+        .map(r=>Object.assign({},r,{
+          entryYear:targetYear,
+          status:"pending",
+          requirement:r.requirement+" [Target-year verification pending]",
+          threshold:(r.threshold||"")+" [Latest verified cycle: "+r.entryYear+"]"
+        }));
+    }
+    return [];
+  }
   async function sync(u,c,y){
     try{
       const sb=window.APLUS_DATABASE&&window.APLUS_DATABASE.client&&window.APLUS_DATABASE.client();
