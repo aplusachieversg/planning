@@ -1,0 +1,99 @@
+{
+  "schemaVersion": "1.0",
+  "lastVerified": "2026-09-19",
+  "sources": {
+    "ntuEntryRequirements": {
+      "name": "NTU LKCMedicine Entry Requirements",
+      "url": "https://www.ntu.edu.sg/medicine/education/bachelor-of-medicine-and-bachelor-of-surgery-%28mbbs%29/entry-requirements"
+    },
+    "ntuHowToApply": {
+      "name": "NTU How to Apply to LKCMedicine",
+      "url": "https://www.ntu.edu.sg/medicine/education/bachelor-of-medicine-and-bachelor-of-surgery-%28mbbs%29/how-to-apply-to-lkcmedicine"
+    },
+    "ntuAdmissionsFaq": {
+      "name": "NTU LKCMedicine Admissions FAQs",
+      "url": "https://www.ntu.edu.sg/medicine/education/bachelor-of-medicine-and-bachelor-of-surgery-%28mbbs%29/admissions-faqs"
+    },
+    "nusAdmissions": {
+      "name": "NUS Medicine Admissions Assessment",
+      "url": "https://medicine.nus.edu.sg/prospective-students/nus-medicine-admissions-assessment/"
+    },
+    "nusHowToApply": {
+      "name": "NUS Medicine How to Apply",
+      "url": "https://medicine.nus.edu.sg/prospective-students/how-to-apply/"
+    },
+    "nusFacultyDates": {
+      "name": "NUS Faculty Interview and Test Dates",
+      "url": "https://nus.edu.sg/oam/admissions/faculty-interview-and-test-dates"
+    }
+  },
+  "universities": [
+    {
+      "id": "ntu-lkcmedicine-mbbs",
+      "university": "NTU",
+      "school": "Lee Kong Chian School of Medicine",
+      "course": "MBBS",
+      "country": "Singapore",
+      "entryYear": 2027,
+      "annualIntake": { "value": 190, "status": "current_approximate", "source": "ntuAdmissionsFaq" },
+      "requirements": [
+        { "category": "Academic", "qualification": "Singapore-Cambridge GCE A-Level", "item": "H2 Chemistry", "status": "Required", "threshold": "Pass", "source": "ntuEntryRequirements" },
+        { "category": "Academic", "qualification": "Singapore-Cambridge GCE A-Level", "item": "H2 Biology or Physics", "status": "Required", "threshold": "Pass", "source": "ntuEntryRequirements" },
+        { "category": "Admissions Test", "item": "UCAT", "status": "Required", "validity": "Only results taken in the 12 months prior to admission are considered", "source": "ntuEntryRequirements" },
+        { "category": "Written", "item": "Personal Statement", "status": "Required", "threshold": "Maximum 300 words", "source": "ntuEntryRequirements" },
+        { "category": "References", "item": "Online Referee Reports", "status": "Required", "quantity": 2, "source": "ntuEntryRequirements" },
+        { "category": "Interview", "item": "Multiple Mini Interview (MMI)", "status": "Shortlisted applicants", "source": "ntuEntryRequirements" },
+        { "category": "Application", "item": "Medicine first choice", "status": "Required for consideration", "source": "ntuHowToApply" }
+      ],
+      "timeline": {
+        "ucat": "May to end September",
+        "application": "October to March, depending on qualification",
+        "mmi": "Around April",
+        "outcome": "Offers and waitlist are handled through NTU admissions"
+      },
+      "selection": {
+        "criteria": ["Academic results", "UCAT results", "Personal Statement", "Referee Reports", "MMI"],
+        "source": "ntuAdmissionsFaq"
+      }
+    },
+    {
+      "id": "nus-medicine-mbbs",
+      "university": "NUS",
+      "school": "Yong Loo Lin School of Medicine",
+      "course": "MBBS",
+      "country": "Singapore",
+      "entryYear": 2027,
+      "annualIntake": { "value": 280, "status": "officially_disclosed", "source": "nusAdmissions" },
+      "requirements": [
+        { "category": "Assessment", "item": "Focused Skills Assessment (FSA)", "status": "Required for shortlisted candidates", "source": "nusAdmissions" },
+        { "category": "Assessment", "item": "Situational Judgement Test (SJT)", "status": "Discontinued from 2026", "source": "nusAdmissions" },
+        { "category": "Portfolio", "item": "Personal Statement", "status": "Required", "threshold": "500 words for the 2026 faculty guidance", "source": "nusFacultyDates" },
+        { "category": "Portfolio", "item": "CCA list", "status": "Required", "source": "nusFacultyDates" },
+        { "category": "Portfolio", "item": "Official testimonial", "status": "Required", "source": "nusFacultyDates" },
+        { "category": "References", "item": "Referee reports", "status": "Required", "source": "nusFacultyDates" }
+      ],
+      "timeline": {
+        "shortlisting": "Last week of March",
+        "fsa": "April",
+        "offer": "Early to mid May",
+        "acceptance": "End May"
+      },
+      "selection": {
+        "shortlistedCandidatesApprox": 1200,
+        "ranking": "Candidates are ranked based on FSA performance",
+        "source": "nusAdmissions"
+      }
+    }
+  ],
+  "scholarships": [
+    { "id": "ntu-lkc-scholarship", "university": "NTU", "course": "MBBS", "name": "LKCMedicine Scholarship", "type": "Merit-based", "eligibility": "Singapore Citizens; outstanding academic achievements plus relevant contributions/attributes", "benefits": "Full subsidised tuition; living allowance and other listed benefits", "annualAwardCount": null, "awardCountStatus": "not_publicly_disclosed", "bond": "5-year MOH bond after MBBS", "source": "ntuEntryRequirements" },
+    { "id": "ntu-toh-kian-chui", "university": "NTU", "course": "MBBS", "name": "Toh Kian Chui Scholarship", "type": "Needs-based", "eligibility": "Singapore Citizens; preference for lower-income applicants", "benefits": "Full subsidised tuition; S$6,500 living allowance/year", "annualAwardCount": null, "awardCountStatus": "not_publicly_disclosed", "bond": "5-year MOH bond after MBBS", "source": "ntuEntryRequirements" },
+    { "id": "ntu-irene-tan", "university": "NTU", "course": "MBBS", "name": "Irene Tan Liang Kheng Scholarship", "type": "Needs-based", "eligibility": "Singapore Citizens; preference for lower-income applicants", "benefits": "Up to S$30,000/year", "annualAwardCount": 1, "awardCountStatus": "historically_disclosed_new_cohort", "historicalNote": "Historical donor material indicated one scholarship per new cohort/year from AY2019; verify before treating as a current annual quota.", "bond": "5-year MOH bond after MBBS", "source": "ntuEntryRequirements" },
+    { "id": "ntu-sim-yung-chong", "university": "NTU", "course": "MBBS", "name": "Sim Yung Chong Medical Scholarship", "type": "Needs-based", "eligibility": "Singapore Citizens and PR; preference for financial need", "benefits": "S$15,000/year", "annualAwardCount": null, "awardCountStatus": "not_publicly_disclosed", "bond": "See current scholarship terms", "source": "ntuEntryRequirements" },
+    { "id": "ntu-temasek-g-muthukumarasamy", "university": "NTU", "course": "MBBS", "name": "Temasek Foundation – G Muthukumarasamy Scholarship", "type": "Needs-based", "eligibility": "See current NTU criteria", "benefits": "See current scholarship terms", "annualAwardCount": null, "awardCountStatus": "not_publicly_disclosed", "bond": "See current scholarship terms", "source": "ntuEntryRequirements" },
+    { "id": "ntu-ng-ghit-cheong", "university": "NTU", "course": "MBBS", "name": "Ng Ghit Cheong Foundation Scholarship", "type": "Needs/merit", "eligibility": "Singapore Citizens and PR; preference for lower-income applicants", "benefits": "Up to S$40,000/year for new cohorts from AY2025", "annualAwardCount": null, "awardCountStatus": "not_publicly_disclosed", "bond": "See current scholarship terms", "source": "ntuEntryRequirements" },
+    { "id": "ntu-asean", "university": "NTU", "course": "MBBS", "name": "ASEAN Undergraduate Scholarship", "type": "Merit-based", "eligibility": "Eligible ASEAN applicants; confirm Medicine eligibility for target year", "benefits": "See current NTU terms", "annualAwardCount": null, "awardCountStatus": "not_publicly_disclosed", "bond": "See current NTU terms", "source": "ntuEntryRequirements" },
+    { "id": "ntu-saf-medicine", "university": "NTU", "course": "MBBS", "name": "SAF Medicine Scholarship", "type": "External", "eligibility": "Subject to SAF criteria", "benefits": "See current SAF terms", "annualAwardCount": null, "awardCountStatus": "historical_recipient_count_only", "historicalNote": "2025 LKCMedicine reporting identified 5 SAF Medicine scholars across cohorts; this is not an annual new-entrant quota.", "bond": "Service bond applies", "source": "ntuEntryRequirements" },
+    { "id": "ntu-psc-medicine", "university": "NTU", "course": "MBBS", "name": "PSC Scholarship (Medicine)", "type": "External", "eligibility": "Subject to PSC criteria", "benefits": "See current PSC terms", "annualAwardCount": null, "awardCountStatus": "not_publicly_disclosed", "bond": "Service bond applies", "source": "ntuEntryRequirements" }
+  ]
+}
