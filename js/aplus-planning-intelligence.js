@@ -177,10 +177,13 @@
     injectStyle();
     let section=document.getElementById("planningIntelligence");
     if(section){
+      const dash=document.getElementById("dashboard");
+      if(dash) dash.insertAdjacentElement("afterend",section);
       if(!document.getElementById("planningIntelligenceHost")){
         const shell=section.querySelector(".pi-shell")||section;
         shell.innerHTML='<div id="planningIntelligenceHost"></div><button class="pi-refresh" onclick="APLUS_REFRESH_PLANNING_INTELLIGENCE()">Refresh Planning Intelligence ↻</button>';
       }
+      section.style.display="block";
       refresh();
       return;
     }
