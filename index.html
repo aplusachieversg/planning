@@ -210,4 +210,64 @@ loadAPLUSDatabase();
   '</div>';
   target.parentNode.insertBefore(s,target.nextSibling);
 })();
+</script>
+<script src="js/aplus-master-profile.js"></script>
+<script src="js/aplus-activity.js"></script>
+<script>
+/* APLUS MASTER PROFILE UI v1.0 */
+(function(){
+  var planner=document.getElementById("planner");
+  if(!planner || document.getElementById("activityEvidencePanel")) return;
+  var panel=document.createElement("div");
+  panel.id="activityEvidencePanel";
+  panel.className="planner";
+  panel.style.marginTop="22px";
+  panel.innerHTML='<div class="section-title" style="text-align:left;margin-bottom:20px"><div class="eyebrow" style="color:#2563eb">EVIDENCE INTELLIGENCE</div><h2 style="font-size:28px">Build the student evidence portfolio</h2><p>Record activities as evidence, not as a score. APLUS tracks role, scale, duration, responsibility, impact and reflection.</p></div>'+
+  '<div class="formgrid">'+
+  '<div><label>Organization / programme</label><input id="actOrg" style="width:100%;padding:13px;border:1px solid #dbe1eb;border-radius:11px" placeholder="e.g. School CCA"></div>'+
+  '<div><label>Position</label><input id="actPosition" style="width:100%;padding:13px;border:1px solid #dbe1eb;border-radius:11px" placeholder="e.g. Vice-Captain"></div>'+
+  '<div><label>Organization level</label><select id="actLevel"><option value="L1">Individual / informal</option><option value="L2">Class / small group</option><option value="L3">School</option><option value="L4">Inter-school</option><option value="L5">Community</option><option value="L6">National</option><option value="L7">International</option></select></div>'+
+  '<div><label>Leadership role</label><select id="actRole"><option value="R1">Participation</option><option value="R2">Task ownership</option><option value="R3">Team coordination</option><option value="R4">Project management</option><option value="R5">Multi-team leadership</option><option value="R6">Strategic leadership</option></select></div>'+
+  '<div><label>Project / initiative</label><input id="actProject" style="width:100%;padding:13px;border:1px solid #dbe1eb;border-radius:11px" placeholder="What did you lead or contribute to?"></div>'+
+  '<div><label>Duration (months)</label><input id="actDuration" type="number" min="0" step="0.5" value="6" style="width:100%;padding:13px;border:1px solid #dbe1eb;border-radius:11px"></div>'+
+  '<div><label>Initiative</label><select id="actInitiative"><option value="I1">Assigned</option><option value="I2">Invited</option><option value="I3">Elected</option><option value="I4">Self-initiated</option><option value="I5">Founded</option></select></div>'+
+  '<div><label>Decision-making</label><select id="actDecision"><option value="M1">Execute predefined plan</option><option value="M2">Propose suggestions</option><option value="M3">Independent decisions on part</option><option value="M4">Responsible for key decisions</option><option value="M5">Organization-level strategic decisions</option></select></div>'+
+  '<div><label>Direct team size</label><input id="actTeam" type="number" min="0" value="5" style="width:100%;padding:13px;border:1px solid #dbe1eb;border-radius:11px"></div>'+
+  '<div><label>Reach / people affected</label><input id="actReach" type="number" min="0" value="0" style="width:100%;padding:13px;border:1px solid #dbe1eb;border-radius:11px"></div>'+
+  '<div style="grid-column:1/-1"><label>What did you actually do?</label><input id="actAction" style="width:100%;padding:13px;border:1px solid #dbe1eb;border-radius:11px" placeholder="Describe responsibilities and decisions"></div>'+
+  '<div style="grid-column:1/-1"><label>Result / impact</label><input id="actResult" style="width:100%;padding:13px;border:1px solid #dbe1eb;border-radius:11px" placeholder="What changed because of the project?"></div>'+
+  '<div style="grid-column:1/-1"><label>Reflection / learning</label><input id="actReflection" style="width:100%;padding:13px;border:1px solid #dbe1eb;border-radius:11px" placeholder="What did you learn or change?"></div>'+
+  '</div>'+
+  '<button class="next" id="addActivityBtn">Add activity to evidence portfolio</button>'+
+  '<div id="activityPortfolio" style="margin-top:20px"></div>';
+  planner.parentNode.insertBefore(panel,document.getElementById("result"));
+  var activities=[];
+  function render(){
+    var p=window.APLUS_ACTIVITY.profile(activities);
+    document.getElementById("activityPortfolio").innerHTML=
+      '<div style="padding:16px;border-radius:14px;background:#f8fbff;border:1px solid #dbe4f2"><b>Evidence Portfolio</b><br><small>'+p.count+' activities · '+p.totalDurationMonths+' months recorded · '+p.verifiedActivities+' verified · '+p.evidenceGaps+' evidence gaps</small></div>'+
+      p.activities.map(function(x,i){return '<div style="margin-top:10px;padding:14px;border:1px solid #e5e7eb;border-radius:12px"><b>'+(i+1)+'. '+(x.activity.position||"Activity")+'</b> · '+(x.activity.organization||"Organization not recorded")+'<br><small>Level '+x.activity.organizationLevel+' · '+x.activity.leadershipRole+' · '+x.activity.durationMonths+' months · '+x.evidence.quality+' · '+x.flags.length+' follow-up item(s)</small></div>';}).join("");
+  }
+  document.getElementById("addActivityBtn").onclick=function(){
+    activities.push({
+      organization:document.getElementById("actOrg").value,
+      position:document.getElementById("actPosition").value,
+      organizationLevel:document.getElementById("actLevel").value,
+      leadershipRole:document.getElementById("actRole").value,
+      project:document.getElementById("actProject").value,
+      durationMonths:Number(document.getElementById("actDuration").value)||0,
+      initiative:document.getElementById("actInitiative").value,
+      decisionMaking:document.getElementById("actDecision").value,
+      directTeamSize:Number(document.getElementById("actTeam").value)||0,
+      indirectReach:Number(document.getElementById("actReach").value)||0,
+      action:document.getElementById("actAction").value,
+      result:document.getElementById("actResult").value,
+      reflection:document.getElementById("actReflection").value,
+      evidence:[]
+    });
+    render();
+  };
+  render();
+  window.APLUS_UI_ACTIVITIES=activities;
+})();
 </script></body></html>
