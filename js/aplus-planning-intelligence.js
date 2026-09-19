@@ -185,7 +185,7 @@
     dash.insertAdjacentElement("afterend",section);
     refresh();
   }
-  async function refresh(){
+  async async function refresh(){
     const profile=loadProfile()||{};
     try{
       const t=profile.target||{};
