@@ -1,0 +1,179 @@
+/* APLUS Planning Intelligence Engine v1.1
+   Decision-support layer: target -> requirements -> profile -> evidence -> priorities -> actions.
+   Separates official requirements, APLUS planning factors and data gaps.
+*/
+(function(){
+  "use strict";
+  const esc=v=>String(v==null?"":v).replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));
+  const arr=v=>Array.isArray(v)?v:[];
+  const nowYear=()=>new Date().getFullYear();
+
+  function loadProfile(){
+    try{return JSON.parse(localStorage.getItem("APLUS_MASTER_PROFILE")||"null");}
+    catch(e){return null;}
+  }
+  function level(v){return String(v||"").toLowerCase();}
+  function priority(status){
+    const s=level(status);
+    if(s==="needs_work"||s==="priority_build"||s==="not_started") return "HIGH";
+    if(s==="developing") return "MEDIUM";
+    if(s==="unknown") return "DATA GAP";
+    return "MONITOR";
+  }
+
+  function build(raw){
+    raw=raw||loadProfile()||{};
+    const target=raw.target||{};
+    const profile=raw.profile||{};
+    const readiness=raw.readiness||{};
+    const entry=Number(target.entryYear);
+    const current=nowYear();
+    const gaps=[];
+    const actions={30:[],90:[],180:[]};
+    const evidence=[];
+
+    function add(bucket,title,detail,source,reason){
+      actions[bucket].push({title,detail,source,reason});
+    }
+    function addEvidence(title,detail,source){
+      evidence.push({title,detail,source});
+    }
+
+    // Official requirement signals — only if the target-year database has a record.
+    let reqs=[];
+    try{
+      if(window.APLUS_REQUIREMENTS && target.university)
+        reqs=window.APLUS_REQUIREMENTS.get(target.university,target.course,entry)||[];
+    }catch(e){reqs=[];}
+    const verified=reqs.filter(r=>r.status!=="pending");
+    const pending=reqs.filter(r=>r.status==="pending");
+
+    verified.forEach(r=>{
+      const text=(r.requirement+" "+(r.threshold||"")).toLowerCase();
+      if(text.includes("ucat") && !arr(raw.application&&raw.application.testsTaken).some(x=>String(x).toLowerCase().includes("ucat"))){
+        gaps.push({title:"UCAT evidence",source:"OFFICIAL_REQUIREMENT",reason:"The target record includes a UCAT requirement; a completed result is not recorded in the profile."});
+        add(90,"Confirm the UCAT window","Check the target-year official window, then plan preparation and test registration around it.","OFFICIAL_REQUIREMENT","Target requirement");
+      }
+      if(text.includes("referee") && Number(raw.application&&raw.application.refereeCount||0)<2){
+        gaps.push({title:"Referee evidence",source:"OFFICIAL_REQUIREMENT",reason:"The profile does not yet record the required referee reports."});
+        add(180,"Build the referee plan","Identify suitable referees early, confirm eligibility and track submission requirements.","OFFICIAL_REQUIREMENT","Target requirement");
+      }
+      if(text.includes("personal statement") && !(raw.application&&raw.application.personalStatementReady)){
+        gaps.push({title:"Personal statement",source:"OFFICIAL_REQUIREMENT",reason:"The application-ready personal statement is not yet recorded."});
+        add(180,"Build the application writing pack","Create an evidence bank and develop a target-specific personal statement when appropriate.","OFFICIAL_REQUIREMENT","Target requirement");
+      }
+      if(text.includes("fsa")){
+        add(180,"Prepare for FSA","Use target-year official guidance to develop communication, reflection and station-based assessment readiness.","OFFICIAL_REQUIREMENT","Target assessment");
+      }
+      if(text.includes("mmi")){
+        add(180,"Prepare for MMI","Practice structured communication, teamwork, ethical reasoning and reflection using verified target-year information.","OFFICIAL_REQUIREMENT","Target assessment");
+      }
+    });
+
+    if(pending.length) gaps.push({title:"Target-year data verification",source:"DATA_GAP",reason:"Some target-year requirements are pending verification. Do not treat them as confirmed."});
+
+    // APLUS planning factors.
+    const dims=[
+      ["academic","Academic trajectory","Protect subject mastery and review grade trends each term."],
+      ["test","Test / assessment readiness","Build assessment preparation progressively rather than waiting for the application year."],
+      ["communication","Communication & reflection","Build clear communication, listening, reasoning and reflection through real experiences."],
+      ["leadership","Leadership evidence","Build sustained responsibility with increasing ownership and measurable outcomes."],
+      ["service","Service / community evidence","Build meaningful sustained contribution and record outcomes and reflection."],
+      ["application","Application readiness","Keep documents, evidence, referees and timelines organized before deadlines."]
+    ];
+    dims.forEach(d=>{
+      const p=priority(readiness[d[0]]);
+      if(p==="HIGH"||p==="MEDIUM"){
+        gaps.push({title:d[1],source:"APLUS_PLANNING_FACTOR",reason:d[2]});
+        add(30,d[1],d[2],"APLUS_PLANNING_FACTOR","Profile readiness");
+      }else if(p==="DATA GAP"){
+        gaps.push({title:d[1],source:"DATA_GAP",reason:"This dimension has not been evidenced sufficiently in the student profile."});
+        add(30,"Complete "+d[1]+" evidence","Record enough evidence for APLUS to distinguish unknown from developing or strong.","DATA_GAP","Missing profile evidence");
+      }
+    });
+
+    // Evidence targets.
+    if(!arr(raw.evidence&&raw.evidence.activities).length)
+      addEvidence("Start an evidence record","Record sustained activities with role, action, result and reflection.","APLUS_PLANNING_FACTOR");
+    else
+      addEvidence("Strengthen evidence quality","For important activities, record responsibility, decision-making, outcome, duration and reflection.","APLUS_PLANNING_FACTOR");
+
+    // Academic subject check.
+    if(!arr(profile.subjects).length){
+      gaps.push({title:"Academic subject data",source:"DATA_GAP",reason:"Current academic subjects are not recorded."});
+      add(30,"Complete academic profile","Record current subjects, qualification pathway, strengths and weak areas.","DATA_GAP","Missing profile evidence");
+    }
+
+    // Timeline compression: closer entry year means deadline-sensitive actions move forward.
+    if(entry){
+      const years=Math.max(0,entry-current);
+      if(years<=1){
+        actions[30].push({title:"Application-cycle audit",detail:"Review every official requirement, deadline, test window and assessment date for the target cycle.","source":"OFFICIAL_REQUIREMENT","reason":"Target entry is within one year."});
+      }else if(years<=2){
+        actions[90].push({title:"Build the application timeline","detail":"Map the target cycle backward from deadlines, tests and assessments.","source":"APLUS_PLANNING_FACTOR","reason":"Target entry is within two years."});
+      }else{
+        actions[180].push({title:"Annual planning review","detail:"Recheck the target, entry year and official requirements once per academic year.","source":"APLUS_PLANNING_FACTOR","reason:"Longer planning horizon."});
+      }
+    }
+
+    return {
+      generatedAt:new Date().toISOString(),
+      target:{university:target.university||"Not selected",course:target.course||"Not selected",entryYear:entry||"Not selected"},
+      verifiedCount:verified.length,pendingCount:pending.length,
+      gaps,gapsBySource:{
+        OFFICIAL_REQUIREMENT:gaps.filter(g=>g.source==="OFFICIAL_REQUIREMENT"),
+        APLUS_PLANNING_FACTOR:gaps.filter(g=>g.source==="APLUS_PLANNING_FACTOR"),
+        DATA_GAP:gaps.filter(g=>g.source==="DATA_GAP")
+      },
+      actions,evidence,
+      disclaimer:"Planning priorities are not admissions predictions, scores or probability estimates."
+    };
+  }
+
+  function render(result,host){
+    if(!host)return;
+    const src=(key,label)=>'<span class="pi-source pi-'+key.toLowerCase().replace(/_/g,"-")+'">'+label+'</span>';
+    function cards(items){
+      if(!items.length)return '<div class="pi-empty">No additional action is currently flagged for this horizon.</div>';
+      return items.map((x,i)=>'<div class="pi-action"><div class="pi-num">'+String(i+1).padStart(2,"0")+'</div><div><b>'+esc(x.title)+'</b><p>'+esc(x.detail)+'</p>'+src(x.source,x.source.replace(/_/g," "))+'<span class="pi-reason">'+esc(x.reason)+'</span></div></div>').join("");
+    }
+    const g=result.gapsBySource;
+    host.innerHTML=
+      '<div class="pi-head"><div><div class="pi-kicker">APLUS PLANNING INTELLIGENCE</div><h2>Know what matters next.</h2><p>A decision-support layer connecting your target, verified requirements, profile evidence and development priorities.</p></div><div class="pi-target"><b>'+esc(result.target.course)+'</b><span>'+esc(result.target.university)+' · Entry '+esc(result.target.entryYear)+'</span></div></div>'+
+      '<div class="pi-grid">'+
+      '<div class="pi-panel pi-wide"><div class="pi-label">WHY THIS MATTERS</div><h3>Your plan is built from three evidence layers.</h3><div class="pi-layers"><div><b>01 · Official requirements</b><span>Verified target-course rules and assessments.</span></div><div><b>02 · APLUS planning factors</b><span>Development areas that help organize preparation.</span></div><div><b>03 · Data gaps</b><span>Unknown information that should not be treated as a weakness.</span></div></div></div>'+
+      '<div class="pi-panel"><div class="pi-label">DATA QUALITY</div><div class="pi-big">'+(result.verifiedCount)+'</div><p>verified requirement records</p><div class="pi-big">'+(result.pendingCount)+'</div><p>pending verification</p></div>'+
+      '</div>'+
+      '<div class="pi-grid pi-horizons">'+
+      '<div class="pi-panel"><div class="pi-label">NEXT 30 DAYS</div>'+cards(result.actions[30])+'</div>'+
+      '<div class="pi-panel"><div class="pi-label">NEXT 90 DAYS</div>'+cards(result.actions[90])+'</div>'+
+      '<div class="pi-panel"><div class="pi-label">NEXT 180 DAYS</div>'+cards(result.actions[180])+'</div>'+
+      '</div>'+
+      '<div class="pi-grid">'+
+      '<div class="pi-panel pi-wide"><div class="pi-label">EVIDENCE TO BUILD</div>'+result.evidence.map(x=>'<div class="pi-evidence"><b>'+esc(x.title)+'</b><span>'+esc(x.detail)+'</span>'+src(x.source,x.source.replace(/_/g," "))+'</div>').join("")+'</div>'+
+      '<div class="pi-panel"><div class="pi-label">PRIORITY SIGNALS</div><div class="pi-count"><b>'+g.OFFICIAL_REQUIREMENT.length+'</b><span>Official requirement</span></div><div class="pi-count"><b>'+g.APLUS_PLANNING_FACTOR.length+'</b><span>APLUS planning factor</span></div><div class="pi-count"><b>'+g.DATA_GAP.length+'</b><span>Data gap</span></div></div>'+
+      '</div>'+
+      '<p class="pi-note">'+esc(result.disclaimer)+'</p>';
+  }
+
+  function inject(){
+    if(document.getElementById("planningIntelligence"))return;
+    const dash=document.getElementById("dashboard");
+    if(!dash)return;
+    const section=document.createElement("section");
+    section.id="planningIntelligence";
+    section.className="aplus-intelligence";
+    section.innerHTML='<div class="pi-shell"><div id="planningIntelligenceHost"></div><button class="pi-refresh" onclick="APLUS_REFRESH_PLANNING_INTELLIGENCE()">Refresh Planning Intelligence ↻</button></div>';
+    dash.insertAdjacentElement("afterend",section);
+    refresh();
+  }
+  function refresh(){
+    const result=build(loadProfile()||{});
+    const host=document.getElementById("planningIntelligenceHost");
+    if(host)render(result,host);
+    try{localStorage.setItem("APLUS_PLANNING_INTELLIGENCE",JSON.stringify(result));}catch(e){}
+  }
+  window.APLUS_PLANNING_INTELLIGENCE={build,render,refresh};
+  window.APLUS_REFRESH_PLANNING_INTELLIGENCE=refresh;
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",inject);else setTimeout(inject,0);
+})();
