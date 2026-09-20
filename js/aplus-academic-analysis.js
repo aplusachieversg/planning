@@ -1,4 +1,4 @@
-/* APLUS Academic Analysis Engine v1.3
+/* APLUS Academic Analysis Engine v1.4
    Subject grades -> classification -> academic pattern -> academic readiness -> profile summary.
    Descriptive planning support only; does not make admissions or career predictions.
 */
@@ -39,18 +39,26 @@
 
   function domainProfile(subjects){
     const graded=arr(subjects).filter(s=>s.classification!=="not_assessed");
-    const scores={};
+    const domains={};
     graded.forEach(s=>{
       const weight=domainWeight(s);
-      if(weight) scores[s.category]=(scores[s.category]||0)+weight;
+      if(!domains[s.category])domains[s.category]={score:0,max:0};
+      const level=escText(s.level).toUpperCase();
+      domains[s.category].score+=weight;
+      domains[s.category].max+=level==="H2"?4:2;
     });
     const labels={Science:"Science",Mathematics:"Mathematics / Quantitative",Computing:"Computing / Quantitative",Humanities:"Humanities",Languages:"Language",Business:"Business",Arts:"Arts"};
-    const ranked=Object.entries(scores).sort((a,b)=>b[1]-a[1]).map(([category,score])=>({
-      category,
-      label:labels[category]||category,
-      score:Math.round(score*10)/10,
-      strength:score>=6?"Strong":score>=3?"Developing":"Emerging"
-    }));
+    const ranked=Object.entries(domains).sort((a,b)=>b[1].score-a[1].score).map(([category,x])=>{
+      const ratio=x.max?x.score/x.max:0;
+      const strength=ratio>=.75?"Strong":ratio>=.5?"Developing":ratio>=.25?"Needs Development":"Needs Support";
+      return {
+        category,
+        label:labels[category]||category,
+        score:Math.round(x.score*10)/10,
+        coverage:Math.round(ratio*100),
+        strength
+      };
+    });
     return {domains:ranked};
   }
 
