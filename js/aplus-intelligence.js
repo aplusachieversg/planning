@@ -32,7 +32,8 @@
       medicineExposureLevel:raw.medicineExposureLevel||"unknown",
       weakTopics:arr(raw.weakTopics),
       strongTopics:arr(raw.strongTopics),
-      evidenceQuality:raw.evidenceQuality||"self_reported"
+      evidenceQuality:raw.evidenceQuality||"self_reported",
+      experienceProfile:raw.experienceProfile||null
     };
   }
 
@@ -75,6 +76,7 @@
     if(!entry) return [];
     const currentYear=new Date().getFullYear();
     const unresolved=arr(analysis&&analysis.gaps).filter(g=>g.status!=="met"&&g.status!=="not_applicable");
+    const qualities=arr(p.experienceProfile&&p.experienceProfile.personalQualities);
     const tasks=[];
     function add(year,phase,title,detail,priority,dependsOn){
       tasks.push({year,phase,title,detail,priority:priority||"medium",dependsOn:dependsOn||[]});
@@ -112,6 +114,24 @@
       if(g.priority==="critical"||g.priority==="high")
         add(Math.min(entry,Math.max(currentYear,entry-1)),"GAP","Resolve: "+g.requirement,
           g.reason+" Rule: "+(g.rule||"See verified source."),g.priority,[g.gapId]);
+    });
+
+    // Experience Profile development gaps become development tasks.
+    qualities.filter(q=>q.development&&q.development!=="Established").forEach(q=>{
+      const titles={
+        leadership:"Develop leadership evidence",
+        commitment:"Build sustained service / commitment",
+        collaboration:"Strengthen collaboration and communication",
+        reflection:"Strengthen reflection and self-awareness",
+        initiative:"Develop initiative and ownership",
+        thinking:"Strengthen thinking and problem-solving",
+        resilience:"Develop resilience and adaptability"
+      };
+      const title=titles[q.key];
+      if(!title)return;
+      add(currentYear,"DEVELOPMENT",title,
+        "Use genuine experiences to build evidence and review progress over time.",
+        q.development==="Not yet evidenced"?"high":"medium");
     });
 
     // Deduplicate same year/phase/title.
