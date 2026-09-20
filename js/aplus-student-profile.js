@@ -34,10 +34,22 @@
     host.querySelectorAll("input[data-subject-key]").forEach(cb=>{
       cb.addEventListener("change",()=>{
         const sel=host.querySelector('select[data-grade-key="'+CSS.escape(cb.dataset.subjectKey)+'"]');
-        if(sel)sel.disabled=!cb.checked; updateSubjectSummary(); updateSubjectGrades(); updateStrengthList();
+        if(sel)sel.disabled=!cb.checked; updateSubjectSummary(); updateSubjectGrades(); updateStrengthList(); updateAcademicAnalysis();
         if(cb.checked&&sel&&sel.value==="not_available")sel.value="not_available";
       });
     });
+  }
+
+  function updateAcademicAnalysis(){
+    const host=document.getElementById("spAcademicAnalysis");
+    if(!host||!window.APLUS_ACADEMIC_ANALYSIS)return;
+    const a=window.APLUS_ACADEMIC_ANALYSIS.analyze(selectedSubjects(),read("spAcademic")||"unknown");
+    const groups=[["strong","Strong"],["developing","Developing"],["needs_development","Needs Development"],["needs_support","Needs Support"]];
+    const rows=groups.map(g=>{
+      const items=a.classifications.filter(x=>x.classification===g[0]);
+      return items.length?'<div style="margin-top:5px"><b>'+g[1]+':</b> '+items.map(x=>x.level+" "+x.subject+(x.grade&&x.grade!=="not_available"?" ("+x.grade+")":"")).join(", ")+'</div>':"";
+    }).join("");
+    host.innerHTML='<div class="sp-derived-box"><div class="sp-section-mini-title">Academic Pattern</div><b>'+esc(a.pattern.label)+'</b><div class="sp-section-mini-title" style="margin-top:12px">Academic Readiness</div><b>'+esc(a.readiness.label)+'</b><div style="font-size:11px;color:#667085;margin-top:4px">'+esc(a.readiness.reason)+'</div><div class="sp-section-mini-title" style="margin-top:12px">Academic Profile Summary</div><div style="font-size:12px;line-height:1.6;color:#475467">'+esc(a.summary)+'</div><div class="sp-section-mini-title" style="margin-top:12px">Classification</div><div style="font-size:11px;color:#475467">'+rows+'</div></div>';
   }
 
   function updateSubjectSummary(){
@@ -159,7 +171,11 @@
     const base=window.APLUS_MASTER_PROFILE.create(raw);
     base.studentName=read("studentName")||"";
     const graded=base.profile.subjects.filter(x=>x.grade&&x.grade!=="not_available");
-    base.profile.strengths=graded.filter(x=>["A","B"].includes(x.grade)).map(x=>x.level+" "+x.subject);
+    base.profile.academicAnalysis=window.APLUS_ACADEMIC_ANALYSIS?window.APLUS_ACADEMIC_ANALYSIS.analyze(base.profile.subjects,read("spAcademic")||"unknown"):base.profile.academicAnalysis;
+    base.profile.strengths=(base.profile.academicAnalysis?base.profile.academicAnalysis.classifications.filter(x=>x.classification==="strong").map(x=>x.level+" "+x.subject):graded.filter(x=>["A","B"].includes(x.grade)).map(x=>x.level+" "+x.subject));
+    if(base.profile.academicAnalysis&&base.profile.academicAnalysis.readiness&&base.profile.academicAnalysis.readiness.gradedSubjects){
+      base.readiness.academic=base.profile.academicAnalysis.readiness.status;
+    }
     base.profile.weakTopics=split("spWeakTopics");
     base.schemaVersion="4.0";
     base.profile.profileCompleteness={
@@ -341,7 +357,7 @@
         '<div><label>Current education level</label><select id="spLevel"><option>Primary</option><option>Secondary 1</option><option>Secondary 2</option><option>Secondary 3</option><option>Secondary 4</option><option>JC 1</option><option>JC 2</option><option>Poly Year 1</option><option>Poly Year 2</option><option>Poly Year 3</option></select></div>'+
         '<div><label>Qualification pathway</label><select id="spQualification"><option>A-Level</option><option>IB</option><option>NUS High School Diploma</option><option>Polytechnic Diploma</option><option>Other / undecided</option></select></div>'+
         '<div class="sp1-full"><label>Current / planned subjects</label><button type="button" id="spSubjectToggle" class="sp-subject-toggle" aria-expanded="false"><span id="spSubjectSummary">Select your subjects</span><span class="sp-chevron">⌄</span></button><div id="spSubjectSelector" class="sp-subject-panel" hidden></div></div>'+
-        '<div class="sp1-full"><label>Academic Profile</label><div class="sp-academic-profile-box"><div class="sp-academic-grade-section"><div class="sp-section-mini-title">Subject grades</div><div id="spStrengthSummary" class="sp-strength-summary"><div class="sp-grade-empty">Select subjects above first.</div></div></div><div class="sp-academic-strength-section"><div class="sp-section-mini-title">Academic strengths</div><div id="spStrengthList" class="sp-strength-list"><div class="sp-grade-empty">Strengths will be identified from subject grades.</div></div></div><div class="sp-academic-context-section"><div class="sp-section-mini-title">Additional academic context <span class="sp-optional">(optional)</span></div><input id="spAcademicProfile" placeholder="Add grade trend, learning progress or other relevant context"></div></div></div>'+
+        '<div class="sp1-full"><label>Academic Profile</label><div class="sp-academic-profile-box"><div class="sp-academic-grade-section"><div class="sp-section-mini-title">Subject grades</div><div id="spStrengthSummary" class="sp-strength-summary"><div class="sp-grade-empty">Select subjects above first.</div></div></div><div class="sp-academic-strength-section"><div class="sp-section-mini-title">Academic strengths</div><div id="spStrengthList" class="sp-strength-list"><div class="sp-grade-empty">Strengths will be identified from subject grades.</div></div></div><div id="spAcademicAnalysis" style="margin-top:14px"></div><div class="sp-academic-context-section"><div class="sp-section-mini-title">Additional academic context <span class="sp-optional">(optional)</span></div><input id="spAcademicProfile" placeholder="Add grade trend, learning progress or other relevant context"></div></div></div>'+
         '<div class="sp1-full"><label>Areas to improve</label><button type="button" id="spWeakToggle" class="sp-subject-toggle" aria-expanded="false"><span id="spWeakSummary">Select areas to improve</span><span class="sp-chevron">⌄</span></button><div id="spWeakSelector" class="sp-weak-panel" hidden><div class="weak-options"><label class="weak-option"><input type="checkbox" name="spWeakTopic" value="Subject knowledge"> <span>Subject knowledge</span></label><label class="weak-option"><input type="checkbox" name="spWeakTopic" value="Concept application"> <span>Concept application</span></label><label class="weak-option"><input type="checkbox" name="spWeakTopic" value="Data analysis"> <span>Data analysis</span></label><label class="weak-option"><input type="checkbox" name="spWeakTopic" value="Problem solving"> <span>Problem solving</span></label><label class="weak-option"><input type="checkbox" name="spWeakTopic" value="Essay / written response"> <span>Essay / written response</span></label><label class="weak-option"><input type="checkbox" name="spWeakTopic" value="Time management"> <span>Time management</span></label><label class="weak-option"><input type="checkbox" name="spWeakTopic" value="Exam technique"> <span>Exam technique</span></label><label class="weak-option"><input type="checkbox" name="spWeakTopic" value="Revision consistency"> <span>Revision consistency</span></label><label class="weak-option"><input type="checkbox" name="spWeakTopic" value="Not identified yet"> <span>Not identified yet</span></label></div></div></div><div><label>Academic foundation</label><select id="spAcademic"><option value="unknown">Not assessed</option><option value="strong">Strong</option><option value="developing">Developing</option><option value="needs_work">Needs building</option></select></div>'+
         '<div><label>Assessment readiness</label><select id="spTest"><option value="unknown">Not assessed</option><option value="strong">Strong</option><option value="developing">Developing</option><option value="needs_work">Needs building</option></select></div>'+
         '<div><label>Communication readiness</label><select id="spCommunication"><option value="unknown">Not assessed</option><option value="strong">Strong</option><option value="developing">Developing</option><option value="needs_work">Needs building</option></select></div>'+
