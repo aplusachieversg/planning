@@ -99,13 +99,25 @@
     });
     const result=window.APLUS_ALEVEL_SCORE.calculate(rows);
     if(result.complete && result.uas!==null){
-      const counted=result.components.h2.concat(result.components.gp?[result.components.gp]:[]);
+      const counted=result.components.h2.slice();
+      if(result.components.gp)counted.push(result.components.gp);
+      if(result.optional?.included?.fourth && result.optional.fourthSubject){
+        const fourth=result.optional.fourthSubject;
+        if(!counted.some(x=>x.level===fourth.level&&x.subject===fourth.subject))counted.push(fourth);
+      }
+      const countedKeys=new Set(counted.map(x=>x.level+"::"+x.subject.toLowerCase()));
+      const allAdditional=(result.breakdown||[]).filter(x=>{
+        const key=x.level+"::"+String(x.subject||"").toLowerCase();
+        return x.subject && !countedKeys.has(key) && x.subject!=="Project Work";
+      });
       const countedNames=counted.map(x=>x.level+" "+x.subject).join(", ");
-      const excluded=result.components.excludedH2||[];
-      const excludedText=excluded.length
-        ?'<div style="margin-top:10px;font-size:10px;color:#667085"><b>Additional / Advanced Academic Evidence</b></div><div style="margin-top:3px;font-size:10px;color:#475467">'+excluded.map(x=>x.level+" "+x.subject+" ("+x.grade+")").join(", ")+'</div><div style="margin-top:3px;font-size:10px;color:#98a2b3;line-height:1.5">These subjects are retained in the Academic Profile even when they are not included in the base UAS. Their academic value may be considered separately for programme admission.</div>'
+      const excludedText=allAdditional.length
+        ?'<div style="margin-top:10px;font-size:10px;color:#667085"><b>Additional / Advanced Academic Evidence</b></div><div style="margin-top:3px;font-size:10px;color:#475467">'+allAdditional.map(x=>x.level+" "+x.subject+" ("+x.grade+")").join(", ")+'</div><div style="margin-top:3px;font-size:10px;color:#98a2b3;line-height:1.5">These subjects are retained in the Academic Profile even when they are not included in the final UAS. Their academic value may be considered separately for programme admission.</div>'
         :'';
-      host.innerHTML='<div class="sp-uas-card"><div><span class="sp-uas-label">Estimated UAS</span><strong>'+result.uas.toFixed(2)+'</strong><span class="sp-uas-max">/ 70</span></div><div class="sp-uas-note">Best 3 H2 content subjects + General Paper.</div></div>'+
+      const uasNote=result.optional?.included?.fourth
+        ?"Best 3 H2 content subjects + General Paper; an additional eligible H1/H2 subject improved the rebased UAS."
+        :"Best 3 H2 content subjects + General Paper. Additional eligible subjects are considered only if they improve the rebased UAS.";
+      host.innerHTML='<div class="sp-uas-card"><div><span class="sp-uas-label">Estimated UAS</span><strong>'+result.uas.toFixed(2)+'</strong><span class="sp-uas-max">/ 70</span></div><div class="sp-uas-note">'+uasNote+'</div></div>'+
         '<div class="sp-auto-note" style="margin-top:8px"><b>UAS counted:</b> '+esc(countedNames)+excludedText+'</div>';
     }else{
       const graded=rows.filter(x=>window.APLUS_ALEVEL_SCORE.points(x.level,x.grade)!==null);
