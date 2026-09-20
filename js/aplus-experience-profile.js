@@ -47,7 +47,7 @@
     if(a.whatIDid&&leadershipRoles.includes(a.role))qualities.push("leadership");
     if(sustained&&a.whatIDid&&(a.whatILearned||a.reflection))qualities.push("commitment");
     if(a.whatIDid&&responsibilityRoles.includes(a.role))qualities.push("responsibility");
-    if(a.whatIDid&&(initiativeSignals.includes(a.role)||independentContext))qualities.push("initiative");
+    const initiativeText=[a.whatIDid,a.whatILearned,a.reflection].filter(Boolean).join(" ").toLowerCase();const initiativeEvidence=/\b(initiat|start|started|launch|launched|propos|proposed|creat|created|establish|established|organis|organised|organized|develop|developed|set up|built|build|led|identified|took the lead|volunteer(ed)? to|decided to)\w*\b/.test(initiativeText);if(a.whatIDid&&((initiativeSignals.includes(a.role))||(independentContext&&initiativeEvidence)))qualities.push("initiative");
     const reflectionText=[a.whatILearned,a.reflection].filter(Boolean).join(" ").toLowerCase();
     const selfAwarenessSignals=/\b(i learned|i realised|i realized|i discovered|i understood|i now understand|i became aware|my strength|my weakness|i improved|i changed|i would|next time|in future|i need to|i need more|i should|i could|feedback|mistake|challenge|different approach|change my approach|changed my approach|perspective|assumption|growth)\b/.test(reflectionText);
     if(a.reflection||selfAwarenessSignals)qualities.push("reflection");
