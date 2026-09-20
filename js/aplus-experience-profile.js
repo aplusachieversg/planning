@@ -78,12 +78,12 @@
   function renderUI(){
     const planner=document.getElementById("planner");if(!planner||document.getElementById("experienceProfilePanel"))return;
     const panel=document.createElement("div");panel.id="experienceProfilePanel";panel.className="planner";panel.style.marginTop="22px";
-    const categoryOptions=TAXONOMY.categories.map(x=>'<option value="'+x[0]+'">'+x[1]+'</option>').join(""),yearOptions=years().map(y=>'<option value="'+y+'">'+y+'</option>').join(""),monthOptions=Array.from({length:12},(_,i)=>'<option value="'+(i+1)+'">'+(i+1)+'</option>').join("");
+    const categoryOptions='<option value="">Select category</option>'+TAXONOMY.categories.map(x=>'<option value="'+x[0]+'">'+x[1]+'</option>').join(""),yearOptions=years().map(y=>'<option value="'+y+'">'+y+'</option>').join(""),monthOptions=Array.from({length:12},(_,i)=>'<option value="'+(i+1)+'">'+(i+1)+'</option>').join("");
     panel.innerHTML=
       '<div class="section-title" style="text-align:left;margin-bottom:24px"><div class="eyebrow" style="color:#3157ff">EXPERIENCE PROFILE</div><h2 style="font-size:30px;margin-bottom:8px">Personal Background & Experience</h2><p style="margin-bottom:0">Experiences are recorded as evidence of personal development — independently of the Academic Baseline and without converting them into admission points.</p></div>'+
       '<div style="display:flex;align-items:center;gap:10px;margin:0 0 16px;padding:11px 14px;border:1px solid #e8ebf2;background:#f8f9fc;border-radius:12px"><span style="font-size:12px;font-weight:900;color:#3157ff">01</span><div><div style="font-size:13px;font-weight:850">EXPERIENCE RECORD</div><div style="font-size:11px;color:#667085">Capture the activity, context, role, evidence and reflection.</div></div></div>'+
       '<div class="formgrid">'+
-      '<div><label>Category</label><select id="expCategory">'+categoryOptions+'</select></div><div><label>Activity Type</label><select id="expActivityType"><option value="">Select activity type</option></select></div>'+
+      '<div><label>Category</label><select id="expCategory">'+categoryOptions+'</select></div><div><label>Activity Type</label><select id="expActivityType" disabled><option value="">Select activity type</option></select></div>'+
       '<div><label>Organisation / Institution</label><input id="expOrg" '+inputStyle()+' placeholder="Organisation or institution"></div><div><label>Organisation Level</label>'+select("expOrgLevel",TAXONOMY.organisationLevels,"Select level")+'</div>'+
       '<div><label>Start</label><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><select id="expStartMonth"><option value="">Month</option>'+monthOptions+'</select><select id="expStartYear"><option value="">Year</option>'+yearOptions+'</select></div></div>'+
       '<div><label>End</label><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><select id="expEndMonth"><option value="">Month</option>'+monthOptions+'</select><select id="expEndYear"><option value="">Year</option>'+yearOptions+'</select></div><label style="margin-top:8px;font-weight:500"><input id="expOngoing" type="checkbox" style="width:auto;margin-right:6px"> Ongoing</label></div>'+
@@ -101,7 +101,7 @@
       '<div id="experiencePatternOutput"></div>';
     const anchor=document.getElementById("result");planner.parentNode.insertBefore(panel,anchor||null);
     let activities=[];const typeEl=panel.querySelector("#expActivityType");
-    function refreshTypes(){const cat=panel.querySelector("#expCategory").value,hit=TAXONOMY.categories.find(x=>x[0]===cat);typeEl.innerHTML='<option value="">Select activity type</option>'+(hit?hit[2]:[]).map(x=>'<option value="'+esc(x)+'">'+esc(x)+'</option>').join("");}
+    function refreshTypes(){const cat=panel.querySelector("#expCategory").value,hit=TAXONOMY.categories.find(x=>x[0]===cat);typeEl.innerHTML='<option value="">Select activity type</option>'+(hit?hit[2]:[]).map(x=>'<option value="'+esc(x)+'">'+esc(x)+'</option>').join("");typeEl.disabled=!cat;}
     panel.querySelector("#expCategory").addEventListener("change",refreshTypes);refreshTypes();
 
     function render(){
