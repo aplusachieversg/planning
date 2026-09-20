@@ -49,7 +49,10 @@
     if(a.whatIDid&&responsibilityRoles.includes(a.role))qualities.push("responsibility");
     if(a.whatIDid&&(initiativeSignals.includes(a.role)||independentContext))qualities.push("initiative");
     if(a.whatILearned||a.reflection)qualities.push("reflection");
-    if(["team","school_wide","community_wide","national","international"].includes(a.participationLevel))qualities.push("collaboration");
+    const collaborationText=[a.whatIDid,a.whatILearned,a.reflection].filter(Boolean).join(" ").toLowerCase();
+    const collaborationSignals=/\b(team|teammate|collaborat|cooperat|coordinate|communicat|delegate|delegated|mentor|mentored|support|supported|work together|worked together|listen|listened|feedback|conflict|consensus|present|presented|facilitat|organis)\w*\b/.test(collaborationText);
+    const collaborativeRole=["organiser","leader","team_captain","project_leader","founder","mentor","student_representative"].includes(a.role);
+    if(a.whatIDid&&(collaborationSignals||collaborativeRole)&&a.participationLevel&&a.participationLevel!=="individual")qualities.push("collaboration");
     if(a.whatIDid&&(a.whatILearned||a.reflection)&&["research","projects","competitions"].includes(a.category))qualities.push("thinking");
     const resilienceText=[a.whatIDid,a.whatILearned,a.reflection].filter(Boolean).join(" ").toLowerCase();
     const resilienceSignals=/\b(challenge|challenging|difficult|difficulty|obstacle|setback|failure|failed|mistake|struggle|struggled|persist|persistence|persevere|perseverance|overcome|adapt|adapted|adaptation|adjust|adjusted|revise|revised|revision|iterate|iterated|iteration|recover|recovered|feedback|changed approach|different approach)\b/.test(resilienceText);
