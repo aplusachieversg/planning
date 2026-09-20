@@ -85,7 +85,11 @@
       const el=host.querySelector('select[data-grade-key="'+CSS.escape(k)+'"]');
       if(el){
         el.value=x.grade||"not_available";
-        el.addEventListener("change",()=>{ updateSubjectSummary(); updateStrengthList(); });
+        el.addEventListener("change",()=>{
+          updateSubjectSummary();
+          updateStrengthList();
+          updateAcademicAnalysis();
+        });
       }
     });
   }
@@ -383,6 +387,7 @@
     renderSubjects();
     updateSubjectGrades();
     updateStrengthList();
+    updateAcademicAnalysis();
     const targetSync=function(){
       const pairs=[["spTargetField","field"],["spTargetUniversity","uni"],["spEntryYear","entryYear"]];
       pairs.forEach(function(pair){const src=document.getElementById(pair[0]),dst=document.getElementById(pair[1]);if(src&&dst)dst.value=src.value;});
