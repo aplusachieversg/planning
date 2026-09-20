@@ -1,4 +1,4 @@
-/* APLUS A-LEVEL SCORE ENGINE v1.0
+/* APLUS A-LEVEL SCORE ENGINE v1.1
    Singapore-Cambridge GCE A-Level -> University Admission Score (UAS).
    Rule basis: 2025 A-Level cohort / AY2026+ revised 70-point framework.
    Source: NUS revised UAS FAQ (information accurate Feb 2026).
@@ -25,7 +25,12 @@
     const gp=graded.find(x=>x.level==="H1" && x.subject.toLowerCase()==="general paper")||null;
     const fourthCandidates=graded.filter(x=>x!==gp && x.level==="H1" && !["Project Work","General Paper"].includes(x.subject))
       .concat(graded.filter(x=>x!==gp && x.level==="H2" && !["General Paper","Project Work"].includes(x.subject)));
-    const bestH2=h2.slice().sort((a,b)=>b.points-a.points).slice(0,3);
+    // UAS base rule: take the BEST THREE H2 content-based subjects, regardless of
+    // how many H2 subjects the student has taken, then add General Paper.
+    // This is essential for students taking 4 or 5 H2 subjects.
+    const rankedH2=h2.slice().sort((a,b)=>b.points-a.points);
+    const bestH2=rankedH2.slice(0,3);
+    const excludedH2=rankedH2.slice(3);
     const baseComplete=bestH2.length===3 && !!gp;
     const baseUAS=baseComplete?bestH2.reduce((a,x)=>a+x.points,0)+gp.points:null;
     let finalUAS=baseUAS, inclusion={fourth:false,mtl:false};
@@ -54,12 +59,13 @@
       framework:"2025-A-LEVEL-AY2026-UAS-70",
       scale:70,
       gradePoints:POINTS,
-      components:{h2:bestH2,gp},
+      components:{h2:bestH2,excludedH2,gp},
       baseUAS:baseUAS===null?null:Math.round(baseUAS*100)/100,
       optional:{fourthSubject:fourth,mtl:mtl,included:inclusion},
       uas:finalUAS,
       complete:baseComplete,
-      breakdown:rows
+      breakdown:rows,
+      ruleSummary:"Base UAS = best 3 H2 content-based subjects + General Paper; additional H2 subjects do not enter the base UAS."
     };
   }
   window.APLUS_ALEVEL_SCORE={version:"1.0",POINTS,MAX,points,scoreSubject,calculate};
