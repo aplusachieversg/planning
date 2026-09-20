@@ -50,7 +50,7 @@
     if(a.whatIDid&&(initiativeSignals.includes(a.role)||independentContext))qualities.push("initiative");
     if(a.whatILearned||a.reflection)qualities.push("reflection");
     if(["team","school_wide","community_wide","national","international"].includes(a.participationLevel))qualities.push("collaboration");
-    if(["research","projects","competitions"].includes(a.category))qualities.push("thinking");
+    if(a.whatIDid&&(a.whatILearned||a.reflection)&&["research","projects","competitions"].includes(a.category))qualities.push("thinking");
     if(["competitions","projects","internship","research"].includes(a.category))qualities.push("resilience");
     return {activity:a,categoryLabel:categoryLabel(a.category),durationMonths:months,durationBand:months===null?"Not calculated":durationBand(months),evidenceQuality:evidenceStrength(a),qualities:[...new Set(qualities)],flags};
   }
