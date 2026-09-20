@@ -103,7 +103,13 @@
   function updateStrengthList(){
     const host=document.getElementById("spStrengthList");
     if(!host)return;
-    const selected=selectedSubjects();
+    const rows=Array.from(document.querySelectorAll("#spStrengthSummary .sp-grade-row"));
+    const selected=rows.map(row=>{
+      const level=row.querySelector(".sp-grade-level")?.textContent.trim()||"";
+      const subject=row.querySelector(".sp-grade-subject")?.textContent.trim()||"";
+      const grade=row.querySelector("select")?.value||"not_available";
+      return {level,subject,grade};
+    }).filter(x=>x.subject);
     const groups=[
       {key:"A",title:"Strong",items:selected.filter(x=>x.grade==="A")},
       {key:"B",title:"Developing",items:selected.filter(x=>x.grade==="B")},
