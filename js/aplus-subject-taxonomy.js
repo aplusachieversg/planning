@@ -1,4 +1,4 @@
-/* APLUS JC / GCE A-LEVEL SUBJECT TAXONOMY v1.0
+/* APLUS JC / GCE A-LEVEL SUBJECT TAXONOMY v1.1
    Source basis: SEAB 2027 GCE A-Level syllabuses for school candidates.
    Purpose: structured student selection; no free-text subject entry required.
 */
@@ -45,7 +45,12 @@
     if(x&&typeof x==="object"){
       const level=String(x.level||"").toUpperCase();
       const subject=String(x.subject||x.name||"").trim();
-      if(subject)return {level:level||"OTHER",subject,category:x.category||"Other",code:x.code||null,grade:x.grade||"not_available",canonicalId:x.canonicalId||key(level,subject)};
+      if(subject){
+        const found=all().find(a=>a.level===level&&a.subject.toLowerCase()===subject.toLowerCase());
+        return found
+          ?Object.assign({},found,{grade:x.grade||"not_available",canonicalId:x.canonicalId||found.canonicalId})
+          :{level:level||"OTHER",subject,category:x.category||"Other",code:x.code||null,grade:x.grade||"not_available",canonicalId:x.canonicalId||key(level,subject)};
+      }
     }
     const s=String(x||"").trim();
     const m=s.match(/^(H[123]|H1|H2|H3)\s+(.+)$/i);
