@@ -14,8 +14,8 @@
     const out=[];
     document.querySelectorAll("#spSubjectSelector input[data-subject-key]:checked").forEach(cb=>{
       const level=cb.dataset.level, subject=cb.dataset.subject, category=cb.dataset.category;
-      const key=cb.dataset.subjectKey;
-      const gradeEl=document.querySelector('#spStrengthSummary select[data-grade-key="'+CSS.escape(key)+'"]');
+      const key=cb.dataset.subjectKey||((level+"__"+subject).replace(/[^a-z0-9]+/gi,"_"));
+      const gradeEl=Array.from(document.querySelectorAll("#spStrengthSummary select[data-grade-key]")).find(el=>el.getAttribute("data-grade-key")===key);
       const grade=subjectGrades[key]||(gradeEl?gradeEl.value:"not_available");
       out.push({level,subject,category,grade});
     });
@@ -91,7 +91,7 @@
     }).join("")+'</div>';
     selected.forEach(x=>{
       const k=x.level+"__"+x.subject.replace(/[^a-z0-9]+/gi,"_");
-      const el=host.querySelector('select[data-grade-key="'+CSS.escape(k)+'"]');
+      const el=Array.from(host.querySelectorAll("select[data-grade-key]")).find(s=>s.getAttribute("data-grade-key")===k);
       if(el){
         el.value=x.grade||subjectGrades[k]||"not_available";
         subjectGrades[k]=el.value;
