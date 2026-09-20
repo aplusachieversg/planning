@@ -51,7 +51,7 @@
       const ratio=(counts.strong*2+counts.developing)/(graded.length*2);
       if(counts.needs_support>=2 || ratio<.5){status="needs_development";label="Further Development Recommended";reason="Several graded subjects indicate areas that may need focused development.";}
       else if(counts.developing>counts.strong){status="developing";label="Generally Developing";reason="The profile shows a developing academic foundation across the recorded subjects.";}
-      else {status="strong_foundation";label="Strong Academic Foundation";reason="The recorded subject grades show a strong academic foundation, with some areas to continue monitoring.";}
+      else {status="strong";label="Strong Academic Foundation";reason="The recorded subject grades show a strong academic foundation, with some areas to continue monitoring.";}
     }
     return {status,label,reason,counts,gradedSubjects:graded.length,manualInput:escText(manual)||"unknown",derived:true};
   }
