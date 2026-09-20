@@ -41,11 +41,16 @@
     const graded=arr(subjects).filter(s=>s.classification!=="not_assessed");
     const domains={};
     graded.forEach(s=>{
+      const category=escText(s.category);
+      /* Core subjects such as General Paper / Project Work are tracked elsewhere.
+         They should not be treated as an academic subject domain. */
+      if(!category||category==="Core")return;
       const weight=domainWeight(s);
-      if(!domains[s.category])domains[s.category]={score:0,max:0};
+      if(weight<=0)return;
+      if(!domains[category])domains[category]={score:0,max:0};
       const level=escText(s.level).toUpperCase();
-      domains[s.category].score+=weight;
-      domains[s.category].max+=level==="H2"?4:2;
+      domains[category].score+=weight;
+      domains[category].max+=level==="H2"?4:2;
     });
     const labels={Science:"Science",Mathematics:"Mathematics / Quantitative",Computing:"Computing / Quantitative",Humanities:"Humanities",Languages:"Language",Business:"Business",Arts:"Arts"};
     const ranked=Object.entries(domains).sort((a,b)=>b[1].score-a[1].score).map(([category,x])=>{
