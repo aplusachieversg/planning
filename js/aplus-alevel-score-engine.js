@@ -1,4 +1,4 @@
-/* APLUS A-LEVEL SCORE ENGINE v1.1
+/* APLUS A-LEVEL SCORE ENGINE v1.2
    Singapore-Cambridge GCE A-Level -> University Admission Score (UAS).
    Rule basis: 2025 A-Level cohort / AY2026+ revised 70-point framework.
    Source: NUS revised UAS FAQ (information accurate Feb 2026).
@@ -39,9 +39,10 @@
     // only if it improves the overall UAS. Each valid combination is rebased to 70.
     // The fourth content-based subject is treated at H1 weighting for the
     // revised 70-point UAS rebasing, including when that subject is offered at H2.
-    // For 4/5 H2 students, use the strongest H2 outside the base best three as
-    // the fourth-content candidate; remaining H2 subjects stay in the profile.
-    const autoFourth=excludedH2.length?excludedH2[0]:null;
+    // Automatically identify the strongest eligible fourth H1/H2 content subject.
+    // For 4/5 H2 students this is the strongest H2 outside the base best three;
+    // for 3 H2 + H1 pathways it can be the eligible H1 content subject.
+    const autoFourth=fourthCandidates.slice().sort((a,b)=>b.points-a.points)[0]||null;
     const fourth=options.fourthSubject?scoreSubject(options.fourthSubject):autoFourth;
     const fourthEquivalent=fourth&&fourth.points!==null
       ?{...fourth,points:POINTS.H1[clean(fourth.grade)]}
