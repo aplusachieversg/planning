@@ -46,7 +46,7 @@
   function updateAcademicAnalysis(){
     const host=document.getElementById("spAcademicAnalysis");
     if(!host||!window.APLUS_ACADEMIC_ANALYSIS)return;
-    const visibleRows=Array.from(document.querySelectorAll("#spStrengthSummary .sp-grade-row")).map(row=>({level:row.querySelector(".sp-grade-level")?.textContent.trim()||"",subject:row.querySelector(".sp-grade-subject")?.textContent.trim()||"",grade:row.querySelector("select")?.value||"not_available"})).filter(x=>x.subject);
+    const visibleRows=Array.from(document.querySelectorAll("#spStrengthSummary .sp-grade-row")).map(row=>{const level=row.querySelector(".sp-grade-level")?.textContent.trim()||"",subject=row.querySelector(".sp-grade-subject")?.textContent.trim()||"",grade=row.querySelector("select")?.value||"not_available";const tax=window.APLUS_SUBJECT_TAXONOMY&&window.APLUS_SUBJECT_TAXONOMY.normalizeOne?window.APLUS_SUBJECT_TAXONOMY.normalizeOne({level,subject}):null;return {level,subject,grade,category:tax?.category||"Other"};}).filter(x=>x.subject);
     const a=window.APLUS_ACADEMIC_ANALYSIS.analyze(visibleRows,read("spAcademic")||"unknown");
     const groups=[["strong","Strong"],["developing","Developing"],["needs_development","Needs Development"],["needs_support","Needs Support"]];
     const rows=groups.map(g=>{
