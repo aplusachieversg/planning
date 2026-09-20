@@ -177,7 +177,7 @@
     const legacyTarget=targetUniversityRaw;
     const isUK=/^UK Medicine$/i.test(legacyTarget);
     const isAustralia=/^Australia Medicine$/i.test(legacyTarget);
-    const targetUniversity=/^NUS Medicine$/i.test(legacyTarget)?"NUS":/^NTU Medicine$/i.test(legacyTarget)?"NTU":legacyTarget;
+    const targetUniversity=/^NUS Medicine$/i.test(legacyTarget)||/^NUS Law$/i.test(legacyTarget)?"NUS":/^NTU Medicine$/i.test(legacyTarget)?"NTU":legacyTarget;
     const targetCourse=targetField||(/(Medicine)$/i.test(legacyTarget)?"Medicine":legacyTarget);
     const targetCountry=isUK?"United Kingdom":isAustralia?"Australia":"Singapore";
     const raw={field:targetField,university:targetUniversity,course:targetCourse,country:targetCountry,entryYear:targetEntryYear||read("dbEntryYear")||"2027",scholarship:read("targetScholarship"),currentLevel:read("spLevel")||read("level")||"Not specified",qualification:read("spQualification"),academicProfile:read("spAcademicProfile"),subjects:selectedSubjects(),strengths:[],weakTopics:split("spWeakTopics"),readiness,activities};
@@ -257,7 +257,15 @@
       const subjects=arr(ap.subjects);
       const set=(id,value)=>{const el=document.getElementById(id);if(el&&value!=null&&value!=="")el.value=String(value);};
       set("spTargetField",ap.field);
-      set("spTargetUniversity",row&&row.target_university);
+      const savedField=String(ap.field||"");
+      const savedUniversity=String((row&&row.target_university)||"");
+      const savedProgramme=String((row&&row.target_programme)||"");
+      let uiUniversity=savedUniversity;
+      if(savedField==="Law" && /^NUS$/i.test(savedUniversity)) uiUniversity="NUS Law";
+      else if(savedField==="Medicine" && /^NUS$/i.test(savedUniversity)) uiUniversity="NUS Medicine";
+      else if(savedField==="Medicine" && /^NTU$/i.test(savedUniversity)) uiUniversity="NTU Medicine";
+      else if(savedField==="Law" && /^NUS Law$/i.test(savedProgramme)) uiUniversity="NUS Law";
+      set("spTargetUniversity",uiUniversity);
       set("spEntryYear",row&&row.entry_year);
       set("spQualification",row&&row.qualification);
       set("spLevel",ap.currentLevel);
@@ -276,6 +284,10 @@
       if(ap.readiness){set("spAcademic",ap.readiness.academic);set("spTest",ap.readiness.test);set("spCommunication",ap.readiness.communication);set("spLeadership",ap.readiness.leadership);set("spService",ap.readiness.service);set("spApplication",ap.readiness.application);}
       const merged=Object.assign({},(()=>{try{return JSON.parse(localStorage.getItem("APLUS_MASTER_PROFILE")||"{}")}catch(e){return {}}})(),{profile:Object.assign({},ap,{aLevelScore:ap.aLevelScore||null,admissionAcademic:ap.admissionAcademic||null}),target:{field:ap.field||"",university:row&&row.target_university||"",course:row&&row.target_programme||"",entryYear:row&&row.entry_year||""},studentName:row&&row.display_name||""});
       localStorage.setItem("APLUS_MASTER_PROFILE",JSON.stringify(merged));
+      const fieldEl=document.getElementById("spTargetField");
+      if(fieldEl){ fieldEl.dispatchEvent(new Event("change")); }
+      const uniEl=document.getElementById("spTargetUniversity");
+      if(uniEl && uiUniversity && Array.from(uniEl.options).some(o=>o.value===uiUniversity)) uniEl.value=uiUniversity;
       refreshAcademicOutputs();
       return true;
     }catch(e){return false;}
