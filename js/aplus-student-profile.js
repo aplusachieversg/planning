@@ -96,10 +96,18 @@
     });
     const result=window.APLUS_ALEVEL_SCORE.calculate(rows);
     if(result.complete && result.uas!==null){
-      host.innerHTML='<div class="sp-uas-card"><div><span class="sp-uas-label">Estimated UAS</span><strong>'+result.uas.toFixed(2)+'</strong><span class="sp-uas-max">/ 70</span></div><div class="sp-uas-note">Based on the recorded H2 subjects and General Paper.</div></div>';
+      const counted=result.components.h2.concat(result.components.gp?[result.components.gp]:[]);
+      const countedNames=counted.map(x=>x.level+" "+x.subject).join(", ");
+      const excluded=result.components.excludedH2||[];
+      const excludedText=excluded.length
+        ?'<div style="margin-top:8px;font-size:10px;color:#667085"><b>Additional graded H2:</b> '+excluded.map(x=>x.level+" "+x.subject+" ("+x.grade+")").join(", ")+' · retained in the Academic Profile and may be considered separately for programme admission.</div>'
+        :'';
+      host.innerHTML='<div class="sp-uas-card"><div><span class="sp-uas-label">Estimated UAS</span><strong>'+result.uas.toFixed(2)+'</strong><span class="sp-uas-max">/ 70</span></div><div class="sp-uas-note">Best 3 H2 content subjects + General Paper.</div></div>'+
+        '<div class="sp-auto-note" style="margin-top:8px"><b>UAS counted:</b> '+esc(countedNames)+excludedText+'</div>';
     }else{
       const graded=rows.filter(x=>window.APLUS_ALEVEL_SCORE.points(x.level,x.grade)!==null);
-      host.innerHTML='<div class="sp-uas-card sp-uas-pending"><div><span class="sp-uas-label">UAS</span><strong>—</strong><span class="sp-uas-max">/ 70</span></div><div class="sp-uas-note">'+graded.length+' graded subject'+(graded.length===1?"":"s")+' recorded · enter 3 H2 subjects + General Paper to calculate the UAS.</div></div>';
+      host.innerHTML='<div class="sp-uas-card sp-uas-pending"><div><span class="sp-uas-label">UAS</span><strong>—</strong><span class="sp-uas-max">/ 70</span></div><div class="sp-uas-note">'+graded.length+' graded subject'+(graded.length===1?"":"s")+' recorded · enter 3 H2 subjects + General Paper to calculate the UAS.</div></div>'+
+        '<div class="sp-auto-note" style="margin-top:8px">All recorded subjects remain part of the Academic Profile even when they are not yet included in the UAS.</div>';
     }
   }
 
