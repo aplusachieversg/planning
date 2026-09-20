@@ -24,7 +24,7 @@
   function renderSubjects(){
     const host=document.getElementById("spSubjectSelector");
     if(!host||!tax())return;
-    const grades=['<option value="not_available">Not available yet</option>'].concat(tax().gradeOptions.map(g=>'<option value="'+g+'">'+g+'</option>')).join("");
+    const gradeOptionsForLevel=function(level){return level==="H3"?['Distinction','Merit','Pass','Ungraded']:tax().gradeOptions;};
     const groups=["H2","H1","H3","CORE"];
     host.innerHTML=groups.map(level=>{
       const title=level==="CORE"?"Core / Other":"Higher "+level.slice(1);
@@ -121,10 +121,10 @@
       const scoreHost=document.getElementById("spALevelScore"); if(scoreHost)scoreHost.innerHTML="";
       return;
     }
-    const gradeOptions=['<option value="not_available">Not available yet</option>'].concat((tax()?tax().gradeOptions:[]).map(g=>'<option value="'+g+'">'+g+'</option>')).join("");
+    const gradeOptionsForLevel=function(level){return level==="H3"?['Distinction','Merit','Pass','Ungraded']:(tax()?tax().gradeOptions:[]);};
     host.innerHTML='<div class="sp-grade-list">'+selected.map(x=>{
       const k=x.level+"__"+x.subject.replace(/[^a-z0-9]+/gi,"_");
-      return '<div class="sp-grade-row"><div><span class="sp-grade-level">'+esc(x.level)+'</span><span class="sp-grade-subject">'+esc(x.subject)+'</span></div><div class="sp-grade-score"><select data-grade-key="'+esc(k)+'">'+gradeOptions+'</select><span class="sp-grade-points">—</span></div></div>';
+      const options=['<option value="not_available">Not available yet</option>'].concat(gradeOptionsForLevel(x.level).map(g=>'<option value="'+g+'">'+g+'</option>')).join(""); return '<div class="sp-grade-row"><div><span class="sp-grade-level">'+esc(x.level)+'</span><span class="sp-grade-subject">'+esc(x.subject)+'</span></div><div class="sp-grade-score"><select data-grade-key="'+esc(k)+'">'+options+'</select><span class="sp-grade-points">—</span></div></div>';
     }).join("")+'</div>';
     selected.forEach(x=>{
       const k=x.level+"__"+x.subject.replace(/[^a-z0-9]+/gi,"_");
