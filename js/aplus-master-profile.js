@@ -20,7 +20,7 @@
       profile:{
         currentLevel:clean(raw.currentLevel), qualification:clean(raw.qualification),
         academicProfile:clean(raw.academicProfile), subjects:(window.APLUS_SUBJECT_TAXONOMY?window.APLUS_SUBJECT_TAXONOMY.normalizeList(raw.subjects):arr(raw.subjects)),
-        strengths:arr(raw.strengths), weakTopics:arr(raw.weakTopics), subjectGrades:(window.APLUS_SUBJECT_TAXONOMY?window.APLUS_SUBJECT_TAXONOMY.normalizeList(raw.subjects).map(x=>({level:x.level,subject:x.subject,grade:x.grade||"not_available"})):[])
+        strengths:arr(raw.strengths), weakTopics:arr(raw.weakTopics), academicAnalysis:(window.APLUS_ACADEMIC_ANALYSIS?window.APLUS_ACADEMIC_ANALYSIS.analyze((window.APLUS_SUBJECT_TAXONOMY?window.APLUS_SUBJECT_TAXONOMY.normalizeList(raw.subjects):arr(raw.subjects)),(raw.readiness&&raw.readiness.academic)||raw.academicReadiness):null), subjectGrades:(window.APLUS_SUBJECT_TAXONOMY?window.APLUS_SUBJECT_TAXONOMY.normalizeList(raw.subjects).map(x=>({level:x.level,subject:x.subject,grade:x.grade||"not_available"})):[])
       },
       readiness:{
         academic:clean((raw.readiness&&raw.readiness.academic)||raw.academicReadiness)||"unknown",
@@ -70,7 +70,7 @@
       target:(s.target.university||"Target not selected")+" · "+(s.target.course||"Course not selected"),
       entryYear:s.target.entryYear||"—", currentLevel:s.profile.currentLevel||"—",
       qualification:s.profile.qualification||"—", activities:s.evidence.activityCount,
-      evidenceQuality:s.metadata.evidenceQuality, readiness:readiness(s)
+      evidenceQuality:s.metadata.evidenceQuality, readiness:readiness(s), academicAnalysis:s.profile.academicAnalysis||null
     };
   }
   window.APLUS_MASTER_PROFILE={create,validate,summary,readiness};
