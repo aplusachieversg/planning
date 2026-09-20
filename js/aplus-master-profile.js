@@ -1,4 +1,4 @@
-/* APLUS Student Master Profile v1.3
+/* APLUS Student Master Profile v1.5
    Canonical student state + structured readiness model.
 */
 (function(){
@@ -10,17 +10,22 @@
     raw=raw||{};
     const subjects=window.APLUS_SUBJECT_TAXONOMY?window.APLUS_SUBJECT_TAXONOMY.normalizeList(raw.subjects):arr(raw.subjects);
     const aLevelScore=window.APLUS_ALEVEL_SCORE?window.APLUS_ALEVEL_SCORE.calculate(subjects):null;
+    const university=clean(raw.university), course=clean(raw.course), entryYear=n(raw.entryYear);
+    const requirementRecords=window.APLUS_REQUIREMENTS&&window.APLUS_REQUIREMENTS.get
+      ?window.APLUS_REQUIREMENTS.get(university,course,entryYear)
+      :[];
     const admissionAcademic=window.APLUS_ADMISSION_ACADEMIC?window.APLUS_ADMISSION_ACADEMIC.evaluate(subjects,{
       uasResult:aLevelScore,
-      field:clean(raw.field),university:clean(raw.university),course:clean(raw.course),entryYear:n(raw.entryYear)
+      requirements:requirementRecords,
+      field:clean(raw.field),university,course,entryYear
     }):null;
     return {
-      schemaVersion:"1.4",
+      schemaVersion:"1.5",
       studentId:clean(raw.studentId)||("STU-"+Date.now()),
       updatedAt:new Date().toISOString(),
       target:{
-        field:clean(raw.field), university:clean(raw.university), course:clean(raw.course),
-        country:clean(raw.country), entryYear:n(raw.entryYear), scholarship:clean(raw.scholarship),
+        field:clean(raw.field), university, course,
+        country:clean(raw.country), entryYear, scholarship:clean(raw.scholarship),
         applications:arr(raw.applications)
       },
       profile:{
@@ -68,7 +73,7 @@
     return {items,known:known.length,score:points,max,status:!known.length?"not_started":points>=max*.75?"developing_strength":points>=max*.45?"developing":"priority_build"};
   }
   function summary(s){
-    return {studentId:s.studentId,target:(s.target.university||"Target not selected")+" · "+(s.target.course||"Course not selected"),entryYear:s.target.entryYear||"—",currentLevel:s.profile.currentLevel||"—",qualification:s.profile.qualification||"—",activities:s.evidence.activityCount,evidenceQuality:s.metadata.evidenceQuality,readiness:readiness(s),academicAnalysis:s.profile.academicAnalysis||null};
+    return {studentId:s.studentId,target:(s.target.university||"Target not selected")+" · "+(s.target.course||"Course not selected"),entryYear:s.target.entryYear||"—",currentLevel:s.profile.currentLevel||"—",qualification:s.profile.qualification||"—",activities:s.evidence.activityCount,evidenceQuality:s.metadata.evidenceQuality,readiness:readiness(s),academicAnalysis:s.profile.academicAnalysis||null,admissionAcademic:s.profile.admissionAcademic||null};
   }
   window.APLUS_MASTER_PROFILE={create,validate,summary,readiness};
 })();
