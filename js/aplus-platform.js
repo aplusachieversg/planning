@@ -20,9 +20,10 @@
   function build(raw){
     raw=raw||{};
     const db=raw.db||window.APLUS_DB||{};
-    const activityProfile=window.APLUS_ACTIVITY
-      ? window.APLUS_ACTIVITY.profile(raw.activities||[])
-      : {count:0,verifiedActivities:0,evidenceGaps:0,totalDurationMonths:0};
+    const activities=Array.isArray(raw.activities)?raw.activities:[];
+    const activityProfile=window.APLUS_EXPERIENCE_PROFILE
+      ? window.APLUS_EXPERIENCE_PROFILE.profile(activities)
+      : {count:activities.length,verifiedActivities:0,evidenceGaps:0,totalDurationMonths:0};
 
     const target={
       university:clean(raw.university),
@@ -46,9 +47,16 @@
       profile,
       evidence:{
         activityCount:activityProfile.count,
-        verifiedActivities:activityProfile.verifiedActivities,
-        evidenceGaps:activityProfile.evidenceGaps,
-        totalDurationMonths:activityProfile.totalDurationMonths
+        verifiedActivities:activityProfile.activities
+          ? activityProfile.activities.filter(x=>x.evidenceQuality==="Evidenced").length
+          : 0,
+        evidenceGaps:activityProfile.activities
+          ? activityProfile.activities.filter(x=>x.flags&&x.flags.length).length
+          : 0,
+        totalDurationMonths:activityProfile.activities
+          ? activityProfile.activities.reduce((sum,x)=>sum+(x.durationMonths||0),0)
+          : 0,
+        experienceProfile:activityProfile
       },
       dataStatus:db.loaded ? "database_loaded" : "database_not_loaded",
       principles:[
