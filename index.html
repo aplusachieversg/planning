@@ -238,7 +238,7 @@ loadAPLUSDatabase();
 })();
 </script>
 <script src="js/aplus-subject-taxonomy.js?v=1.0"></script><script src="js/aplus-academic-analysis.js?v=1.0"></script><script src="js/aplus-alevel-score-engine.js?v=1.0"></script><script src="js/aplus-admission-academic.js?v=1.0"></script><script src="js/aplus-master-profile.js?v=1.4"></script>
-<script src="js/aplus-student-profile.js?v=15.0"></script><script src="js/aplus-diagnostic02.js?v=5.0"></script><script src="js/aplus-development-roadmap.js"></script><script src="js/aplus-application-combination-v2.js"></script>
+<script src="js/aplus-student-profile.js?v=16.0"></script><script src="js/aplus-diagnostic02.js?v=5.0"></script><script src="js/aplus-development-roadmap.js"></script><script src="js/aplus-application-combination-v2.js"></script>
 <script src="js/aplus-activity.js"></script>
 <script>
 /* APLUS MASTER PROFILE UI v1.0 */
@@ -322,7 +322,8 @@ window.addEventListener("load",function(){setTimeout(updateDash,300)});window.AP
   var password=document.getElementById("aplusAuthPassword");
   var error=document.getElementById("aplusAuthError");
   var button=document.getElementById("aplusAuthSubmit");
-  function openApp(){document.body.classList.remove("aplus-auth-pending");gate.classList.add("hidden");}
+  async function restoreSavedProfile(){try{if(window.APLUS_DATABASE&&window.APLUS_DATABASE.getStudentProfile){var r=await window.APLUS_DATABASE.getStudentProfile();if(r&&r.ok&&r.data&&window.APLUS_STUDENT_PROFILE&&window.APLUS_STUDENT_PROFILE.hydrateSavedProfile)window.APLUS_STUDENT_PROFILE.hydrateSavedProfile(r.data);}}catch(e){console.warn("APLUS saved profile restore skipped:",e);}}
+  function openApp(){document.body.classList.remove("aplus-auth-pending");gate.classList.add("hidden");restoreSavedProfile();}
   function waitForDatabase(){
     if(window.APLUS_DATABASE&&window.APLUS_DATABASE.client){
       var sb=window.APLUS_DATABASE.client();
