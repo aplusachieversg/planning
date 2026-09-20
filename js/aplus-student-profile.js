@@ -81,12 +81,23 @@
   function updateStrengthList(){
     const host=document.getElementById("spStrengthList");
     if(!host)return;
-    const strong=selectedSubjects().filter(x=>["A","B"].includes(x.grade));
-    if(!strong.length){
-      host.innerHTML='<div class="sp-grade-empty">No strong subjects identified yet.</div>';
+    const selected=selectedSubjects();
+    const groups=[
+      {key:"A",title:"Strong",items:selected.filter(x=>x.grade==="A")},
+      {key:"B",title:"Developing",items:selected.filter(x=>x.grade==="B")},
+      {key:"C",title:"Needs Development",items:selected.filter(x=>x.grade==="C")},
+      {key:"D",title:"Needs Support",items:selected.filter(x=>x.grade==="D")}
+    ];
+    if(!selected.length){
+      host.innerHTML='<div class="sp-grade-empty">Select subjects and grades above to identify the academic profile.</div>';
       return;
     }
-    host.innerHTML=strong.map(x=>'<span class="sp-strength-chip"><b>'+esc(x.level)+'</b> '+esc(x.subject)+' <em>'+esc(x.grade)+'</em></span>').join("");
+    host.innerHTML=groups.map(g=>{
+      const content=g.items.length
+        ?g.items.map(x=>'<span class="sp-strength-chip"><b>'+esc(x.level)+'</b> '+esc(x.subject)+' <em>'+esc(x.grade)+'</em></span>').join("")
+        :'<span class="sp-grade-empty" style="display:inline-block;padding:7px 9px">—</span>';
+      return '<div class="sp-strength-group" style="margin-bottom:10px"><div style="font-size:11px;font-weight:850;margin-bottom:6px">'+g.title+'</div><div class="sp-strength-list">'+content+'</div></div>';
+    }).join("");
   }
 
   const labels={
