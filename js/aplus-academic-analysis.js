@@ -1,4 +1,4 @@
-/* APLUS Academic Analysis Engine v1.4
+/* APLUS Academic Analysis Engine v1.5
    Subject grades -> classification -> academic pattern -> academic readiness -> profile summary.
    Descriptive planning support only; does not make admissions or career predictions.
 */
@@ -72,8 +72,11 @@
     if(!graded.length) return {label:"Insufficient Data",categoryScores:{},confidence:"low"};
     const scores={};
     graded.forEach(s=>{
+      const category=escText(s.category);
+      /* Core subjects are evidence for UAS / requirements, not academic-domain patterning. */
+      if(!category||category==="Core")return;
       const weight=domainWeight(s);
-      if(weight) scores[s.category]=(scores[s.category]||0)+weight;
+      if(weight) scores[category]=(scores[category]||0)+weight;
     });
     const ranked=Object.entries(scores).sort((a,b)=>b[1]-a[1]);
     if(!ranked.length) return {label:"Emerging / Developing Pattern",categoryScores:scores,confidence:"low"};
