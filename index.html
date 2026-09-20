@@ -158,6 +158,7 @@ loadAPLUSDatabase();
       serviceLevel:qualityLevel("commitment")||base.serviceLevel,
       teamworkLevel:qualityLevel("collaboration")||base.teamworkLevel,
       reflectionLevel:qualityLevel("reflection")||base.reflectionLevel,
+      experienceProfile:experienceProfile,
       evidenceQuality:experienceProfile&&experienceProfile.evidenceQuality
         ? (experienceProfile.evidenceQuality==="Evidenced"?"evidenced":experienceProfile.evidenceQuality==="Partially evidenced"?"partial":base.evidenceQuality)
         : base.evidenceQuality
