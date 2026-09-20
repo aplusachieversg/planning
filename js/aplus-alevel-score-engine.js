@@ -37,25 +37,33 @@
     // Optional fourth subject/MTL rebasing is represented but only applied when explicitly supplied.
     // For the revised framework, an extra H1/H2 content subject and/or H1 MTL is considered
     // only if it improves the overall UAS. Each valid combination is rebased to 70.
-    const fourth=options.fourthSubject?scoreSubject(options.fourthSubject):null;
+    // The fourth content-based subject is treated at H1 weighting for the
+    // revised 70-point UAS rebasing, including when that subject is offered at H2.
+    // For 4/5 H2 students, use the strongest H2 outside the base best three as
+    // the fourth-content candidate; remaining H2 subjects stay in the profile.
+    const autoFourth=excludedH2.length?excludedH2[0]:null;
+    const fourth=options.fourthSubject?scoreSubject(options.fourthSubject):autoFourth;
+    const fourthEquivalent=fourth&&fourth.points!==null
+      ?{...fourth,points:POINTS.H1[clean(fourth.grade)]}
+      :null;
     const mtl=options.mtl?scoreSubject(options.mtl):null;
     if(baseComplete){
       const candidates=[{score:baseUAS,fourth:false,mtl:false}];
-      if(fourth&&fourth.points!==null){
-        candidates.push({score:(baseUAS+fourth.points)*70/80,fourth:true,mtl:false});
+      if(fourthEquivalent&&fourthEquivalent.points!==null){
+        candidates.push({score:(baseUAS+fourthEquivalent.points)*70/80,fourth:true,mtl:false});
       }
       if(mtl&&mtl.points!==null){
         candidates.push({score:(baseUAS+mtl.points)*70/80,fourth:false,mtl:true});
       }
-      if(fourth&&fourth.points!==null&&mtl&&mtl.points!==null){
-        candidates.push({score:(baseUAS+fourth.points+mtl.points)*70/90,fourth:true,mtl:true});
+      if(fourthEquivalent&&fourthEquivalent.points!==null&&mtl&&mtl.points!==null){
+        candidates.push({score:(baseUAS+fourthEquivalent.points+mtl.points)*70/90,fourth:true,mtl:true});
       }
       const best=candidates.reduce((a,b)=>b.score>a.score?b:a,candidates[0]);
       finalUAS=Math.round(best.score*100)/100;
       inclusion={fourth:best.fourth,mtl:best.mtl};
     }
     return {
-      version:"1.0",
+      version:"1.1",
       framework:"2025-A-LEVEL-AY2026-UAS-70",
       scale:70,
       gradePoints:POINTS,
@@ -65,7 +73,7 @@
       uas:finalUAS,
       complete:baseComplete,
       breakdown:rows,
-      ruleSummary:"Base UAS = best 3 H2 content-based subjects + General Paper; additional H2 subjects do not enter the base UAS."
+      ruleSummary:"Base UAS = best 3 H2 content-based subjects + General Paper; the fourth H1/H2 content-based subject is considered at H1 weighting only if it improves the rebased UAS."
     };
   }
   window.APLUS_ALEVEL_SCORE={version:"1.0",POINTS,MAX,points,scoreSubject,calculate};
