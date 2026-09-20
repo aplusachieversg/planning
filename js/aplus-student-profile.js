@@ -95,7 +95,7 @@
         r.querySelector(".sp-grade-subject")?.textContent.trim()===row.subject
       )?.querySelector(".sp-grade-points");
       const pts=window.APLUS_ALEVEL_SCORE.points(row.level,row.grade);
-      if(pointEl) pointEl.textContent=pts===null?"—":pts.toFixed(1)+" pts";
+      if(pointEl) pointEl.textContent=pts===null?"—":(Number.isInteger(pts)?pts.toFixed(1):pts.toFixed(2))+" pts";
     });
     const result=window.APLUS_ALEVEL_SCORE.calculate(rows);
     if(result.complete && result.uas!==null){
