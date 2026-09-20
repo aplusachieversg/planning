@@ -48,7 +48,9 @@
     if(sustained&&(a.whatIDid||a.whatILearned||a.reflection))qualities.push("commitment");
     if(a.whatIDid&&responsibilityRoles.includes(a.role))qualities.push("responsibility");
     if(a.whatIDid&&(initiativeSignals.includes(a.role)||independentContext))qualities.push("initiative");
-    if(a.whatILearned||a.reflection)qualities.push("reflection");
+    const reflectionText=[a.whatILearned,a.reflection].filter(Boolean).join(" ").toLowerCase();
+    const selfAwarenessSignals=/\b(i learned|i realised|i realized|i discovered|i understood|i now understand|i became aware|my strength|my weakness|i improved|i changed|i would|next time|in future|i need to|i need more|i should|i could|feedback|mistake|challenge|different approach|change my approach|changed my approach|perspective|assumption|growth)\b/.test(reflectionText);
+    if(a.reflection||selfAwarenessSignals)qualities.push("reflection");
     const collaborationText=[a.whatIDid,a.whatILearned,a.reflection].filter(Boolean).join(" ").toLowerCase();
     const collaborationSignals=/\b(team|teammate|collaborat|cooperat|coordinate|communicat|delegate|delegated|mentor|mentored|support|supported|work together|worked together|listen|listened|feedback|conflict|consensus|present|presented|facilitat|organis)\w*\b/.test(collaborationText);
     const collaborativeRole=["organiser","leader","team_captain","project_leader","founder","mentor","student_representative"].includes(a.role);
