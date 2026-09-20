@@ -13,7 +13,9 @@
     const out=[];
     document.querySelectorAll("#spSubjectSelector input[data-subject-key]:checked").forEach(cb=>{
       const level=cb.dataset.level, subject=cb.dataset.subject, category=cb.dataset.category;
-      const gradeEl=document.querySelector('select[data-grade-key="'+CSS.escape(cb.dataset.subjectKey)+'"]');
+      const key=cb.dataset.subjectKey;
+      // Grades are rendered in #spStrengthSummary, not inside the subject selector.
+      const gradeEl=document.querySelector('#spStrengthSummary select[data-grade-key="'+CSS.escape(key)+'"]');
       out.push({level,subject,category,grade:gradeEl?gradeEl.value:"not_available"});
     });
     return out;
