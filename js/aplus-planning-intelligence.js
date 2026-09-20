@@ -24,6 +24,19 @@
     raw=raw||loadProfile()||{};
     const target=raw.target||{}, profile=raw.profile||{}, readiness=raw.readiness||{};
     const entry=Number(target.entryYear), current=nowYear(), gaps=[], actions={30:[],90:[],180:[]}, evidence=[];
+    const academic=profile.academicAnalysis||(window.APLUS_ACADEMIC_ANALYSIS?window.APLUS_ACADEMIC_ANALYSIS.analyze(profile.subjects||[],readiness.academic):null);
+    if(academic){
+      if(academic.pattern&&academic.pattern.label&&academic.pattern.label!=="Insufficient Data"){
+        add(90,"Review the academic pattern","Use the current subject profile to understand strengths and developing areas; review the pattern again as grades change.","APLUS_PLANNING_FACTOR","Academic pattern");
+      }
+      if(academic.readiness&&academic.readiness.status==="needs_development"){
+        gaps.push({title:"Academic development areas",source:"APLUS_PLANNING_FACTOR",reason:academic.readiness.reason});
+        add(30,"Strengthen priority academic areas",academic.readiness.reason,"APLUS_PLANNING_FACTOR","Academic readiness");
+      } else if(academic.readiness&&academic.readiness.status==="insufficient_data"){
+        gaps.push({title:"Academic readiness data",source:"DATA_GAP",reason:academic.readiness.reason});
+        add(30,"Complete subject grade evidence",academic.readiness.reason,"DATA_GAP","Academic readiness");
+      }
+    }
     function add(bucket,title,detail,source,reason){actions[bucket].push({title,detail,source,reason});}
     function addEvidence(title,detail,source){evidence.push({title,detail,source});}
     let reqs=[];
@@ -35,7 +48,7 @@
       if(text.includes("referee")&&Number(raw.application&&raw.application.refereeCount||0)<2){gaps.push({title:"Referee evidence",source:"OFFICIAL_REQUIREMENT",reason:"The profile does not yet record the required referee reports."});add(180,"Build the referee plan","Identify suitable referees early, confirm eligibility and track submission requirements.","OFFICIAL_REQUIREMENT","Target requirement");}
       if(text.includes("personal statement")&&!(raw.application&&raw.application.personalStatementReady)){gaps.push({title:"Personal statement",source:"OFFICIAL_REQUIREMENT",reason:"The application-ready personal statement is not yet recorded."});add(180,"Build the application writing pack","Create an evidence bank and develop a target-specific personal statement when appropriate.","OFFICIAL_REQUIREMENT","Target requirement");}
       if(text.includes("fsa"))add(180,"Prepare for FSA","Use target-year official guidance to develop communication, reflection and station-based assessment readiness.","OFFICIAL_REQUIREMENT","Target assessment");
-      if(text.includes("mmi"))add(180,"Prepare for MMI","Practice structured communication, teamwork, ethical reasoning and reflection using verified target-year information.","OFFICIAL_REQUIREMENT","Target assessment");
+      if(text.includes("mmi"))add(180,"Prepare for MMI","Practice structured communication, teamwork, ethical reasoning and reflection using verified target-year information.","OFFICIAL_REQUIREMENT","Target assessment");\n      if(text.includes("academic")&&academic&&academic.pattern) add(90,"Review academic subject alignment","Review the verified target requirement alongside the student’s current academic pattern; do not treat this as an admissions prediction.","OFFICIAL_REQUIREMENT","Target requirement");
     });
     if(pending.length)gaps.push({title:"Target-year data verification",source:"DATA_GAP",reason:"Some target-year requirements are pending verification. Do not treat them as confirmed."});
     [["academic","Academic trajectory","Protect subject mastery and review grade trends each term."],["test","Test / assessment readiness","Build assessment preparation progressively rather than waiting for the application year."],["communication","Communication & reflection","Build clear communication, listening, reasoning and reflection through real experiences."],["leadership","Leadership evidence","Build sustained responsibility with increasing ownership and measurable outcomes."],["service","Service / community evidence","Build meaningful sustained contribution and record outcomes and reflection."],["application","Application readiness","Keep documents, evidence, referees and timelines organized before deadlines."]].forEach(d=>{
