@@ -51,7 +51,9 @@
     if(a.whatILearned||a.reflection)qualities.push("reflection");
     if(["team","school_wide","community_wide","national","international"].includes(a.participationLevel))qualities.push("collaboration");
     if(a.whatIDid&&(a.whatILearned||a.reflection)&&["research","projects","competitions"].includes(a.category))qualities.push("thinking");
-    if(["competitions","projects","internship","research"].includes(a.category))qualities.push("resilience");
+    const resilienceText=[a.whatIDid,a.whatILearned,a.reflection].filter(Boolean).join(" ").toLowerCase();
+    const resilienceSignals=/\b(challenge|challenging|difficult|difficulty|obstacle|setback|failure|failed|mistake|struggle|struggled|persist|persistence|persevere|perseverance|overcome|adapt|adapted|adaptation|adjust|adjusted|revise|revised|revision|iterate|iterated|iteration|recover|recovered|feedback|changed approach|different approach)\b/.test(resilienceText);
+    if(a.whatIDid&&resilienceSignals&&(a.whatILearned||a.reflection))qualities.push("resilience");
     return {activity:a,categoryLabel:categoryLabel(a.category),durationMonths:months,durationBand:months===null?"Not calculated":durationBand(months),evidenceQuality:evidenceStrength(a),qualities:[...new Set(qualities)],flags};
   }
   function levelFromEvidence(count,hasSustained,hasProgression,hasReflection){if(count===0)return "Not yet evidenced";if(hasProgression&&hasSustained&&hasReflection)return "Established";if(hasSustained||hasProgression)return "Developing";return "Emerging";}
