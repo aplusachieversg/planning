@@ -54,7 +54,7 @@
     const qualities=[];
     if(a.role&&["organiser","leader","team_captain","project_leader","founder","mentor","student_representative"].includes(a.role))qualities.push("leadership");
     if(a.ongoing||(months!==null&&months>=6))qualities.push("commitment");
-    if(a.role&&a.role!=="participant")qualities.push("responsibility");
+    if(a.role&&["organiser","leader","team_captain","project_leader","founder","mentor","student_representative"].includes(a.role))qualities.push("responsibility");
     if(a.whatIDid)qualities.push("initiative");
     if(a.whatILearned||a.reflection)qualities.push("reflection");
     if(["team","school_wide","community_wide","national","international"].includes(a.participationLevel))qualities.push("collaboration");
