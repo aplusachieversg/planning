@@ -42,7 +42,9 @@
     // Automatically identify the strongest eligible fourth H1/H2 content subject.
     // For 4/5 H2 students this is the strongest H2 outside the base best three;
     // for 3 H2 + H1 pathways it can be the eligible H1 content subject.
-    const autoFourth=fourthCandidates.slice().sort((a,b)=>b.points-a.points)[0]||null;
+    const eligibleFourthH2=excludedH2.slice();
+    const eligibleFourthH1=fourthCandidates.filter(x=>x.level==="H1");
+    const autoFourth=eligibleFourthH2.concat(eligibleFourthH1).sort((a,b)=>b.points-a.points)[0]||null;
     const fourth=options.fourthSubject?scoreSubject(options.fourthSubject):autoFourth;
     const fourthEquivalent=fourth&&fourth.points!==null
       ?{...fourth,points:POINTS.H1[clean(fourth.grade)]}
