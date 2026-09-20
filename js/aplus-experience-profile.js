@@ -45,7 +45,7 @@
     const initiativeTypes=["Student Initiative","Self-initiated Project","Independent Research"];
     const independentContext=a.organizationLevel==="self_initiated"||initiativeTypes.includes(a.activityType);
     if(a.whatIDid&&leadershipRoles.includes(a.role))qualities.push("leadership");
-    if(sustained&&(a.whatIDid||a.whatILearned||a.reflection))qualities.push("commitment");
+    if(sustained&&a.whatIDid&&(a.whatILearned||a.reflection))qualities.push("commitment");
     if(a.whatIDid&&responsibilityRoles.includes(a.role))qualities.push("responsibility");
     if(a.whatIDid&&(initiativeSignals.includes(a.role)||independentContext))qualities.push("initiative");
     const reflectionText=[a.whatILearned,a.reflection].filter(Boolean).join(" ").toLowerCase();
