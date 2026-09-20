@@ -45,7 +45,7 @@
         service:clean((raw.readiness&&raw.readiness.service)||raw.serviceReadiness)||"unknown",
         application:clean((raw.readiness&&raw.readiness.application)||raw.applicationReadiness)||"unknown"
       },
-      evidence:{activities:arr(raw.activities),activityCount:arr(raw.activities).length},
+      evidence:{activities:arr(raw.activities),activityCount:arr(raw.activities).length,experienceProfile:(window.APLUS_EXPERIENCE_PROFILE?window.APLUS_EXPERIENCE_PROFILE:((window.APLUS_EXPERIENCE&&window.APLUS_EXPERIENCE.profile)?window.APLUS_EXPERIENCE.profile(raw.activities):null))},
       application:{
         firstChoice:clean(raw.firstChoice), testsTaken:arr(raw.testsTaken),
         refereeCount:n(raw.refereeCount)||0, personalStatementReady:!!raw.personalStatementReady,
