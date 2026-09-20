@@ -92,7 +92,7 @@
       const el=host.querySelector('select[data-grade-key="'+CSS.escape(k)+'"]');
       if(el){
         el.value=x.grade||"not_available";
-        el.addEventListener("change",()=>refreshAcademicOutputs());
+        el.addEventListener("change",()=>{ refreshAcademicOutputs(); });
       }
     });
   }
