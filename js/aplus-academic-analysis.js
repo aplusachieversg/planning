@@ -1,4 +1,4 @@
-/* APLUS Academic Analysis Engine v1.5
+/* APLUS Academic Analysis Engine v1.6
    Subject grades -> classification -> academic pattern -> academic readiness -> profile summary.
    Descriptive planning support only; does not make admissions or career predictions.
 */
@@ -55,7 +55,7 @@
     const labels={Science:"Science",Mathematics:"Mathematics / Quantitative",Computing:"Computing / Quantitative",Humanities:"Humanities",Languages:"Language",Business:"Business",Arts:"Arts"};
     const ranked=Object.entries(domains).sort((a,b)=>b[1].score-a[1].score).map(([category,x])=>{
       const ratio=x.max?x.score/x.max:0;
-      const strength=ratio>=.75?"Strong":ratio>=.5?"Developing":ratio>=.25?"Needs Development":"Needs Support";
+      const strength=ratio>=.85?"Strong":ratio>=.65?"Developing":ratio>=.4?"Needs Development":"Needs Support";
       return {
         category,
         label:labels[category]||category,
