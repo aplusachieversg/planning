@@ -1,4 +1,4 @@
-/* APLUS Academic Analysis Engine v1.0
+/* APLUS Academic Analysis Engine v1.3
    Subject grades -> classification -> academic pattern -> academic readiness -> profile summary.
    Descriptive planning support only; does not make admissions or career predictions.
 */
@@ -29,22 +29,29 @@
     });
   }
 
+  function domainWeight(s){
+    const g=escText(s.grade).toUpperCase();
+    const l=escText(s.level).toUpperCase();
+    const h2={A:4,B:3,C:2,D:1,E:1,S:0,U:0};
+    const h1={A:2,B:1.5,C:1,D:.5,E:.5,S:0,U:0};
+    return (l==="H2"?h2:h1)[g]||0;
+  }
+
   function pattern(subjects){
     const graded=arr(subjects).filter(s=>s.classification!=="not_assessed");
     if(!graded.length) return {label:"Insufficient Data",categoryScores:{},confidence:"low"};
     const scores={};
     graded.forEach(s=>{
-      const weight=s.classification==="strong"?2:s.classification==="developing"?1:0;
+      const weight=domainWeight(s);
       if(weight) scores[s.category]=(scores[s.category]||0)+weight;
     });
     const ranked=Object.entries(scores).sort((a,b)=>b[1]-a[1]);
     if(!ranked.length) return {label:"Emerging / Developing Pattern",categoryScores:scores,confidence:"low"};
     const top=ranked[0], second=ranked[1];
+    const map={Science:"Science-Oriented",Mathematics:"Quantitative / Mathematics-Oriented",Computing:"Computing / Quantitative-Oriented",Humanities:"Humanities-Oriented",Languages:"Language-Oriented",Business:"Business-Oriented",Arts:"Arts-Oriented"};
     let label="Balanced Academic Profile";
-    if(top[1]>=4 && (!second || top[1]>=second[1]+2)){
-      const map={Science:"Science-Oriented",Mathematics:"Quantitative / Mathematics-Oriented",Computing:"Computing / Quantitative-Oriented",Humanities:"Humanities-Oriented",Languages:"Language-Oriented",Business:"Business-Oriented",Arts:"Arts-Oriented"};
-      label=map[top[0]]||"Mixed Academic Pattern";
-    } else if(top[1]>=2) label="Mixed Academic Pattern";
+    if(top[1]>=6 && (!second || top[1]>=second[1]+2)) label=map[top[0]]||"Mixed Academic Pattern";
+    else if(top[1]>=3) label="Mixed Academic Pattern";
     return {label,categoryScores:scores,confidence:graded.length>=3?"moderate":"low"};
   }
 
