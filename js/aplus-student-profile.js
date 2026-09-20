@@ -184,7 +184,7 @@
   const diagnosticLabels={academic:"Academic foundation",consistency:"Academic consistency",subjects:"Subject readiness",assessment:"Assessment readiness",communication:"Communication",leadership:"Leadership",service:"Service / community",application:"Application readiness"};
 
   function collect(){
-    const activities=arr(window.APLUS_UI_ACTIVITIES);
+    let activities=[];try{const saved=JSON.parse(localStorage.getItem("aplus_experience_profile_v1")||"[]");activities=Array.isArray(saved)?saved:[]}catch(e){}if(!activities.length)activities=arr(window.APLUS_UI_ACTIVITIES);
     const readiness={academic:read("spAcademic")||"unknown",test:read("spTest")||"unknown",communication:read("spCommunication")||"unknown",leadership:read("spLeadership")||"unknown",service:read("spService")||"unknown",application:read("spApplication")||"unknown"};
     const targetField=read("spTargetField")||"Medicine";
     const targetUniversityRaw=read("spTargetUniversity")||"Not decided yet";
