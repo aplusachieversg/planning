@@ -76,7 +76,9 @@
         subjects:profile.profile.subjects||[],
         strengths:profile.profile.strengths||[],
         weakTopics:profile.profile.weakTopics||[],
-        readiness:profile.readiness||{}
+        readiness:profile.readiness||{},
+        aLevelScore:profile.profile.aLevelScore||null,
+        admissionAcademic:profile.profile.admissionAcademic||null
       },
       evidence_profile:{
         activities:profile.evidence.activities||[],
