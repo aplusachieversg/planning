@@ -214,7 +214,29 @@
   function statusClass(v){return v==="strong"?"good":v==="needs_work"?"warn":v==="developing"?"mid":"neutral";}
 
   async function build(){
+    // Sync the target programme requirements before Master Profile creation.
+    // This prevents admissionAcademic from being built against stale/fallback records.
+    let requirementSyncStatus="not_attempted";
+    const targetField=read("spTargetField")||"Medicine";
+    const targetUniversityRaw=read("spTargetUniversity")||"Not decided yet";
+    const targetEntryYear=Number(read("spEntryYear")||"2027");
+    const targetUniversity=/^NUS Medicine$/i.test(targetUniversityRaw)||/^NUS Law$/i.test(targetUniversityRaw)?"NUS":/^NTU Medicine$/i.test(targetUniversityRaw)?"NTU":targetUniversityRaw;
+    const targetCourse=targetField;
+    const canSync=targetUniversity==="NUS"||targetUniversity==="NTU";
+    if(canSync&&window.APLUS_REQUIREMENTS&&window.APLUS_REQUIREMENTS.sync&&Number.isFinite(targetEntryYear)){
+      try{
+        const req=await window.APLUS_REQUIREMENTS.sync(targetUniversity,targetCourse,targetEntryYear);
+        requirementSyncStatus=Array.isArray(req)&&req.length?"loaded":"no_verified_records";
+      }catch(e){
+        requirementSyncStatus="sync_failed_using_fallback";
+      }
+    }else if(targetUniversityRaw==="Not decided yet"){
+      requirementSyncStatus="target_not_selected";
+    }else{
+      requirementSyncStatus="not_supported_yet";
+    }
     const base=collect(),diag=diagnosticState(base);
+    base.metadata.requirementsSync=requirementSyncStatus;
     base.diagnostic01={version:"4.0",completedAt:new Date().toISOString(),dimensions:diag.state,nextActions:diag.next}; save(base);
     let dbSync="local_only";
     if(window.APLUS_DATABASE&&window.APLUS_DATABASE.saveStudentProfile){const db=await window.APLUS_DATABASE.saveStudentProfile(base);dbSync=db.ok?"synced":(db.code||"not_synced");base.metadata.databaseSync=dbSync;save(base);}
