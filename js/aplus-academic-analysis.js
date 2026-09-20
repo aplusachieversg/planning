@@ -37,6 +37,23 @@
     return (l==="H2"?h2:h1)[g]||0;
   }
 
+  function domainProfile(subjects){
+    const graded=arr(subjects).filter(s=>s.classification!=="not_assessed");
+    const scores={};
+    graded.forEach(s=>{
+      const weight=domainWeight(s);
+      if(weight) scores[s.category]=(scores[s.category]||0)+weight;
+    });
+    const labels={Science:"Science",Mathematics:"Mathematics / Quantitative",Computing:"Computing / Quantitative",Humanities:"Humanities",Languages:"Language",Business:"Business",Arts:"Arts"};
+    const ranked=Object.entries(scores).sort((a,b)=>b[1]-a[1]).map(([category,score])=>({
+      category,
+      label:labels[category]||category,
+      score:Math.round(score*10)/10,
+      strength:score>=6?"Strong":score>=3?"Developing":"Emerging"
+    }));
+    return {domains:ranked};
+  }
+
   function pattern(subjects){
     const graded=arr(subjects).filter(s=>s.classification!=="not_assessed");
     if(!graded.length) return {label:"Insufficient Data",categoryScores:{},confidence:"low"};
@@ -103,8 +120,9 @@
   function analyze(subjects, manualReadiness){
     const classifications=classifySubjects(subjects);
     const p=pattern(classifications);
+    const d=domainProfile(classifications);
     const r=readiness(classifications,manualReadiness);
-    return {version:"1.0",classifications,pattern:p,readiness:r,summary:summary(classifications,p,r)};
+    return {version:"1.1",classifications,pattern:p,domainProfile:d,readiness:r,summary:summary(classifications,p,r)};
   }
 
   window.APLUS_ACADEMIC_ANALYSIS={classifyGrade,classifySubjects,analyze};
