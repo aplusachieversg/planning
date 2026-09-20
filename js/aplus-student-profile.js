@@ -103,7 +103,7 @@
       const countedNames=counted.map(x=>x.level+" "+x.subject).join(", ");
       const excluded=result.components.excludedH2||[];
       const excludedText=excluded.length
-        ?'<div style="margin-top:8px;font-size:10px;color:#667085"><b>Additional graded H2:</b> '+excluded.map(x=>x.level+" "+x.subject+" ("+x.grade+")").join(", ")+' · retained in the Academic Profile and may be considered separately for programme admission.</div>'
+        ?'<div style="margin-top:10px;font-size:10px;color:#667085"><b>Additional / Advanced Academic Evidence</b></div><div style="margin-top:3px;font-size:10px;color:#475467">'+excluded.map(x=>x.level+" "+x.subject+" ("+x.grade+")").join(", ")+'</div><div style="margin-top:3px;font-size:10px;color:#98a2b3;line-height:1.5">These subjects are retained in the Academic Profile even when they are not included in the base UAS. Their academic value may be considered separately for programme admission.</div>'
         :'';
       host.innerHTML='<div class="sp-uas-card"><div><span class="sp-uas-label">Estimated UAS</span><strong>'+result.uas.toFixed(2)+'</strong><span class="sp-uas-max">/ 70</span></div><div class="sp-uas-note">Best 3 H2 content subjects + General Paper.</div></div>'+
         '<div class="sp-auto-note" style="margin-top:8px"><b>UAS counted:</b> '+esc(countedNames)+excludedText+'</div>';
