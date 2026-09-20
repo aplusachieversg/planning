@@ -89,22 +89,40 @@
     });
 
     // APLUS development factors.
+    // Experience Profile is the current evidence source for personal-development gaps.
     const focus=options.focus||"Full profile";
+    const experience=(profile.evidence&&profile.evidence.experienceProfile)
+      || (window.APLUS_EXPERIENCE_PROFILE&&window.APLUS_EXPERIENCE_PROFILE.profile
+          ? window.APLUS_EXPERIENCE_PROFILE.profile((profile.evidence&&profile.evidence.activities)||[])
+          : null);
+    const quality=(key)=>{
+      const q=experience&&experience.personalQualities
+        ? experience.personalQualities.find(x=>x.key===key)
+        : null;
+      return q?q.development:"Not yet evidenced";
+    };
     const development=[];
+
     if(focus==="Academics"||focus==="Full profile"||r.academic!=="strong"){
       development.push(["Academic trajectory","Strengthen subject mastery and maintain a documented grade trend.","Academic results, teacher feedback, topic mastery record"]);
     }
     if(focus==="UCAT / FSA preparation"||focus==="Full profile"||r.test!=="strong"){
       development.push(["Assessment readiness","Build test and assessment skills progressively rather than relying on last-minute preparation.","Practice record, diagnostic results, reflection"]);
     }
-    if(focus==="Leadership & service"||focus==="Full profile"||r.leadership!=="strong"){
-      development.push(["Leadership evidence","Build sustained responsibility with increasing ownership and measurable outcomes.","Role record, project evidence, outcome, reflection"]);
+
+    if(focus==="Leadership & service"||focus==="Full profile"){
+      if(quality("leadership")!=="Established"){
+        development.push(["Leadership evidence","Build sustained responsibility with increasing ownership and measurable outcomes.","Role record, project evidence, outcome, reflection"]);
+      }
+      if(quality("commitment")!=="Established"){
+        development.push(["Service / community contribution","Build sustained contribution and reflect on impact rather than collecting activities.","Service record, contribution, outcome, reflection"]);
+      }
     }
-    if(focus==="Leadership & service"||focus==="Full profile"||r.service!=="strong"){
-      development.push(["Service / community contribution","Build sustained contribution and reflect on impact rather than collecting activities.","Service record, contribution, outcome, reflection"]);
-    }
-    if(focus==="Full profile"||r.communication!=="strong"){
-      development.push(["Communication & reflection","Develop clear communication, listening, reasoning and reflection through real activities.","Presentation, discussion, writing or interview practice evidence"]);
+
+    if(focus==="Full profile"){
+      if(quality("collaboration")!=="Established"||quality("reflection")!=="Established"){
+        development.push(["Communication & reflection","Develop clear communication, listening, reasoning and reflection through real activities.","Presentation, discussion, writing or interview practice evidence"]);
+      }
     }
 
     development.forEach((d,i)=>{
