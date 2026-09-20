@@ -9,7 +9,7 @@
   function create(raw){
     raw=raw||{};
     return {
-      schemaVersion:"1.2",
+      schemaVersion:"1.3",
       studentId:clean(raw.studentId)||("STU-"+Date.now()),
       updatedAt:new Date().toISOString(),
       target:{
@@ -20,7 +20,7 @@
       profile:{
         currentLevel:clean(raw.currentLevel), qualification:clean(raw.qualification),
         academicProfile:clean(raw.academicProfile), subjects:(window.APLUS_SUBJECT_TAXONOMY?window.APLUS_SUBJECT_TAXONOMY.normalizeList(raw.subjects):arr(raw.subjects)),
-        strengths:arr(raw.strengths), weakTopics:arr(raw.weakTopics), academicAnalysis:(window.APLUS_ACADEMIC_ANALYSIS?window.APLUS_ACADEMIC_ANALYSIS.analyze((window.APLUS_SUBJECT_TAXONOMY?window.APLUS_SUBJECT_TAXONOMY.normalizeList(raw.subjects):arr(raw.subjects)),(raw.readiness&&raw.readiness.academic)||raw.academicReadiness):null), subjectGrades:(window.APLUS_SUBJECT_TAXONOMY?window.APLUS_SUBJECT_TAXONOMY.normalizeList(raw.subjects).map(x=>({level:x.level,subject:x.subject,grade:x.grade||"not_available"})):[])
+        strengths:arr(raw.strengths), weakTopics:arr(raw.weakTopics), academicAnalysis:(window.APLUS_ACADEMIC_ANALYSIS?window.APLUS_ACADEMIC_ANALYSIS.analyze((window.APLUS_SUBJECT_TAXONOMY?window.APLUS_SUBJECT_TAXONOMY.normalizeList(raw.subjects):arr(raw.subjects)),(raw.readiness&&raw.readiness.academic)||raw.academicReadiness):null), aLevelScore:(window.APLUS_ALEVEL_SCORE?window.APLUS_ALEVEL_SCORE.calculate((window.APLUS_SUBJECT_TAXONOMY?window.APLUS_SUBJECT_TAXONOMY.normalizeList(raw.subjects):arr(raw.subjects))):null), subjectGrades:(window.APLUS_SUBJECT_TAXONOMY?window.APLUS_SUBJECT_TAXONOMY.normalizeList(raw.subjects).map(x=>({level:x.level,subject:x.subject,grade:x.grade||"not_available"})):[])
       },
       readiness:{
         academic:clean((raw.readiness&&raw.readiness.academic)||raw.academicReadiness)||"unknown",
