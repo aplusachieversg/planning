@@ -20,7 +20,6 @@
     return arr(subjects).map(s=>{
       const level=escText(s.level), subject=escText(s.subject);
       let category=escText(s.category);
-      // Recover the canonical taxonomy whenever category data is missing.
       if((!category||category==="Other")&&window.APLUS_SUBJECT_TAXONOMY&&window.APLUS_SUBJECT_TAXONOMY.normalizeOne){
         const tax=window.APLUS_SUBJECT_TAXONOMY.normalizeOne({level,subject});
         category=escText(tax&&tax.category)||"Other";
@@ -63,6 +62,23 @@
     return {status,label,reason,counts,gradedSubjects:graded.length,manualInput:escText(manual)||"unknown",derived:true};
   }
 
+  function patternPhrase(label){
+    const phrases={
+      "Science-Oriented":"a science-oriented pattern",
+      "Quantitative / Mathematics-Oriented":"a quantitative and mathematics-oriented pattern",
+      "Computing / Quantitative-Oriented":"a computing and quantitative-oriented pattern",
+      "Humanities-Oriented":"a humanities-oriented pattern",
+      "Language-Oriented":"a language-oriented pattern",
+      "Business-Oriented":"a business-oriented pattern",
+      "Arts-Oriented":"an arts-oriented pattern",
+      "Mixed Academic Pattern":"a mixed academic pattern",
+      "Balanced Academic Profile":"a balanced academic profile",
+      "Emerging / Developing Pattern":"an emerging and developing pattern",
+      "Insufficient Data":"an insufficient academic pattern"
+    };
+    return phrases[label]||("a "+String(label||"mixed academic pattern").toLowerCase());
+  }
+
   function summary(subjects, p, r){
     const names=(cls)=>arr(subjects).filter(s=>s.classification===cls).map(s=>(s.level?s.level+" ":"")+s.subject);
     const strong=names("strong"), developing=names("developing"), nd=names("needs_development"), ns=names("needs_support");
@@ -72,7 +88,7 @@
     if(developing.length) parts.push("Developing areas include "+developing.join(", ")+".");
     if(nd.length) parts.push("Further development is indicated in "+nd.join(", ")+".");
     if(ns.length) parts.push("Additional support may be useful in "+ns.join(", ")+".");
-    parts.push("The current subject profile shows a "+String(p.label).toLowerCase()+".");
+    parts.push("The current subject profile shows "+patternPhrase(p.label)+".");
     parts.push(r.reason);
     return parts.join(" ");
   }
