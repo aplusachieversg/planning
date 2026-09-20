@@ -17,10 +17,17 @@
   }
 
   function classifySubjects(subjects){
-    return arr(subjects).map(s=>({
-      level:escText(s.level), subject:escText(s.subject), category:escText(s.category)||"Other",
-      grade:escText(s.grade)||"not_available", classification:classifyGrade(s.grade)
-    }));
+    return arr(subjects).map(s=>{
+      const level=escText(s.level), subject=escText(s.subject);
+      let category=escText(s.category);
+      // Recover the canonical taxonomy whenever category data is missing.
+      if((!category||category==="Other")&&window.APLUS_SUBJECT_TAXONOMY&&window.APLUS_SUBJECT_TAXONOMY.normalizeOne){
+        const tax=window.APLUS_SUBJECT_TAXONOMY.normalizeOne({level,subject});
+        category=escText(tax&&tax.category)||"Other";
+      }
+      return {level,subject,category:category||"Other",
+        grade:escText(s.grade)||"not_available", classification:classifyGrade(s.grade)};
+    });
   }
 
   function pattern(subjects){
