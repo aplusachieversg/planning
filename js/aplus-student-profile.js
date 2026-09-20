@@ -9,13 +9,15 @@
   const read=id=>{const e=document.getElementById(id);return e?e.value:"";};
   const split=id=>{const e=document.getElementById(id);if(id==="spWeakTopics")return Array.from(document.querySelectorAll('input[name="spWeakTopic"]:checked')).map(x=>x.value);if(e&&e.tagName==="SELECT"&&e.multiple)return Array.from(e.selectedOptions).map(o=>o.value).filter(Boolean);return read(id).split(",").map(x=>x.trim()).filter(Boolean);};
   const tax=()=>window.APLUS_SUBJECT_TAXONOMY;
+  const subjectGrades={};
   function selectedSubjects(){
     const out=[];
     document.querySelectorAll("#spSubjectSelector input[data-subject-key]:checked").forEach(cb=>{
       const level=cb.dataset.level, subject=cb.dataset.subject, category=cb.dataset.category;
       const key=cb.dataset.subjectKey;
       const gradeEl=document.querySelector('#spStrengthSummary select[data-grade-key="'+CSS.escape(key)+'"]');
-      out.push({level,subject,category,grade:gradeEl?gradeEl.value:"not_available"});
+      const grade=subjectGrades[key]||(gradeEl?gradeEl.value:"not_available");
+      out.push({level,subject,category,grade});
     });
     return out;
   }
@@ -91,8 +93,9 @@
       const k=x.level+"__"+x.subject.replace(/[^a-z0-9]+/gi,"_");
       const el=host.querySelector('select[data-grade-key="'+CSS.escape(k)+'"]');
       if(el){
-        el.value=x.grade||"not_available";
-        el.addEventListener("change",()=>{ refreshAcademicOutputs(); });
+        el.value=x.grade||subjectGrades[k]||"not_available";
+        subjectGrades[k]=el.value;
+        el.addEventListener("change",()=>{ subjectGrades[k]=el.value; refreshAcademicOutputs(); });
       }
     });
   }
