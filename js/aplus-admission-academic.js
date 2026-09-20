@@ -38,12 +38,12 @@
     return {role:"additional_evidence",group:null,basis:"not_explicitly_required_in_verified_academic_record"};
   }
 
-  function statusFor(subject, rule, rows){
+  function statusFor(subject, rule, rows, records){
     if(rule.role==="unclassified") return "not_assessed";
     const r=rows.find(x=>norm(x.subject)===norm(subject));
     if(!r || r.grade==="not_available") return "missing";
     if(!passGrades.has(r.grade)) return "not_met";
-    const thresholdText=requirementRows(arguments[2]).map(x=>norm(x.threshold||"")).join(" | ");
+    const thresholdText=requirementRows(records).map(x=>norm(x.threshold||"")).join(" | ");
     if(rule.role==="required" && norm(subject)==="chemistry" && thresholdText.includes("good h2 pass"))
       return "threshold_check";
     return "met";
