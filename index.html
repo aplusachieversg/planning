@@ -263,7 +263,13 @@ function updateDash(){
  document.getElementById("dashEntry").textContent="Target Entry Year "+y;
  if(r!==null){document.getElementById("dashReadiness").textContent=r+"%";document.getElementById("dashReadinessText").textContent="Profile-based planning readiness";}
  var pri=[];
- if(p&&p.readiness){if(p.readiness.academic!=="strong")pri.push("Strengthen academic trajectory");if(p.readiness.test!=="strong")pri.push("Plan required assessments early");if(p.readiness.leadership!=="strong")pri.push("Build sustained leadership evidence");if(p.readiness.service!=="strong")pri.push("Develop service / community evidence");if(p.readiness.communication!=="strong")pri.push("Build communication and reflection evidence");if(p.readiness.application!=="strong")pri.push("Prepare application components and evidence");}
+ var xp=p&&p.evidence&&p.evidence.experienceProfile;
+ var q=function(key){var x=xp&&Array.isArray(xp.personalQualities)?xp.personalQualities.find(function(v){return v.key===key}):null;return x?x.development:"Not yet evidenced";};
+ if(p&&p.readiness){if(p.readiness.academic!=="strong")pri.push("Strengthen academic trajectory");if(p.readiness.test!=="strong")pri.push("Plan required assessments early");}
+ if(q("leadership")!=="Established")pri.push("Develop leadership evidence");
+ if(q("commitment")!=="Established")pri.push("Build sustained service / commitment");
+ if(q("collaboration")!=="Established"||q("reflection")!=="Established")pri.push("Strengthen communication and reflection");
+ if(p&&p.readiness&&p.readiness.application!=="strong")pri.push("Prepare application components and evidence");
  if(!pri.length)pri=["Complete your student profile","Generate Gap Analysis","Review your Development Roadmap"];
  document.getElementById("dashPriorities").innerHTML=pri.slice(0,3).map(function(x,i){return '<div class="priority"><span class="priority-num">0'+(i+1)+'</span><span>'+x+'</span></div>'}).join("");
  document.getElementById("dashFocus").textContent=pri[0];document.getElementById("dashFocusText").textContent="This is a planning priority, not an admissions prediction.";
