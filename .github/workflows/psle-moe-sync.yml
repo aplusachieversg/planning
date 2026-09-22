@@ -1,0 +1,39 @@
+name: APLUS PSLE SmartMatch - MOE Data Sync
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 19 * * 0"
+
+jobs:
+  sync-moe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Sync MOE School Directory
+        env:
+          SUPABASE_URL: https://mktszwqyklmrxzynzmtv.supabase.co
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${SUPABASE_SERVICE_ROLE_KEY:-}" ]; then
+            echo "::error::SUPABASE_SERVICE_ROLE_KEY is not configured in GitHub Actions Secrets."
+            exit 1
+          fi
+
+          echo "Starting APLUS PSLE SmartMatch MOE sync..."
+
+          response=$(curl --fail-with-body --silent --show-error \
+            --request POST \
+            --url "${SUPABASE_URL}/functions/v1/sync-moe-school-directory" \
+            --header "Content-Type: application/json" \
+            --header "apikey: ${SUPABASE_SERVICE_ROLE_KEY}" \
+            --header "Authorization: Bearer ${SUPABASE_SERVICE_ROLE_KEY}" \
+            --data '{}')
+
+          echo "MOE sync response:"
+          echo "$response"
+
+          echo "$response" | python -m json.tool >/dev/null
+          echo "MOE sync request completed successfully."
