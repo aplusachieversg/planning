@@ -613,7 +613,7 @@ window.addEventListener("load",function(){setTimeout(updateDash,300)});window.AP
       if(!r||!r.ok){
         window.APLUS_ACADEMIC_PROFILE_HYDRATED=true;
         window.APLUS_ACADEMIC_PROFILE_RESTORING=false;
-        document.dispatchEvent(new CustomEvent("APLUS_ACCOUNT_PROFILE_RESTORED"));if(window.APLUS_ENABLE_ACADEMIC_AUTOSAVE)window.APLUS_ENABLE_ACADEMIC_AUTOSAVE();
+        document.dispatchEvent(new CustomEvent("APLUS_ACCOUNT_PROFILE_RESTORED"));if(window.APLUS_ENABLE_ACADEMIC_AUTOSAVE)window.APLUS_ENABLE_ACADEMIC_AUTOSAVE();if(window.APLUS_ENABLE_ACADEMIC_AUTOSAVE)window.APLUS_ENABLE_ACADEMIC_AUTOSAVE();
         return;
       }
 
@@ -623,7 +623,7 @@ window.addEventListener("load",function(){setTimeout(updateDash,300)});window.AP
         // may attach only after the read-only bootstrap phase.
         window.APLUS_ACADEMIC_PROFILE_HYDRATED=true;
         window.APLUS_ACADEMIC_PROFILE_RESTORING=false;
-        document.dispatchEvent(new CustomEvent("APLUS_ACCOUNT_PROFILE_RESTORED"));
+        document.dispatchEvent(new CustomEvent("APLUS_ACCOUNT_PROFILE_RESTORED"));if(window.APLUS_ENABLE_ACADEMIC_AUTOSAVE)window.APLUS_ENABLE_ACADEMIC_AUTOSAVE();
         return;
       }
 
@@ -645,14 +645,14 @@ window.addEventListener("load",function(){setTimeout(updateDash,300)});window.AP
       if(window.APLUS_STUDENT_PROFILE&&window.APLUS_STUDENT_PROFILE.hydrateSavedProfile){
         var hydrated=window.APLUS_STUDENT_PROFILE.hydrateSavedProfile(row);
         if(hydrated){
-          document.dispatchEvent(new CustomEvent("APLUS_ACCOUNT_PROFILE_RESTORED"));
+          document.dispatchEvent(new CustomEvent("APLUS_ACCOUNT_PROFILE_RESTORED"));if(window.APLUS_ENABLE_ACADEMIC_AUTOSAVE)window.APLUS_ENABLE_ACADEMIC_AUTOSAVE();
         }
       }
     }catch(e){
       console.warn("APLUS saved profile restore skipped:",e);
       window.APLUS_ACADEMIC_PROFILE_HYDRATED=true;
       window.APLUS_ACADEMIC_PROFILE_RESTORING=false;
-      document.dispatchEvent(new CustomEvent("APLUS_ACCOUNT_PROFILE_RESTORED"));
+      document.dispatchEvent(new CustomEvent("APLUS_ACCOUNT_PROFILE_RESTORED"));if(window.APLUS_ENABLE_ACADEMIC_AUTOSAVE)window.APLUS_ENABLE_ACADEMIC_AUTOSAVE();
     }
   }
   function showUser(user,row){
