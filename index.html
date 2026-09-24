@@ -838,6 +838,8 @@ function injectModules(){
   return true;
 }
 function reorder(){
+  /* Clean architecture owns module placement once it exists. */
+  if(document.getElementById("cleanArchitectureRoot"))return;
   const planner=document.getElementById("planner");if(!planner)return;
   const nodes=["studentProfileEngine","experienceProfileMount","admissionProfileEngine","targetProfileEngine","requirementsModule","evidenceModule","dataEngine","gapEngine","roadmapResult","combination","centralSubmission"];
   const elements=[];
