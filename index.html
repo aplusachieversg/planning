@@ -972,14 +972,14 @@ function build(){
  document.body.classList.add("aplus-clean-mode");
  const planner=document.getElementById("planner");if(!planner||document.getElementById("cleanArchitectureRoot"))return;
  const root=document.createElement("div");root.id="cleanArchitectureRoot";
- root.innerHTML='<div class="aplus-clean-header"><div class="k">APLUS ACADEMIC PLANNING</div><h2>Student Planning Workspace</h2><p>One clear workflow — each module has one responsibility.</p><div class="aplus-clean-nav"><a href="#academicModule">01 Academic</a><a href="#experienceModule">02 Experience</a><a href="#admissionProfileEngine">03 Admission</a><a href="#targetProfileEngine">04 Target</a><a href="#requirementsModule">05 Requirements</a><a href="#evidenceModule">06 Evidence</a><a href="#gapModule">07 Gap</a><a href="#developmentModule">08 Development</a><a href="#roadmapModule">09 Roadmap</a><a href="#applicationModule">10 Application</a></div></div>'+
+ root.innerHTML='<div class="aplus-clean-header"><div class="k">APLUS ACADEMIC PLANNING</div><h2>Student Planning Workspace</h2><p>One clear workflow — each module has one responsibility.</p><div class="aplus-clean-nav"><a href="#academicModule">01 Academic</a><a href="#experienceProfileMount">02 Experience</a><a href="#admissionProfileEngine">03 Admission</a><a href="#targetProfileEngine">04 Target</a><a href="#requirementsModule">05 Requirements</a><a href="#evidenceModule">06 Evidence</a><a href="#gapModule">07 Gap</a><a href="#developmentModule">08 Development</a><a href="#roadmapModule">09 Roadmap</a><a href="#applicationModule">10 Application</a></div></div>'+
  module("05","05 · REQUIREMENTS","Target Requirements","Verified target-year requirements are compared with the student's records here — not inside a profile.","<div id=\"requirementsContent\"></div>","requirementsModule")+
  module("07","07 · ROADMAP","Development Roadmap","Turn identified gaps into development priorities and time-based milestones.","<div id=\"roadmapContent\"></div>","roadmapModule")+
  module("10","10 · APPLICATION","Application Plan","Coordinate the final application using the completed profiles, target and roadmap.","<div id=\"applicationContent\"></div>","applicationModule");
  planner.appendChild(root);
  const student=document.getElementById("studentProfileEngine"),experience=document.getElementById("experienceProfileMount"),admission=document.getElementById("admissionProfileEngine"),target=document.getElementById("targetProfileEngine"),gap=document.getElementById("gapEngine");
  if(student){student.id="academicModule";student.classList.add("aplus-core-module");}
- if(experience){experience.id="experienceModule";experience.classList.add("aplus-core-module");}
+ if(experience){experience.classList.add("aplus-core-module");experience.setAttribute("data-clean-anchor","experienceModule");}
  if(admission){admission.classList.add("aplus-core-module");}
  if(target){target.classList.add("aplus-core-module");}
  if(gap){gap.id="gapModule";gap.classList.add("aplus-core-module");}
