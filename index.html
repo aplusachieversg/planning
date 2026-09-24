@@ -849,7 +849,7 @@ function reorder(){
   const data=document.getElementById("dataEngine");
   if(data && data.parentElement!==planner)planner.appendChild(data);
   if(gap && gap.parentElement!==planner)planner.appendChild(gap);
-  const order=["studentProfileEngine","experienceProfileMount","admissionProfileEngine","targetProfileEngine","requirementsModule","evidenceModule","dataEngine","gapEngine","centralSubmission"];
+  const order=["studentProfileEngine","experienceProfileMount","admissionProfileEngine","targetProfileEngine","requirementsModule","evidenceModule","gapEngine","dataEngine","centralSubmission"];
   order.forEach(function(id){const e=document.getElementById(id);if(e)planner.appendChild(e);});
   const combo=document.getElementById("combination");
   if(combo)planner.appendChild(combo);
