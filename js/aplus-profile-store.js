@@ -35,7 +35,10 @@
           if(window.APLUSExperienceProfile&&window.APLUSExperienceProfile.hydrateSavedProfile){
             window.APLUSExperienceProfile.hydrateSavedProfile(activities);
           }
-        }catch(e){console.warn("Experience Profile hydrate skipped:",e);}
+          if(window.APLUSAdmissionProfile&&window.APLUSAdmissionProfile.hydrateSavedProfile){
+            window.APLUSAdmissionProfile.hydrateSavedProfile(lastRow);
+          }
+        }catch(e){console.warn("Profile module hydrate skipped:",e);}
         setState("ready",lastRow);
         return {ok:true,data:lastRow||null};
       }catch(e){
