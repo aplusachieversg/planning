@@ -1,112 +1,37 @@
 /* APLUS DATABASE CONNECTOR v1.1 */
 (function(){
-  const CONFIG = window.APLUS_DB_CONFIG || {
-    url: "https://cbtzzkfcukkjmskvdngc.supabase.co",
-    anonKey: "sb_publishable_zKnEj0AjLYDwUu3vGAnyPw_H0RNIG99"
-  };
-  window.APLUS_DB_CONFIG = CONFIG;
-  const ready = !!CONFIG.url && !!CONFIG.anonKey && CONFIG.url.indexOf("YOUR_") !== 0 && CONFIG.anonKey.indexOf("YOUR_") !== 0;
-  function client(){
-    if(!ready || !window.supabase) return null;
-    if(!window.__APLUS_SUPABASE) window.__APLUS_SUPABASE = window.supabase.createClient(CONFIG.url, CONFIG.anonKey);
-    return window.__APLUS_SUPABASE;
-  }
-  function clean(v){ return v == null ? "" : String(v); }
-  async function submit(master, extra, gapAnalysis, roadmap){
-    const sb=client(); if(!sb) return {ok:false,code:"not_configured",message:"APLUS central database is not configured yet."};
-    if(!extra || extra.consentGiven !== true) return {ok:false,code:"consent_required",message:"Consent is required before submission."};
-    const payload={student_id:clean(master.studentId),student_name:clean(extra.studentName),parent_name:clean(extra.parentName),email:clean(extra.email),phone:clean(extra.phone),current_level:clean(master.profile.currentLevel),qualification:clean(master.profile.qualification),target_field:clean(master.target.field),target_university:clean(master.target.university),target_course:clean(master.target.course),entry_year:Number(master.target.entryYear)||null,academic_profile:clean(master.profile.academicProfile),subjects:master.profile.subjects||[],activities:master.evidence.activities||[],master_profile:master,gap_analysis:gapAnalysis||{},roadmap:roadmap||[],application_status:"New",scholarship_interest:!!master.target.scholarship,consent_given:true};
-    const {data,error}=await sb.from("student_submissions").upsert(payload,{onConflict:"student_id"}).select("id,student_id,created_at,updated_at").single();
-    if(error) return {ok:false,code:"db_error",message:error.message}; return {ok:true,data};
-  }
+  const CONFIG = window.APLUS_DB_CONFIG || {url:"https://cbtzzkfcukkjmskvdngc.supabase.co",anonKey:"sb_publishable_zKnEj0AjLYDwUu3vGAnyPw_H0RNIG99"};
+  window.APLUS_DB_CONFIG=CONFIG;
+  const ready=!!CONFIG.url&&!!CONFIG.anonKey&&CONFIG.url.indexOf("YOUR_")!==0&&CONFIG.anonKey.indexOf("YOUR_")!==0;
+  function client(){if(!ready||!window.supabase)return null;if(!window.__APLUS_SUPABASE)window.__APLUS_SUPABASE=window.supabase.createClient(CONFIG.url,CONFIG.anonKey);return window.__APLUS_SUPABASE;}
+  function clean(v){return v==null?"":String(v);}
+  async function submit(master,extra,gapAnalysis,roadmap){const sb=client();if(!sb)return {ok:false,code:"not_configured",message:"APLUS central database is not configured yet."};if(!extra||extra.consentGiven!==true)return {ok:false,code:"consent_required",message:"Consent is required before submission."};const payload={student_id:clean(master.studentId),student_name:clean(extra.studentName),parent_name:clean(extra.parentName),email:clean(extra.email),phone:clean(extra.phone),current_level:clean(master.profile.currentLevel),qualification:clean(master.profile.qualification),target_field:clean(master.target.field),target_university:clean(master.target.university),target_course:clean(master.target.course),entry_year:Number(master.target.entryYear)||null,academic_profile:clean(master.profile.academicProfile),subjects:master.profile.subjects||[],activities:master.evidence.activities||[],master_profile:master,gap_analysis:gapAnalysis||{},roadmap:roadmap||[],application_status:"New",scholarship_interest:!!master.target.scholarship,consent_given:true};const {data,error}=await sb.from("student_submissions").upsert(payload,{onConflict:"student_id"}).select("id,student_id,created_at,updated_at").single();if(error)return {ok:false,code:"db_error",message:error.message};return {ok:true,data};}
   async function list(filters){const sb=client();if(!sb)return {ok:false,code:"not_configured"};let q=sb.from("student_submissions").select("*").order("updated_at",{ascending:false});if(filters&&filters.status)q=q.eq("application_status",filters.status);if(filters&&filters.search){const s=filters.search.replace(/,/g," ");q=q.or("student_name.ilike.%"+s+"%,student_id.ilike.%"+s+"%,target_university.ilike.%"+s+"%,target_course.ilike.%"+s+"%");}const {data,error}=await q;if(error)return {ok:false,code:"db_error",message:error.message};return {ok:true,data:data||[]};}
   async function get(id){const sb=client();if(!sb)return {ok:false,code:"not_configured"};const {data,error}=await sb.from("student_submissions").select("*").eq("student_id",id).single();if(error)return {ok:false,code:"db_error",message:error.message};return {ok:true,data};}
   async function updateStatus(id,status){const sb=client();if(!sb)return {ok:false,code:"not_configured"};const {data,error}=await sb.from("student_submissions").update({application_status:status}).eq("student_id",id).select("student_id,application_status,updated_at").single();if(error)return {ok:false,code:"db_error",message:error.message};return {ok:true,data};}
-  async function saveStudentProfile(profile){
-    const sb=client(); if(!sb)return {ok:false,code:"not_configured"};
-    const {data:{user}}=await sb.auth.getUser(); if(!user)return {ok:false,code:"not_authenticated"};
-    const {data:existingRow,error:existingError}=await sb.from("student_profiles").select("display_name").eq("user_id",user.id).maybeSingle();
-    if(existingError)return {ok:false,code:"db_error",message:existingError.message};
-    const existingStudentId=existingRow&&/^STD-\d{8}$/.test(String(existingRow.display_name||""))?String(existingRow.display_name):"";
-    let stableStudentId=existingStudentId||String(profile.studentId||"").trim();
-    if(!/^STD-\d{8}$/.test(stableStudentId)){
-      const {data:ids,error:idError}=await sb.from("student_profiles").select("display_name").like("display_name","STD-%");
-      if(idError)return {ok:false,code:"db_error",message:idError.message};
-      const nums=(ids||[]).map(x=>{const m=String(x.display_name||"").match(/^STD-(\d{8})$/);return m?Number(m[1]):0;});
-      stableStudentId="STD-"+String(Math.max(0,...nums)+1).padStart(8,"0");
-    }
-    const rawSubjects=Array.isArray(profile.profile.subjects)?profile.profile.subjects:[];
-    const gradeRows=Array.isArray(profile.profile.subjectGrades)?profile.profile.subjectGrades:[];
-    const gradeMap=new Map(gradeRows.map(x=>[String(x.level||"")+"::"+String(x.subject||"").toLowerCase(),x.grade]));
-    const subjects=rawSubjects.map(x=>{const key=String(x.level||"")+"::"+String(x.subject||"").toLowerCase();const g=gradeMap.get(key);return Object.assign({},x,(g&&g!=="not_available")?{grade:g}:{});});
-    const payload={user_id:user.id,display_name:stableStudentId,qualification:profile.profile.qualification||"",entry_year:profile.target.entryYear||null,target_university:profile.target.university||"",target_programme:profile.target.course||"",academic_profile:{field:profile.target.field||"",currentLevel:profile.profile.currentLevel||"",academicProfile:profile.profile.academicProfile||"",subjects,subjectGrades:subjects.map(x=>({level:x.level,subject:x.subject,grade:x.grade||"not_available"})),strengths:profile.profile.strengths||[],weakTopics:profile.profile.weakTopics||[],readiness:profile.readiness||{},aLevelScore:profile.profile.aLevelScore||null,admissionAcademic:profile.profile.admissionAcademic||null},evidence_profile:{activities:profile.evidence.activities||[],activitySummary:profile.evidence.activitySummary||{},metadata:profile.metadata||{},diagnostic01:profile.diagnostic01||null,diagnostic02:profile.diagnostic02||null}};
-    const {data,error}=await sb.from("student_profiles").upsert(payload,{onConflict:"user_id"}).select("*").single();
-    if(error)return {ok:false,code:"db_error",message:error.message};
-    const savedSubjects=Array.isArray(data&&data.academic_profile&&data.academic_profile.subjects)?data.academic_profile.subjects:[];
-    const savedGradeRows=Array.isArray(data&&data.academic_profile&&data.academic_profile.subjectGrades)?data.academic_profile.subjectGrades:[];
-    const savedGradeMap=new Map(savedGradeRows.map(x=>[String(x.level||"")+"::"+String(x.subject||"").toLowerCase(),x.grade]));
-    const expectedGraded=subjects.filter(x=>x.grade&&x.grade!=="not_available");
-    const gradeControlCount=Array.isArray(profile.profile.subjectGrades)?profile.profile.subjectGrades.length:0;
-    if(rawSubjects.length&&gradeControlCount===rawSubjects.length&&expectedGraded.length===0)return {ok:false,code:"grade_capture_failed",message:"Academic subjects were captured, but no subject grades reached the database save boundary."};
-    const missing=expectedGraded.filter(x=>{const key=String(x.level||"")+"::"+String(x.subject||"").toLowerCase();const y=savedSubjects.find(s=>String(s.level)===String(x.level)&&String(s.subject).toLowerCase()===String(x.subject).toLowerCase());return !y||String(y.grade||"not_available")!==String(x.grade)||String(savedGradeMap.get(key)||"not_available")!==String(x.grade);});
-    if(missing.length)return {ok:false,code:"grade_verification_failed",message:"Database save returned successfully, but "+missing.length+" subject grade(s) could not be verified.",data};
-    window.dispatchEvent(new CustomEvent("APLUS_INFORMATION_SAVED",{detail:{module:"Academic Profile",data:data}})); return {ok:true,data};
-  }
-  async function saveAcademicGrades(subjectGrades){
-    const sb=client();if(!sb)return {ok:false,code:"not_configured"};const {data:{user}}=await sb.auth.getUser();if(!user)return {ok:false,code:"not_authenticated"};
-    const {data:existing,error:readError}=await sb.from("student_profiles").select("id,display_name,qualification,entry_year,target_university,target_programme,academic_profile,evidence_profile").eq("user_id",user.id).maybeSingle();
-    if(readError)return {ok:false,code:"db_error",message:readError.message};if(!existing)return {ok:false,code:"profile_not_found",message:"Student profile has not been created yet."};
-    const ap=Object.assign({},existing.academic_profile||{}),oldSubjects=Array.isArray(ap.subjects)?ap.subjects:[],rows=Array.isArray(subjectGrades)?subjectGrades:[],gm=new Map(rows.map(x=>[String(x.level||"")+"::"+String(x.subject||"").toLowerCase(),x.grade||"not_available"]));
-    const subjects=oldSubjects.map(x=>{const k=String(x.level||"")+"::"+String(x.subject||"").toLowerCase();const g=gm.get(k);return g&&g!=="not_available"?Object.assign({},x,{grade:g}):x;});
-    const payload={user_id:user.id,display_name:existing.display_name||"",qualification:existing.qualification||"",entry_year:existing.entry_year||null,target_university:existing.target_university||"",target_programme:existing.target_programme||"",academic_profile:Object.assign(ap,{subjects,subjectGrades:rows}),evidence_profile:existing.evidence_profile||{}};
-    const {data,error}=await sb.from("student_profiles").upsert(payload,{onConflict:"user_id"}).select("*").single();if(error)return {ok:false,code:"db_error",message:error.message};return {ok:true,data};
-  }
+  async function saveStudentProfile(profile){const sb=client();if(!sb)return {ok:false,code:"not_configured"};const {data:{user}}=await sb.auth.getUser();if(!user)return {ok:false,code:"not_authenticated"};const {data:existingRow,error:existingError}=await sb.from("student_profiles").select("display_name").eq("user_id",user.id).maybeSingle();if(existingError)return {ok:false,code:"db_error",message:existingError.message};const existingStudentId=existingRow&&/^STD-\d{8}$/.test(String(existingRow.display_name||""))?String(existingRow.display_name):"";let stableStudentId=existingStudentId||String(profile.studentId||"").trim();if(!/^STD-\d{8}$/.test(stableStudentId)){const {data:ids,error:idError}=await sb.from("student_profiles").select("display_name").like("display_name","STD-%");if(idError)return {ok:false,code:"db_error",message:idError.message};const nums=(ids||[]).map(x=>{const m=String(x.display_name||"").match(/^STD-(\d{8})$/);return m?Number(m[1]):0;});stableStudentId="STD-"+String(Math.max(0,...nums)+1).padStart(8,"0");}const rawSubjects=Array.isArray(profile.profile.subjects)?profile.profile.subjects:[],gradeRows=Array.isArray(profile.profile.subjectGrades)?profile.profile.subjectGrades:[],gradeMap=new Map(gradeRows.map(x=>[String(x.level||"")+"::"+String(x.subject||"").toLowerCase(),x.grade]));const subjects=rawSubjects.map(x=>{const key=String(x.level||"")+"::"+String(x.subject||"").toLowerCase(),g=gradeMap.get(key);return Object.assign({},x,(g&&g!=="not_available")?{grade:g}:{});});const payload={user_id:user.id,display_name:stableStudentId,qualification:profile.profile.qualification||"",entry_year:profile.target.entryYear||null,target_university:profile.target.university||"",target_programme:profile.target.course||"",academic_profile:{field:profile.target.field||"",currentLevel:profile.profile.currentLevel||"",academicProfile:profile.profile.academicProfile||"",subjects,subjectGrades:subjects.map(x=>({level:x.level,subject:x.subject,grade:x.grade||"not_available"})),strengths:profile.profile.strengths||[],weakTopics:profile.profile.weakTopics||[],readiness:profile.readiness||{},aLevelScore:profile.profile.aLevelScore||null,admissionAcademic:profile.profile.admissionAcademic||null},evidence_profile:{activities:profile.evidence.activities||[],activitySummary:profile.evidence.activitySummary||{},metadata:profile.metadata||{},diagnostic01:profile.diagnostic01||null,diagnostic02:profile.diagnostic02||null}};const {data,error}=await sb.from("student_profiles").upsert(payload,{onConflict:"user_id"}).select("*").single();if(error)return {ok:false,code:"db_error",message:error.message};const savedSubjects=Array.isArray(data&&data.academic_profile&&data.academic_profile.subjects)?data.academic_profile.subjects:[],savedGradeRows=Array.isArray(data&&data.academic_profile&&data.academic_profile.subjectGrades)?data.academic_profile.subjectGrades:[],savedGradeMap=new Map(savedGradeRows.map(x=>[String(x.level||"")+"::"+String(x.subject||"").toLowerCase(),x.grade])),expectedGraded=subjects.filter(x=>x.grade&&x.grade!=="not_available"),gradeControlCount=Array.isArray(profile.profile.subjectGrades)?profile.profile.subjectGrades.length:0;if(rawSubjects.length&&gradeControlCount===rawSubjects.length&&expectedGraded.length===0)return {ok:false,code:"grade_capture_failed",message:"Academic subjects were captured, but no subject grades reached the database save boundary."};const missing=expectedGraded.filter(x=>{const key=String(x.level||"")+"::"+String(x.subject||"").toLowerCase(),y=savedSubjects.find(s=>String(s.level)===String(x.level)&&String(s.subject).toLowerCase()===String(x.subject).toLowerCase());return !y||String(y.grade||"not_available")!==String(x.grade)||String(savedGradeMap.get(key)||"not_available")!==String(x.grade);});if(missing.length)return {ok:false,code:"grade_verification_failed",message:"Database save returned successfully, but "+missing.length+" subject grade(s) could not be verified.",data};window.dispatchEvent(new CustomEvent("APLUS_INFORMATION_SAVED",{detail:{module:"Academic Profile",data:data}}));return {ok:true,data};}
+  async function saveAcademicGrades(subjectGrades){const sb=client();if(!sb)return {ok:false,code:"not_configured"};const {data:{user}}=await sb.auth.getUser();if(!user)return {ok:false,code:"not_authenticated"};const {data:existing,error:readError}=await sb.from("student_profiles").select("id,display_name,qualification,entry_year,target_university,target_programme,academic_profile,evidence_profile").eq("user_id",user.id).maybeSingle();if(readError)return {ok:false,code:"db_error",message:readError.message};if(!existing)return {ok:false,code:"profile_not_found",message:"Student profile has not been created yet."};const ap=Object.assign({},existing.academic_profile||{}),oldSubjects=Array.isArray(ap.subjects)?ap.subjects:[],rows=Array.isArray(subjectGrades)?subjectGrades:[],gm=new Map(rows.map(x=>[String(x.level||"")+"::"+String(x.subject||"").toLowerCase(),x.grade||"not_available"])),subjects=oldSubjects.map(x=>{const k=String(x.level||"")+"::"+String(x.subject||"").toLowerCase(),g=gm.get(k);return g&&g!=="not_available"?Object.assign({},x,{grade:g}):x;}),payload={user_id:user.id,display_name:existing.display_name||"",qualification:existing.qualification||"",entry_year:existing.entry_year||null,target_university:existing.target_university||"",target_programme:existing.target_programme||"",academic_profile:Object.assign(ap,{subjects,subjectGrades:rows}),evidence_profile:existing.evidence_profile||{}};const {data,error}=await sb.from("student_profiles").upsert(payload,{onConflict:"user_id"}).select("*").single();if(error)return {ok:false,code:"db_error",message:error.message};return {ok:true,data};}
   async function getStudentProfile(){const sb=client();if(!sb)return {ok:false,code:"not_configured"};const {data:{user}}=await sb.auth.getUser();if(!user)return {ok:false,code:"not_authenticated"};const {data,error}=await sb.from("student_profiles").select("*").eq("user_id",user.id).maybeSingle();if(error)return {ok:false,code:"db_error",message:error.message};return {ok:true,data};}
-  async function saveExperienceProfile(activities){
-    const sb=client();if(!sb)return {ok:false,code:"not_configured"};const {data:{user}}=await sb.auth.getUser();if(!user)return {ok:false,code:"not_authenticated"};
-    const {data:existing,error:readError}=await sb.from("student_profiles").select("id,display_name,qualification,entry_year,target_university,target_programme,academic_profile,evidence_profile").eq("user_id",user.id).maybeSingle();if(readError)return {ok:false,code:"db_error",message:readError.message};
-    const evidence=Object.assign({},(existing&&existing.evidence_profile)||{},{activities:Array.isArray(activities)?activities:[],updatedAt:new Date().toISOString()});
-    const payload={user_id:user.id,display_name:(existing&&existing.display_name)||"",qualification:(existing&&existing.qualification)||"",entry_year:(existing&&existing.entry_year)||null,target_university:(existing&&existing.target_university)||"",target_programme:(existing&&existing.target_programme)||"",academic_profile:(existing&&existing.academic_profile)||{},evidence_profile:evidence};
-    const {data,error}=await sb.from("student_profiles").upsert(payload,{onConflict:"user_id"}).select("*").single();if(error)return {ok:false,code:"db_error",message:error.message};window.dispatchEvent(new CustomEvent("APLUS_INFORMATION_SAVED",{detail:{module:"Experience Profile",data:data}}));return {ok:true,data};
-  }
+  async function saveExperienceProfile(activities){const sb=client();if(!sb)return {ok:false,code:"not_configured"};const {data:{user}}=await sb.auth.getUser();if(!user)return {ok:false,code:"not_authenticated"};const {data:existing,error:readError}=await sb.from("student_profiles").select("id,display_name,qualification,entry_year,target_university,target_programme,academic_profile,evidence_profile").eq("user_id",user.id).maybeSingle();if(readError)return {ok:false,code:"db_error",message:readError.message};const evidence=Object.assign({},(existing&&existing.evidence_profile)||{},{activities:Array.isArray(activities)?activities:[],updatedAt:new Date().toISOString()});const payload={user_id:user.id,display_name:(existing&&existing.display_name)||"",qualification:(existing&&existing.qualification)||"",entry_year:(existing&&existing.entry_year)||null,target_university:(existing&&existing.target_university)||"",target_programme:(existing&&existing.target_programme)||"",academic_profile:(existing&&existing.academic_profile)||{},evidence_profile:evidence};const {data,error}=await sb.from("student_profiles").upsert(payload,{onConflict:"user_id"}).select("*").single();if(error)return {ok:false,code:"db_error",message:error.message};window.dispatchEvent(new CustomEvent("APLUS_INFORMATION_SAVED",{detail:{module:"Experience Profile",data:data}}));return {ok:true,data};}
   async function signIn(email,password){const sb=client();if(!sb)return {ok:false,code:"not_configured"};const {data,error}=await sb.auth.signInWithPassword({email,password});if(error)return {ok:false,code:"auth_error",message:error.message};return {ok:true,data};}
   async function signOut(){const sb=client();if(sb)await sb.auth.signOut();return {ok:true};}
   window.APLUS_DATABASE={ready,submit,list,get,updateStatus,signIn,signOut,saveStudentProfile,saveAcademicGrades,getStudentProfile,saveExperienceProfile,client,version:"1.3"};
 })();
-
-/* Restore the logged-in student's Academic Profile after the UI is mounted. */
 (function(){
   "use strict";
-  let restored=false, attempts=0;
+  let restored=false,attempts=0;
   const norm=v=>String(v==null?"":v).trim().toLowerCase();
   async function restore(){
     if(restored||!window.APLUS_DATABASE||!window.APLUS_DATABASE.getStudentProfile)return;
     if(!document.getElementById("spSubjectSelector"))return;
-    const r=await window.APLUS_DATABASE.getStudentProfile();
-    if(!r||!r.ok||!r.data)return;
-    const ap=r.data.academic_profile||{}, subjects=Array.isArray(ap.subjects)?ap.subjects:[], grades=Array.isArray(ap.subjectGrades)?ap.subjectGrades:[];
-    if(!subjects.length)return;
-    const level=document.getElementById("spLevel"), qual=document.getElementById("spQualification"), academic=document.getElementById("spAcademic");
-    if(level&&ap.currentLevel)level.value=ap.currentLevel;
-    if(qual&&r.data.qualification)qual.value=r.data.qualification;
-    if(academic&&ap.academicProfile)academic.value=ap.academicProfile;
-    if(window.APLUS_STUDENT_PROFILE&&window.APLUS_STUDENT_PROFILE.renderSubjects)window.APLUS_STUDENT_PROFILE.renderSubjects();
-    const boxes=document.querySelectorAll("#spSubjectSelector input[data-subject-key]");
-    boxes.forEach(cb=>{const hit=subjects.some(s=>norm(s.level)===norm(cb.dataset.level)&&norm(s.subject)===norm(cb.dataset.subject));if(hit)cb.checked=true;});
+    const r=await window.APLUS_DATABASE.getStudentProfile();if(!r||!r.ok||!r.data)return;
+    const ap=r.data.academic_profile||{},subjects=Array.isArray(ap.subjects)?ap.subjects:[],grades=Array.isArray(ap.subjectGrades)?ap.subjectGrades:[];if(!subjects.length)return;
+    const level=document.getElementById("spLevel"),qual=document.getElementById("spQualification"),academic=document.getElementById("spAcademic");
+    if(level&&ap.currentLevel)level.value=ap.currentLevel;if(qual&&r.data.qualification)qual.value=r.data.qualification;if(academic&&ap.academicProfile)academic.value=ap.academicProfile;
+    const boxes=document.querySelectorAll("#spSubjectSelector input[data-subject-key]");boxes.forEach(cb=>{const hit=subjects.some(s=>norm(s.level)===norm(cb.dataset.level)&&norm(s.subject)===norm(cb.dataset.subject));if(hit)cb.checked=true;});
     const fire=el=>el&&el.dispatchEvent(new Event("change",{bubbles:true}));
-    const first=document.querySelector("#spSubjectSelector input[data-subject-key]:checked");
-    if(first)fire(first);
-    setTimeout(()=>{
-      const gradeMap=new Map(grades.map(x=>[norm(x.level)+"::"+norm(x.subject),x.grade||"not_available"]));
-      document.querySelectorAll("#spStrengthSummary select[data-grade-key]").forEach(sel=>{
-        const key=sel.getAttribute("data-grade-key")||"";
-        const parts=key.split("__"), level=parts.shift()||"", subjectKey=parts.join("__");
-        const row=subjects.find(s=>norm(s.level)===norm(level)&&String(s.subject||"").replace(/[^a-z0-9]+/gi,"_").toLowerCase()===subjectKey.toLowerCase());
-        if(row){const g=gradeMap.get(norm(row.level)+"::"+norm(row.subject))||row.grade||"not_available";sel.value=g;fire(sel);}
-      });
-      restored=true;
-      if(window.APLUS_STUDENT_PROFILE&&window.APLUS_STUDENT_PROFILE.refreshAcademicOutputs)window.APLUS_STUDENT_PROFILE.refreshAcademicOutputs();
-    },180);
+    const first=document.querySelector("#spSubjectSelector input[data-subject-key]:checked");if(first)fire(first);
+    setTimeout(()=>{const gradeMap=new Map(grades.map(x=>[norm(x.level)+"::"+norm(x.subject),x.grade||"not_available"]));document.querySelectorAll("#spStrengthSummary select[data-grade-key]").forEach(sel=>{const key=sel.getAttribute("data-grade-key")||"",parts=key.split("__"),lvl=parts.shift()||"",subjectKey=parts.join("__");const row=subjects.find(s=>norm(s.level)===norm(lvl)&&String(s.subject||"").replace(/[^a-z0-9]+/gi,"_").toLowerCase()===subjectKey.toLowerCase());if(row){const g=gradeMap.get(norm(row.level)+"::"+norm(row.subject))||row.grade||"not_available";sel.value=g;fire(sel);}});restored=true;},250);
   }
-  const timer=setInterval(()=>{if(attempts++>60){clearInterval(timer);return;}restore();if(restored)clearInterval(timer);},250);
+  const timer=setInterval(()=>{if(attempts++>80){clearInterval(timer);return;}restore();if(restored)clearInterval(timer);},250);
 })();
