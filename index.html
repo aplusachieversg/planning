@@ -983,11 +983,12 @@ function build(){
  if(admission){admission.classList.add("aplus-core-module");}
  if(target){target.classList.add("aplus-core-module");}
  if(gap){gap.id="gapModule";gap.classList.add("aplus-core-module");}
- [student,experience,admission,target,document.getElementById("requirementsModule"),document.getElementById("evidenceModule"),gap,document.getElementById("roadmapModule"),document.getElementById("applicationModule")].forEach(function(node){if(node)root.appendChild(node);});
+ if(experience){var expModule=document.createElement("section");expModule.id="experienceModule";expModule.className="aplus-core-module";expModule.innerHTML="<div class=\"module-top\"><div><div class=\"module-k\">02 · EXPERIENCE</div><h3>Experience Profile</h3><p class=\"module-desc\">Record leadership, service, research, internships, competitions, projects and CCA as structured evidence.</p></div><span class=\"aplus-core-no\">02</span></div>";expModule.appendChild(experience);root.appendChild(expModule);}
+[student,admission,target,document.getElementById("requirementsModule"),document.getElementById("evidenceModule"),gap,document.getElementById("roadmapModule"),document.getElementById("applicationModule")].forEach(function(node){if(node)root.appendChild(node);});
  requirements();roadmap();application();
 }
 function refresh(){if(document.getElementById("cleanArchitectureRoot")){requirements();roadmap();application()}}
-function boot(){let n=0;const t=setInterval(function(){n++;if(document.getElementById("planner")&&document.getElementById("studentProfileEngine")&&document.getElementById("gapEngine")){clearInterval(t);build()}if(n>30)clearInterval(t)},300)}
+function boot(){let n=0;const t=setInterval(function(){n++;if(document.getElementById("planner")&&document.getElementById("experienceProfileMount")){clearInterval(t);build()}if(n>30)clearInterval(t)},300)}
 window.addEventListener("load",function(){setTimeout(boot,500)});
 window.APLUS_REFRESH_CLEAN_ARCHITECTURE=refresh;
 })();
