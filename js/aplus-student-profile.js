@@ -334,11 +334,13 @@
         el.addEventListener("change",queueAcademicDraftSave);
       });
     }
-    // CRITICAL: do not attach any SAVE listener until the account restore is finished.
-    // Page load/refresh is READ -> HYDRATE only. User edits become writable only after this event.
-    window.addEventListener("APLUS_ACCOUNT_PROFILE_RESTORED",function(){
+    // CRITICAL: save listeners are enabled only by the explicit post-restore gate.
+    // Do not rely on a one-time event: restore may complete before an event listener is attached.
+    window.APLUS_ENABLE_ACADEMIC_AUTOSAVE=function(){
+      if(window.APLUS_ACADEMIC_PROFILE_RESTORING||!window.APLUS_ACADEMIC_PROFILE_HYDRATED)return false;
       attachAcademicAutosaveListeners();
-    },{once:true});
+      return true;
+    };
 
   }
 
