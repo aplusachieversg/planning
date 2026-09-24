@@ -307,8 +307,14 @@ textarea:focus{
 .auth-modal-actions{display:flex;gap:9px;margin-top:16px}.auth-modal-actions button{flex:1;padding:11px;border-radius:10px;font-weight:800;cursor:pointer}
 .auth-primary{border:0;background:#4938a8;color:#fff}.auth-secondary{border:1px solid #dbe1eb;background:#fff;color:#475467}
 .auth-modal-status{min-height:20px;margin-top:12px;font-size:12px;color:#667085}
+</style><style id="aplus-userbar-style">
+.aplus-userbar{display:flex;align-items:center;gap:10px;margin-left:auto;margin-right:18px}
+.aplus-user-avatar{width:32px;height:32px;border-radius:50%;background:#4938a8;color:#fff;display:grid;place-items:center;font-size:12px;font-weight:900}
+.aplus-user-info{line-height:1.1;text-align:right}.aplus-user-name{font-size:12px;font-weight:850;color:#172033}.aplus-user-email{font-size:10px;color:#98a2b3;margin-top:3px}
+.aplus-user-signout{border:1px solid #e5e8ef;background:#fff;border-radius:9px;padding:8px 10px;font-size:11px;font-weight:800;cursor:pointer;color:#475467}
+@media(max-width:650px){.aplus-user-info{display:none}.aplus-userbar{margin-right:8px}.aplus-user-signout{padding:7px 8px}}
 </style></head>
-<body class="aplus-auth-pending"><div id="aplusAuthGate">
+<body class="aplus-auth-pending"><div class="aplus-userbar" id="aplusUserBar" style="display:none"><div class="aplus-user-avatar" id="aplusUserAvatar">A</div><div class="aplus-user-info"><div class="aplus-user-name" id="aplusUserName">Student</div><div class="aplus-user-email" id="aplusUserEmail"></div></div><button class="aplus-user-signout" id="aplusUserSignout" type="button">Sign Out</button></div><div id="aplusAuthGate">
   <div class="auth-card">
     <div class="auth-logo-wrap">
       <img class="auth-logo" src="https://www.aplusachiever.com/gallery_gen/af050651a52e395255a9a75fc21726aa_228x148_32x21_279x196_crop.png?ts=1768287175" alt="APLUS ACHIEVER">
@@ -641,10 +647,25 @@ window.addEventListener("load",function(){setTimeout(updateDash,300)});window.AP
       }
     }catch(e){console.warn("APLUS saved profile restore skipped:",e);}
   }
-  function openApp(){
+  function showUser(user,row){
+    var bar=document.getElementById("aplusUserBar"); if(!bar)return;
+    var name=(row&&row.display_name)||((user&&user.user_metadata&&(user.user_metadata.full_name||user.user_metadata.name))||"");
+    if(!name) name=(user&&user.email?user.email.split("@")[0]:"Student");
+    document.getElementById("aplusUserName").textContent=name;
+    document.getElementById("aplusUserEmail").textContent=user&&user.email?user.email:"";
+    document.getElementById("aplusUserAvatar").textContent=name.trim().charAt(0).toUpperCase()||"A";
+    bar.style.display="flex";
+  }
+  async function openApp(){
     document.body.classList.remove("aplus-auth-pending");
     gate.classList.add("hidden");
-    restoreSavedProfile();
+    await restoreSavedProfile();
+    try{
+      var sb=window.APLUS_DATABASE&&window.APLUS_DATABASE.client?window.APLUS_DATABASE.client():null;
+      var u=sb?await sb.auth.getUser():null;
+      var pr=window.APLUS_DATABASE&&window.APLUS_DATABASE.getStudentProfile?await window.APLUS_DATABASE.getStudentProfile():null;
+      if(u&&u.data&&u.data.user)showUser(u.data.user,pr&&pr.data);
+    }catch(e){}
   }
   var forceLogin=new URLSearchParams(location.search).get("login")==="1";
   function waitForDatabase(){
@@ -920,6 +941,17 @@ window.APLUS_REFRESH_CLEAN_ARCHITECTURE=refresh;
       }
     }catch(e){status.textContent=e&&e.message?e.message:"Request failed. Please try again."}
     finally{this.disabled=false}
+  };
+})();
+</script><script>
+(function(){
+  var b=document.getElementById("aplusUserSignout");
+  if(b)b.onclick=async function(){
+    if(window.APLUS_DATABASE&&window.APLUS_DATABASE.signOut)await window.APLUS_DATABASE.signOut();
+    localStorage.removeItem("APLUS_MASTER_PROFILE");
+    localStorage.removeItem("aplus_experience_profile_v1");
+    localStorage.removeItem("APLUS_UI_ACTIVITIES");
+    location.reload();
   };
 })();
 </script></body></html>
