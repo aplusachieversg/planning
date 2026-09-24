@@ -116,10 +116,13 @@
     const {data,error}=await sb.from("student_profiles").upsert(payload,{onConflict:"user_id"}).select("*").single();
     if(error) return {ok:false,code:"db_error",message:error.message};
     const savedSubjects=Array.isArray(data&&data.academic_profile&&data.academic_profile.subjects)?data.academic_profile.subjects:[];
+    const savedGradeRows=Array.isArray(data&&data.academic_profile&&data.academic_profile.subjectGrades)?data.academic_profile.subjectGrades:[];
+    const savedGradeMap=new Map(savedGradeRows.map(x=>[String(x.level||"")+"::"+String(x.subject||"").toLowerCase(),x.grade]));
     const expectedGraded=subjects.filter(x=>x.grade&&x.grade!=="not_available");
     const missing=expectedGraded.filter(x=>{
+      const key=String(x.level||"")+"::"+String(x.subject||"").toLowerCase();
       const y=savedSubjects.find(s=>String(s.level)===String(x.level)&&String(s.subject).toLowerCase()===String(x.subject).toLowerCase());
-      return !y||String(y.grade||"not_available")!==String(x.grade);
+      return !y||String(y.grade||"not_available")!==String(x.grade)||String(savedGradeMap.get(key)||"not_available")!==String(x.grade);
     });
     if(missing.length) return {ok:false,code:"grade_verification_failed",message:"Database save returned successfully, but "+missing.length+" subject grade(s) could not be verified.",data};
     window.dispatchEvent(new CustomEvent("APLUS_INFORMATION_SAVED",{detail:{module:"Academic Profile",data:data}}));
