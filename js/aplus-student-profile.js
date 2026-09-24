@@ -16,7 +16,8 @@
       const level=cb.dataset.level, subject=cb.dataset.subject, category=cb.dataset.category;
       const key=cb.dataset.subjectKey||((level+"__"+subject).replace(/[^a-z0-9]+/gi,"_"));
       const gradeEl=Array.from(document.querySelectorAll("#spStrengthSummary select[data-grade-key]")).find(el=>el.getAttribute("data-grade-key")===key);
-      const grade=subjectGrades[key]||(gradeEl?gradeEl.value:"not_available");
+      const liveGrade=gradeEl?gradeEl.value:"";
+      const grade=liveGrade&&liveGrade!=="not_available"?liveGrade:(subjectGrades[key]||liveGrade||"not_available");
       out.push({level,subject,category,grade});
     });
     return out;
@@ -243,6 +244,11 @@
   function statusClass(v){return v==="strong"?"good":v==="needs_work"?"warn":v==="developing"?"mid":"neutral";}
 
   async function build(){
+    // Capture the academic form before any asynchronous requirement/database work.
+    // This prevents a re-render or async refresh from replacing the live grade selectors before collection.
+    syncCurrentGradeControls();
+    const preSyncSubjects=selectedSubjects();
+    const preSyncGrades=preSyncSubjects.map(x=>({level:x.level,subject:x.subject,grade:x.grade}));
     // Sync the target programme requirements before Master Profile creation.
     // This prevents admissionAcademic from being built against stale/fallback records.
     let requirementSyncStatus="not_attempted";
@@ -264,6 +270,13 @@
     }else{
       requirementSyncStatus="not_supported_yet";
     }
+    // Re-apply the captured grades if an async requirement refresh touched the form.
+    preSyncGrades.forEach(function(saved){
+      const key=saved.level+"__"+String(saved.subject||"").replace(/[^a-z0-9]+/gi,"_");
+      if(saved.grade&&saved.grade!=="not_available")subjectGrades[key]=saved.grade;
+      const el=Array.from(document.querySelectorAll("#spStrengthSummary select[data-grade-key]")).find(function(s){return s.getAttribute("data-grade-key")===key;});
+      if(el&&saved.grade&&saved.grade!=="not_available")el.value=saved.grade;
+    });
     const base=collect(),diag=diagnosticState(base);
     base.metadata.requirementsSync=requirementSyncStatus;
     base.diagnostic01={version:"5.0",completedAt:new Date().toISOString(),profile:"ACADEMIC_PROFILE",state:diag.state,nextActions:diag.next}; save(base);
