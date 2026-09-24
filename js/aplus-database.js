@@ -119,6 +119,8 @@
     const savedGradeRows=Array.isArray(data&&data.academic_profile&&data.academic_profile.subjectGrades)?data.academic_profile.subjectGrades:[];
     const savedGradeMap=new Map(savedGradeRows.map(x=>[String(x.level||"")+"::"+String(x.subject||"").toLowerCase(),x.grade]));
     const expectedGraded=subjects.filter(x=>x.grade&&x.grade!=="not_available");
+    const gradeControlCount=Array.isArray(profile.profile.subjectGrades)?profile.profile.subjectGrades.length:0;
+    if(rawSubjects.length&&gradeControlCount===rawSubjects.length&&expectedGraded.length===0){return {ok:false,code:"grade_capture_failed",message:"Academic subjects were captured, but no subject grades reached the database save boundary."};}
     const missing=expectedGraded.filter(x=>{
       const key=String(x.level||"")+"::"+String(x.subject||"").toLowerCase();
       const y=savedSubjects.find(s=>String(s.level)===String(x.level)&&String(s.subject).toLowerCase()===String(x.subject).toLowerCase());
