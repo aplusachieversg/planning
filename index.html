@@ -559,8 +559,36 @@ window.addEventListener("load",function(){setTimeout(updateDash,300)});window.AP
   var password=document.getElementById("aplusAuthPassword");
   var error=document.getElementById("aplusAuthError");
   var button=document.getElementById("aplusAuthSubmit");
-  async function restoreSavedProfile(){try{if(window.APLUS_DATABASE&&window.APLUS_DATABASE.getStudentProfile){var r=await window.APLUS_DATABASE.getStudentProfile();if(r&&r.ok&&r.data&&window.APLUS_STUDENT_PROFILE&&window.APLUS_STUDENT_PROFILE.hydrateSavedProfile)window.APLUS_STUDENT_PROFILE.hydrateSavedProfile(r.data);}}catch(e){console.warn("APLUS saved profile restore skipped:",e);}}
-  function openApp(){document.body.classList.remove("aplus-auth-pending");gate.classList.add("hidden");restoreSavedProfile();}
+  async function restoreSavedProfile(){
+    try{
+      if(!window.APLUS_DATABASE||!window.APLUS_DATABASE.getStudentProfile)return;
+      var r=await window.APLUS_DATABASE.getStudentProfile();
+      if(!r||!r.ok||!r.data)return;
+      var row=r.data;
+      var activities=row.evidence_profile&&Array.isArray(row.evidence_profile.activities)?row.evidence_profile.activities:[];
+      localStorage.setItem("aplus_experience_profile_v1",JSON.stringify(activities));
+      localStorage.setItem("APLUS_UI_ACTIVITIES",JSON.stringify(activities));
+      function hydrate(){
+        if(window.APLUS_STUDENT_PROFILE&&window.APLUS_STUDENT_PROFILE.hydrateSavedProfile){
+          window.APLUS_STUDENT_PROFILE.hydrateSavedProfile(row);
+          document.dispatchEvent(new CustomEvent("APLUS_ACCOUNT_PROFILE_RESTORED"));
+          return true;
+        }
+        return false;
+      }
+      if(document.readyState==="loading"){
+        document.addEventListener("DOMContentLoaded",function(){setTimeout(hydrate,0)},{once:true});
+      }else{
+        var tries=0;
+        (function waitForModule(){if(hydrate()||tries++>40)return;setTimeout(waitForModule,100);})();
+      }
+    }catch(e){console.warn("APLUS saved profile restore skipped:",e);}
+  }
+  function openApp(){
+    document.body.classList.remove("aplus-auth-pending");
+    gate.classList.add("hidden");
+    restoreSavedProfile();
+  }
   function waitForDatabase(){
     if(window.APLUS_DATABASE&&window.APLUS_DATABASE.client){
       var sb=window.APLUS_DATABASE.client();
