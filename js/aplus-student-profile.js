@@ -319,9 +319,26 @@
     let academicDraftTimer=null,academicDraftBusy=false;
     async function saveAcademicDraft(){if(window.APLUS_ACADEMIC_PROFILE_RESTORING||!window.APLUS_ACADEMIC_PROFILE_HYDRATED||academicDraftBusy||!window.APLUS_DATABASE||!window.APLUS_DATABASE.saveAcademicProfileDraft)return;academicDraftBusy=true;try{syncCurrentGradeControls();const base=collect();if(window.APLUS_ALEVEL_SCORE)base.profile.aLevelScore=window.APLUS_ALEVEL_SCORE.calculate(base.profile.subjects);if(window.APLUS_ACADEMIC_ANALYSIS)base.profile.academicAnalysis=window.APLUS_ACADEMIC_ANALYSIS.analyze(base.profile.subjects,read("spAcademic")||"unknown");base.profile.subjectGrades=base.profile.subjects.map(x=>({level:x.level,subject:x.subject,grade:x.grade||"not_available"}));const db=await window.APLUS_DATABASE.saveAcademicProfileDraft(base);if(db&&db.ok){base.metadata=base.metadata||{};base.metadata.databaseSync="synced";save(base);}}catch(e){console.warn("Academic Profile autosave failed:",e);}finally{academicDraftBusy=false;}}
     function queueAcademicDraftSave(){clearTimeout(academicDraftTimer);academicDraftTimer=setTimeout(saveAcademicDraft,600);}
-    ["spLevel","spQualification","spAcademicProfile"].forEach(function(id){const el=document.getElementById(id);if(!el)return;el.addEventListener("input",function(){refreshAcademicOutputs();queueAcademicDraftSave();});el.addEventListener("change",function(){refreshAcademicOutputs();queueAcademicDraftSave();});});
-    document.querySelectorAll("#spSubjectSelector input[data-subject-key]").forEach(function(el){el.addEventListener("change",queueAcademicDraftSave);});
-    document.querySelectorAll('input[name="spWeakTopic"]').forEach(function(el){el.addEventListener("change",queueAcademicDraftSave);});
+    function attachAcademicAutosaveListeners(){
+      if(window.APLUS_ACADEMIC_AUTOSAVE_LISTENERS_ATTACHED)return;
+      window.APLUS_ACADEMIC_AUTOSAVE_LISTENERS_ATTACHED=true;
+      ["spLevel","spQualification","spAcademicProfile"].forEach(function(id){
+        const el=document.getElementById(id);if(!el)return;
+        el.addEventListener("input",function(){refreshAcademicOutputs();queueAcademicDraftSave();});
+        el.addEventListener("change",function(){refreshAcademicOutputs();queueAcademicDraftSave();});
+      });
+      document.querySelectorAll("#spSubjectSelector input[data-subject-key]").forEach(function(el){
+        el.addEventListener("change",queueAcademicDraftSave);
+      });
+      document.querySelectorAll('input[name="spWeakTopic"]').forEach(function(el){
+        el.addEventListener("change",queueAcademicDraftSave);
+      });
+    }
+    // CRITICAL: do not attach any SAVE listener until the account restore is finished.
+    // Page load/refresh is READ -> HYDRATE only. User edits become writable only after this event.
+    window.addEventListener("APLUS_ACCOUNT_PROFILE_RESTORED",function(){
+      attachAcademicAutosaveListeners();
+    },{once:true});
 
   }
 
