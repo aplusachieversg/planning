@@ -236,9 +236,9 @@
     // Sync the target programme requirements before Master Profile creation.
     // This prevents admissionAcademic from being built against stale/fallback records.
     let requirementSyncStatus="not_attempted";
-    const targetField=read("spTargetField")||"Medicine";
-    const targetUniversityRaw=read("spTargetUniversity")||"Not decided yet";
-    const targetEntryYear=Number(read("spEntryYear")||"2027");
+    const targetField=read("spTargetField")||read("field")||"Medicine";
+    const targetUniversityRaw=read("spTargetUniversity")||read("uni")||"Not decided yet";
+    const targetEntryYear=Number(read("spEntryYear")||read("entryYear")||"2027");
     const targetUniversity=/^NUS Medicine$/i.test(targetUniversityRaw)||/^NUS Law$/i.test(targetUniversityRaw)?"NUS":/^NTU Medicine$/i.test(targetUniversityRaw)?"NTU":targetUniversityRaw;
     const targetCourse=targetField;
     const canSync=targetUniversity==="NUS"||targetUniversity==="NTU";
@@ -276,7 +276,7 @@
       '<div class="diag-box" style="grid-column:1/-1"><div class="diag-label">Areas to Develop</div><div class="diag-status">'+esc(development)+'</div></div></div>'+
       '<div class="sp2-callout '+(diag.next.length?"":"good")+'"><b>'+(diag.next.length?"What to clarify next":"Academic baseline recorded")+'</b><ul>'+((diag.next.length?diag.next:["The academic profile is ready for comparison with target-specific requirements."]).map(x=>'<li>'+esc(x)+'</li>').join(""))+'</ul></div>'+
       '<div class="sp2-foot">Diagnostic 01 · '+esc(new Date().toLocaleDateString("en-SG"))+' · Database sync: '+esc(base.metadata.databaseSync||"local_only")+' · '+esc(base.studentId)+'</div>';
-    const summary=document.getElementById("spSummary");if(summary)summary.innerHTML='<span class="chip">'+esc(base.profile.currentLevel||"Level not recorded")+'</span><span class="chip">'+esc(base.profile.qualification||"Qualification not recorded")+'</span><span class="chip">'+esc(base.target.course||"Target course not selected")+'</span><span class="chip">Entry '+esc(base.target.entryYear||"—")+'</span>';
+    const summary=document.getElementById("spSummary");if(summary)summary.innerHTML='<span class="chip">'+esc(base.profile.currentLevel||"Level not recorded")+'</span><span class="chip">'+esc(base.profile.qualification||"Qualification not recorded")+'</span>';
     if(window.APLUS_REFRESH_PLANNING_INTELLIGENCE){try{await window.APLUS_REFRESH_PLANNING_INTELLIGENCE();}catch(e){const pi=document.getElementById("planningIntelligenceHost");if(pi)pi.innerHTML='<div class="pi-panel"><b>Planning Intelligence refresh error</b><p>Please refresh the page and try again.</p></div>';}}
   }
 
@@ -296,9 +296,8 @@
     const toggle=document.getElementById("spSubjectToggle"),panel=document.getElementById("spSubjectSelector");
     if(toggle&&panel){toggle.addEventListener("click",()=>{const open=toggle.getAttribute("aria-expanded")==="true";toggle.setAttribute("aria-expanded",String(!open));panel.hidden=open;toggle.classList.toggle("open",!open);});}
     renderSubjects(); updateSubjectGrades(); refreshAcademicOutputs();
-    function syncTargetUniversityOptions(){const field=document.getElementById("spTargetField"),uni=document.getElementById("spTargetUniversity");if(!field||!uni)return;const current=uni.value;const options=field.value==="Law"?["NUS Law","Not decided yet"]:field.value==="Medicine"?["NUS Medicine","NTU Medicine","Not decided yet"]:["Not decided yet"];uni.innerHTML=options.map(function(v){return "<option>"+v+"</option>";}).join("");if(options.includes(current))uni.value=current;else uni.value=options[0];}
-        const weakToggle=document.getElementById("spWeakToggle"),weakPanel=document.getElementById("spWeakSelector"),weakSummary=document.getElementById("spWeakSummary");
-    if(weakToggle&&weakPanel){const updateWeakSummary=()=>{const selected=split("spWeakTopics");weakSummary.textContent=selected.length?selected.length+" areas selected":"Select areas to improve";};weakToggle.addEventListener("click",()=>{const open=weakToggle.getAttribute("aria-expanded")==="true";weakToggle.setAttribute("aria-expanded",String(!open));weakPanel.hidden=open;weakToggle.classList.toggle("open",!open);});weakPanel.querySelectorAll('input[name="spWeakTopic"]').forEach(cb=>cb.addEventListener("change",()=>{updateWeakSummary();refreshAcademicOutputs();}));updateWeakSummary();}
+    const weakToggle=document.getElementById("spWeakToggle"),weakPanel=document.getElementById("spWeakSelector"),weakSummary=document.getElementById("spWeakSummary");
+    if(weakToggle&&weakPanel){const updateWeakSummary=()=>{const selected=split("spWeakTopics");weakSummary.textContent=selected.length?selected.length+" areas selected":"Select areas to develop";};weakToggle.addEventListener("click",()=>{const open=weakToggle.getAttribute("aria-expanded")==="true";weakToggle.setAttribute("aria-expanded",String(!open));weakPanel.hidden=open;weakToggle.classList.toggle("open",!open);});weakPanel.querySelectorAll('input[name="spWeakTopic"]').forEach(cb=>cb.addEventListener("change",()=>{updateWeakSummary();refreshAcademicOutputs();}));updateWeakSummary();}
     ["spAcademicProfile"].forEach(function(id){const el=document.getElementById(id);if(!el)return;el.addEventListener("input",refreshAcademicOutputs);el.addEventListener("change",refreshAcademicOutputs);});
   }
 
