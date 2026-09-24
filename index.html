@@ -567,4 +567,116 @@ window.addEventListener("load",function(){setTimeout(updateDash,300)});window.AP
   }
   waitForDatabase();
 })();
-</script></body></html>
+</script>
+<style id="aplus-architecture-v2">
+.aplus-flow{background:#fff;border-top:1px solid #e5e8ef;border-bottom:1px solid #e5e8ef;padding:22px 4%}
+.aplus-flow-inner{max-width:1180px;margin:auto}
+.aplus-flow-title{font-size:11px;letter-spacing:.14em;font-weight:900;color:#4938a8;margin-bottom:12px}
+.aplus-flow-track{display:grid;grid-template-columns:repeat(8,1fr);gap:7px}
+.aplus-flow-step{position:relative;padding:11px 9px;border:1px solid #e5e8ef;border-radius:11px;background:#fafbfe;min-height:58px}
+.aplus-flow-step b{display:block;font-size:11px}.aplus-flow-step span{display:block;font-size:9px;color:#667085;margin-top:4px;line-height:1.35}
+.aplus-flow-step.active{background:#f4f1ff;border-color:#d9d1ff}.aplus-flow-step:not(:last-child):after{content:"→";position:absolute;right:-8px;top:19px;color:#98a2b3;font-weight:900;z-index:2}
+.arch-card{margin:0 0 18px!important}
+.aplus-module{scroll-margin-top:90px}
+@media(max-width:900px){.aplus-flow-track{grid-template-columns:repeat(4,1fr)}.aplus-flow-step:nth-child(4):after{display:none}}
+@media(max-width:600px){.aplus-flow-track{grid-template-columns:repeat(2,1fr)}.aplus-flow-step:nth-child(2n):after{display:none}}
+.aplus-module-head{display:flex;justify-content:space-between;align-items:flex-start;gap:15px;margin-bottom:16px}
+.aplus-module-kicker{font-size:10px;letter-spacing:.14em;font-weight:900;color:#4938a8}
+.aplus-module-head h2{font-size:25px;margin:5px 0 5px;letter-spacing:-.025em}
+.aplus-module-head p{margin:0;color:#667085;font-size:13px;line-height:1.55}
+.aplus-module-no{font-size:10px;font-weight:900;color:#4938a8;background:#eeeaff;border-radius:99px;padding:7px 9px;white-space:nowrap}
+.aplus-small-card{border:1px solid #e5e8ef;border-radius:13px;padding:14px;background:#fbfcfe}
+.aplus-small-card label{margin-top:0}
+.aplus-save{border:0;background:#4938a8;color:#fff;border-radius:10px;padding:11px 15px;font-weight:850;cursor:pointer}
+.aplus-status{margin-top:10px;font-size:11px;color:#667085}
+</style>
+<section class="aplus-flow" id="workflow">
+<div class="aplus-flow-inner">
+<div class="aplus-flow-title">APLUS PLANNING ARCHITECTURE</div>
+<div class="aplus-flow-track">
+<div class="aplus-flow-step active"><b>01 Academic Profile</b><span>Student baseline</span></div>
+<div class="aplus-flow-step"><b>02 Experience Profile</b><span>Experience & evidence</span></div>
+<div class="aplus-flow-step"><b>03 Admission Profile</b><span>Application readiness</span></div>
+<div class="aplus-flow-step"><b>04 Target</b><span>Where the student wants to go</span></div>
+<div class="aplus-flow-step"><b>05 Requirements</b><span>Verified target-year rules</span></div>
+<div class="aplus-flow-step"><b>06 Gap</b><span>Requirement → evidence</span></div>
+<div class="aplus-flow-step"><b>07 Roadmap</b><span>Development milestones</span></div>
+<div class="aplus-flow-step"><b>08 Application</b><span>Applications & deadlines</span></div>
+</div>
+</div>
+</section>
+<script>
+(function(){
+"use strict";
+function esc(v){return String(v==null?"":v).replace(/[&<>"]/g,function(m){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]});}
+function getMaster(){try{return JSON.parse(localStorage.getItem("APLUS_MASTER_PROFILE")||"null")}catch(e){return null}}
+function saveApplication(){
+  const p=getMaster()||{};
+  p.application=p.application||{};
+  p.application.assessmentReady=document.getElementById("apAdmissionAssessment").value;
+  p.application.personalStatementReady=document.getElementById("apPersonalStatement").value==="Ready";
+  p.application.refereeCount=Number(document.getElementById("apReferees").value||0);
+  p.application.assessmentType=document.getElementById("apAssessmentType").value;
+  p.application.interviewReady=document.getElementById("apInterview").value;
+  p.readiness=p.readiness||{};
+  p.readiness.test=p.application.assessmentReady==="Ready"?"strong":p.application.assessmentReady==="Preparing"?"developing":"needs_work";
+  p.readiness.application=p.application.personalStatementReady&&p.application.refereeCount>0?"developing":"needs_work";
+  p.readiness.communication=p.application.interviewReady==="Ready"?"strong":p.application.interviewReady==="Preparing"?"developing":"needs_work";
+  localStorage.setItem("APLUS_MASTER_PROFILE",JSON.stringify(p));
+  document.getElementById("apAdmissionStatus").textContent="Admission Profile saved. This module records readiness; it does not assess admission chances.";
+  if(window.APLUS_refreshDashboard)window.APLUS_refreshDashboard();
+}
+function buildModule(id,kicker,title,desc,no,body){
+  const box=document.createElement("div");box.id=id;box.className="planner aplus-module";box.innerHTML='<div class="aplus-module-head"><div><div class="aplus-module-kicker">'+kicker+'</div><h2>'+title+'</h2><p>'+desc+'</p></div><span class="aplus-module-no">'+no+'</span></div>'+body;return box;
+}
+function injectModules(){
+  const planner=document.getElementById("planner");if(!planner)return false;
+  if(!document.getElementById("admissionProfileEngine")){
+    const b='<div class="formgrid"><div class="aplus-small-card"><label>Assessment / test readiness</label><select id="apAdmissionAssessment"><option>Not started</option><option>Preparing</option><option>Ready</option></select></div><div class="aplus-small-card"><label>Assessment type</label><select id="apAssessmentType"><option>Not specified</option><option>UCAT</option><option>FSA</option><option>MMI</option><option>Interview / other</option></select></div><div class="aplus-small-card"><label>Personal statement</label><select id="apPersonalStatement"><option>Not started</option><option>Drafting</option><option>Ready</option></select></div><div class="aplus-small-card"><label>Referee reports</label><select id="apReferees"><option value="0">Not arranged</option><option value="1">1 referee</option><option value="2">2 referees</option><option value="3">3+ referees</option></select></div><div class="aplus-small-card"><label>Interview / communication readiness</label><select id="apInterview"><option>Not started</option><option>Preparing</option><option>Ready</option></select></div></div><button class="aplus-save" id="apAdmissionSave" style="margin-top:16px">Save Admission Profile</button><div id="apAdmissionStatus" class="aplus-status">Separate from Academic Profile. Records application preparation only.</div>';
+    const box=buildModule("admissionProfileEngine","03 · ADMISSION PROFILE","Application Readiness","Record UCAT / assessment preparation, personal statement, referee reports and interview readiness separately from the student's academic baseline.","03",b);
+    planner.appendChild(box);
+    document.getElementById("apAdmissionSave").onclick=saveApplication;
+  }
+  if(!document.getElementById("targetProfileEngine")){
+    const b='<div class="formgrid"><div><label>Target field</label><select id="field"><option>Medicine</option><option>Law</option><option>Business</option><option>Computer Science</option><option>Engineering</option><option>Dentistry</option><option>Other</option></select></div><div><label>Target university</label><select id="uni"><option value="NUS Medicine">NUS Medicine</option><option value="NTU Medicine">NTU Medicine</option><option value="UK Medicine">UK Medicine</option><option value="Australia Medicine">Australia Medicine</option><option value="NUS Law">NUS Law</option></select></div><div><label>Target entry year</label><select id="entryYear"><option>2027</option><option>2028</option><option>2029</option><option>2030</option><option>2031</option></select></div><div><label>Scholarship interest</label><select id="targetScholarship"><option>Not decided</option><option>Yes</option><option>No</option></select></div></div><div id="targetProfileStatus" class="aplus-status">Target is an anchor for the next modules. It does not belong inside Academic Profile.</div>';
+    const box=buildModule("targetProfileEngine","04 · TARGET","Target & Direction","Define the destination only after the student baseline, experience and admission readiness have been recorded.","04",b);
+    planner.appendChild(box);
+    ["field","uni","entryYear","targetScholarship"].forEach(function(id){document.getElementById(id).addEventListener("change",function(){const p=getMaster()||{};p.target=p.target||{};p.target.field=document.getElementById("field").value;p.target.university=document.getElementById("uni").value;p.target.course=document.getElementById("field").value;p.target.entryYear=Number(document.getElementById("entryYear").value);p.target.scholarship=document.getElementById("targetScholarship").value;localStorage.setItem("APLUS_MASTER_PROFILE",JSON.stringify(p));document.getElementById("targetProfileStatus").textContent="Target saved: "+p.target.university+" · "+p.target.course+" · Entry "+p.target.entryYear; if(window.APLUS_refreshDashboard)window.APLUS_refreshDashboard();});});
+  }
+  return true;
+}
+function reorder(){
+  const planner=document.getElementById("planner");if(!planner)return;
+  const nodes=["studentProfileEngine","experienceProfileMount","admissionProfileEngine","targetProfileEngine","dataEngine","gapEngine","roadmapResult","combination","centralSubmission"];
+  const elements=[];
+  nodes.forEach(function(id){const e=document.getElementById(id);if(e)elements.push(e.closest("section")||e);});
+  const seen=[];elements.forEach(function(e){if(!seen.includes(e))seen.push(e);});
+  /* Keep the actual module order explicit. Requirements are moved into the workspace
+     before Gap; the external application engine follows the core planning chain. */
+  const gap=document.getElementById("gapEngine");
+  const data=document.getElementById("dataEngine");
+  if(data && data.parentElement!==planner)planner.appendChild(data);
+  if(gap && gap.parentElement!==planner)planner.appendChild(gap);
+  const order=["studentProfileEngine","experienceProfileMount","admissionProfileEngine","targetProfileEngine","dataEngine","gapEngine","centralSubmission"];
+  order.forEach(function(id){const e=document.getElementById(id);if(e)planner.appendChild(e);});
+  const combo=document.getElementById("combination");
+  if(combo)planner.appendChild(combo);
+  planner.classList.add("aplus-module");
+}
+function hydrate(){
+  const p=getMaster();if(!p)return;
+  const t=p.target||{},a=p.application||{};
+  const set=(id,v)=>{const e=document.getElementById(id);if(e&&v!==undefined&&v!==null&&v!=="")e.value=String(v);};
+  set("field",t.field);set("uni",t.university);set("entryYear",t.entryYear);set("targetScholarship",t.scholarship);
+  set("apAdmissionAssessment",a.assessmentReady?"Ready":(p.readiness&&p.readiness.test==="developing"?"Preparing":"Not started"));
+  set("apPersonalStatement",a.personalStatementReady?"Ready":"Not started");set("apReferees",a.refereeCount||0);set("apAssessmentType",a.assessmentType||"Not specified");set("apInterview",a.interviewReady||"Not started");
+}
+function boot(){
+  if(!injectModules())return;
+  reorder();hydrate();
+  let n=0;const timer=setInterval(function(){reorder();hydrate();if(++n>12)clearInterval(timer)},700);
+}
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot);else setTimeout(boot,300);
+})();
+</script>
+</body></html>
