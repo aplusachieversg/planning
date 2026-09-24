@@ -313,7 +313,7 @@ textarea:focus{
 .aplus-user-info{line-height:1.1;text-align:right}.aplus-user-name{font-size:12px;font-weight:850;color:#172033}.aplus-user-email{font-size:10px;color:#98a2b3;margin-top:3px}
 .aplus-user-signout{border:1px solid #e5e8ef;background:#fff;border-radius:9px;padding:8px 10px;font-size:11px;font-weight:800;cursor:pointer;color:#475467}
 @media(max-width:650px){.aplus-user-info{display:none}.aplus-userbar{margin-right:8px}.aplus-user-signout{padding:7px 8px}}
-</style></head>
+</style><style id="aplus-save-feedback-style">#aplusSaveToast{position:fixed;top:86px;right:24px;z-index:100000;min-width:250px;max-width:360px;padding:14px 17px;border-radius:13px;background:#fff;border:1px solid #dfe5ee;box-shadow:0 14px 40px rgba(16,24,40,.16);font-size:13px;font-weight:800;opacity:0;transform:translateY(-8px);pointer-events:none;transition:.22s ease}#aplusSaveToast.show{opacity:1;transform:translateY(0)}#aplusSaveToast.success{border-color:#b7e4c7;color:#147a43}#aplusSaveToast.error{border-color:#f3c4c4;color:#b42318}</style></head>
 <body class="aplus-auth-pending"><div class="aplus-userbar" id="aplusUserBar" style="display:none"><div class="aplus-user-avatar" id="aplusUserAvatar">A</div><div class="aplus-user-info"><div class="aplus-user-name" id="aplusUserName">Student</div><div class="aplus-user-email" id="aplusUserEmail"></div></div><button class="aplus-user-signout" id="aplusUserSignout" type="button">Sign Out</button></div><div id="aplusAuthGate">
   <div class="auth-card">
     <div class="auth-logo-wrap">
@@ -774,7 +774,7 @@ function saveApplication(){
   p.readiness.application=p.application.personalStatementReady&&p.application.refereeCount>0?"developing":"needs_work";
   p.readiness.communication=p.application.interviewReady==="Ready"?"strong":p.application.interviewReady==="Preparing"?"developing":"needs_work";
   localStorage.setItem("APLUS_MASTER_PROFILE",JSON.stringify(p));
-  document.getElementById("apAdmissionStatus").textContent="Admission Profile saved. This module records readiness; it does not assess admission chances.";
+  document.getElementById("apAdmissionStatus").textContent="Admission Profile saved. This module records readiness; it does not assess admission chances."; if(window.APLUS_showSaveSuccess)window.APLUS_showSaveSuccess("Admission Profile");
   if(window.APLUS_refreshDashboard)window.APLUS_refreshDashboard();
 }
 function buildModule(id,kicker,title,desc,no,body){
@@ -792,7 +792,7 @@ function injectModules(){
     const b='<div class="formgrid"><div><label>Target field</label><select id="field"><option>Medicine</option><option>Law</option><option>Business</option><option>Computer Science</option><option>Engineering</option><option>Dentistry</option><option>Other</option></select></div><div><label>Target university</label><select id="uni"><option value="NUS Medicine">NUS Medicine</option><option value="NTU Medicine">NTU Medicine</option><option value="UK Medicine">UK Medicine</option><option value="Australia Medicine">Australia Medicine</option><option value="NUS Law">NUS Law</option></select></div><div><label>Target entry year</label><select id="entryYear"><option>2027</option><option>2028</option><option>2029</option><option>2030</option><option>2031</option></select></div><div><label>Scholarship interest</label><select id="targetScholarship"><option>Not decided</option><option>Yes</option><option>No</option></select></div></div><div id="targetProfileStatus" class="aplus-status">Target is an anchor for the next modules. It does not belong inside Academic Profile.</div>';
     const box=buildModule("targetProfileEngine","04 · TARGET","Target & Direction","Define the destination only after the student baseline, experience and admission readiness have been recorded.","04",b);
     planner.appendChild(box);
-    ["field","uni","entryYear","targetScholarship"].forEach(function(id){document.getElementById(id).addEventListener("change",function(){const p=getMaster()||{};p.target=p.target||{};p.target.field=document.getElementById("field").value;p.target.university=document.getElementById("uni").value;p.target.course=document.getElementById("field").value;p.target.entryYear=Number(document.getElementById("entryYear").value);p.target.scholarship=document.getElementById("targetScholarship").value;localStorage.setItem("APLUS_MASTER_PROFILE",JSON.stringify(p));document.getElementById("targetProfileStatus").textContent="Target saved: "+p.target.university+" · "+p.target.course+" · Entry "+p.target.entryYear; if(window.APLUS_refreshDashboard)window.APLUS_refreshDashboard();});});
+    ["field","uni","entryYear","targetScholarship"].forEach(function(id){document.getElementById(id).addEventListener("change",function(){const p=getMaster()||{};p.target=p.target||{};p.target.field=document.getElementById("field").value;p.target.university=document.getElementById("uni").value;p.target.course=document.getElementById("field").value;p.target.entryYear=Number(document.getElementById("entryYear").value);p.target.scholarship=document.getElementById("targetScholarship").value;localStorage.setItem("APLUS_MASTER_PROFILE",JSON.stringify(p));document.getElementById("targetProfileStatus").textContent="Target saved: "+p.target.university+" · "+p.target.course+" · Entry "+p.target.entryYear; if(window.APLUS_showSaveSuccess)window.APLUS_showSaveSuccess("Target"); if(window.APLUS_refreshDashboard)window.APLUS_refreshDashboard();});});
   }
   return true;
 }
@@ -989,4 +989,4 @@ window.APLUS_REFRESH_CLEAN_ARCHITECTURE=refresh;
     location.reload();
   };
 })();
-</script></body></html>
+</script><script>(function(){var toast,tm;function ensure(){if(toast)return;toast=document.createElement("div");toast.id="aplusSaveToast";document.body.appendChild(toast)}function show(message,type){ensure();clearTimeout(tm);toast.className="show "+(type||"success");toast.textContent=(type==="error"?"⚠ ":"✓ ")+message;tm=setTimeout(function(){toast.className=type||"success"},3500)}window.APLUS_showSaveSuccess=function(module){show("Information Saved · "+(module||"Your latest information"),"success")};window.APLUS_showSaveError=function(message){show(message||"Information Not Saved · Please try again.","error")};window.addEventListener("APLUS_INFORMATION_SAVED",function(e){var d=e.detail||{};window.APLUS_showSaveSuccess(d.module)});})();</script></body></html>
