@@ -682,7 +682,7 @@ window.addEventListener("load",function(){setTimeout(updateDash,300)});window.AP
       });
       sb.auth.onAuthStateChange(function(event,session){
         if(session&&session.user) openApp();
-        else if(event==="SIGNED_OUT"){gate.classList.remove("hidden");}
+        else if(event==="SIGNED_OUT"){document.body.classList.remove("aplus-auth-pending");gate.classList.remove("hidden");document.getElementById("aplusUserBar").style.display="none";}
       });
       form.addEventListener("submit",async function(e){
         e.preventDefault(); error.textContent=""; button.disabled=true; button.textContent="Signing in…";
