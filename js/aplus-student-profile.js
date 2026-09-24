@@ -6,6 +6,7 @@
   "use strict";
   // Page-load guard: never autosave the initial empty UI before the database restore completes.
   window.APLUS_ACADEMIC_PROFILE_RESTORING=true;
+  window.APLUS_ACADEMIC_PROFILE_HYDRATED=false;
   const esc=v=>String(v==null?"":v).replace(/[&<>\"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]));
   const arr=v=>Array.isArray(v)?v:[];
   const read=id=>{const e=document.getElementById(id);return e?e.value:"";};
@@ -316,7 +317,7 @@
     const weakToggle=document.getElementById("spWeakToggle"),weakPanel=document.getElementById("spWeakSelector"),weakSummary=document.getElementById("spWeakSummary");
     if(weakToggle&&weakPanel){const updateWeakSummary=()=>{const selected=split("spWeakTopics");weakSummary.textContent=selected.length?selected.length+" areas selected":"Select areas to develop";};weakToggle.addEventListener("click",()=>{const open=weakToggle.getAttribute("aria-expanded")==="true";weakToggle.setAttribute("aria-expanded",String(!open));weakPanel.hidden=open;weakToggle.classList.toggle("open",!open);});weakPanel.querySelectorAll('input[name="spWeakTopic"]').forEach(cb=>cb.addEventListener("change",()=>{updateWeakSummary();refreshAcademicOutputs();}));updateWeakSummary();}
     let academicDraftTimer=null,academicDraftBusy=false;
-    async function saveAcademicDraft(){if(window.APLUS_ACADEMIC_PROFILE_RESTORING||academicDraftBusy||!window.APLUS_DATABASE||!window.APLUS_DATABASE.saveAcademicProfileDraft)return;academicDraftBusy=true;try{syncCurrentGradeControls();const base=collect();if(window.APLUS_ALEVEL_SCORE)base.profile.aLevelScore=window.APLUS_ALEVEL_SCORE.calculate(base.profile.subjects);if(window.APLUS_ACADEMIC_ANALYSIS)base.profile.academicAnalysis=window.APLUS_ACADEMIC_ANALYSIS.analyze(base.profile.subjects,read("spAcademic")||"unknown");base.profile.subjectGrades=base.profile.subjects.map(x=>({level:x.level,subject:x.subject,grade:x.grade||"not_available"}));const db=await window.APLUS_DATABASE.saveAcademicProfileDraft(base);if(db&&db.ok){base.metadata=base.metadata||{};base.metadata.databaseSync="synced";save(base);}}catch(e){console.warn("Academic Profile autosave failed:",e);}finally{academicDraftBusy=false;}}
+    async function saveAcademicDraft(){if(window.APLUS_ACADEMIC_PROFILE_RESTORING||!window.APLUS_ACADEMIC_PROFILE_HYDRATED||academicDraftBusy||!window.APLUS_DATABASE||!window.APLUS_DATABASE.saveAcademicProfileDraft)return;academicDraftBusy=true;try{syncCurrentGradeControls();const base=collect();if(window.APLUS_ALEVEL_SCORE)base.profile.aLevelScore=window.APLUS_ALEVEL_SCORE.calculate(base.profile.subjects);if(window.APLUS_ACADEMIC_ANALYSIS)base.profile.academicAnalysis=window.APLUS_ACADEMIC_ANALYSIS.analyze(base.profile.subjects,read("spAcademic")||"unknown");base.profile.subjectGrades=base.profile.subjects.map(x=>({level:x.level,subject:x.subject,grade:x.grade||"not_available"}));const db=await window.APLUS_DATABASE.saveAcademicProfileDraft(base);if(db&&db.ok){base.metadata=base.metadata||{};base.metadata.databaseSync="synced";save(base);}}catch(e){console.warn("Academic Profile autosave failed:",e);}finally{academicDraftBusy=false;}}
     function queueAcademicDraftSave(){clearTimeout(academicDraftTimer);academicDraftTimer=setTimeout(saveAcademicDraft,600);}
     ["spLevel","spQualification","spAcademicProfile"].forEach(function(id){const el=document.getElementById(id);if(!el)return;el.addEventListener("input",function(){refreshAcademicOutputs();queueAcademicDraftSave();});el.addEventListener("change",function(){refreshAcademicOutputs();queueAcademicDraftSave();});});
     document.querySelectorAll("#spSubjectSelector input[data-subject-key]").forEach(function(el){el.addEventListener("change",queueAcademicDraftSave);});
@@ -369,11 +370,13 @@
       const merged=Object.assign({},(()=>{try{return JSON.parse(localStorage.getItem("APLUS_MASTER_PROFILE")||"{}")}catch(e){return {}}})(),{profile:Object.assign({},ap,{aLevelScore:ap.aLevelScore||null,admissionAcademic:ap.admissionAcademic||null}),target:{field:ap.field||"",university:row&&row.target_university||"",course:row&&row.target_programme||"",entryYear:row&&row.entry_year||""},studentName:row&&row.display_name||""});
       localStorage.setItem("APLUS_MASTER_PROFILE",JSON.stringify(merged));
       const fieldEl=document.getElementById("spTargetField");
-      if(fieldEl){ fieldEl.dispatchEvent(new Event("change")); }
+      // Restore is read-only: never dispatch a change event here, because the change listener autosaves and can write a transient UI state back to the database.
       const uniEl=document.getElementById("spTargetUniversity");
       if(uniEl && uiUniversity && Array.from(uniEl.options).some(o=>o.value===uiUniversity)) uniEl.value=uiUniversity;
       refreshAcademicOutputs();
       persistGradeState();
+      if(academicDraftTimer)clearTimeout(academicDraftTimer);
+      window.APLUS_ACADEMIC_PROFILE_HYDRATED=true;
       window.APLUS_ACADEMIC_PROFILE_RESTORING=false;
       window.dispatchEvent(new CustomEvent("APLUS_ACADEMIC_PROFILE_RESTORED"));
       return true;
