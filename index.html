@@ -704,9 +704,12 @@ window.addEventListener("load",function(){setTimeout(updateDash,300)});window.AP
         try{
           var r=await window.APLUS_DATABASE.signIn(email.value.trim(),password.value);
           if(r.ok){
-            openApp();
+            error.textContent="";
+            await openApp();
+            button.disabled=false; button.textContent="Sign In";
           }else{
-            error.textContent=r.error&&r.error.message?r.error.message:"Sign-in failed. Please check your email and password.";
+            var msg=(r.message)||(r.error&&r.error.message)||(r.code==="auth_error"?"Email or password is incorrect.":"Sign-in failed. Please try again.");
+            error.textContent=msg;
             button.disabled=false; button.textContent="Sign In";
           }
         }catch(err){
