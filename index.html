@@ -594,7 +594,7 @@ window.addEventListener("load",function(){setTimeout(updateDash,300)});window.AP
   var password=document.getElementById("aplusAuthPassword");
   var error=document.getElementById("aplusAuthError");
   var button=document.getElementById("aplusAuthSubmit");
-  var recoveryMode=window.location.hash.indexOf("type=recovery")!==-1;
+  window.APLUS_RECOVERY_MODE=window.location.hash.indexOf("type=recovery")!==-1;
   async function restoreSavedProfile(){
     try{
       if(!window.APLUS_DATABASE||!window.APLUS_DATABASE.getStudentProfile)return;
@@ -674,7 +674,7 @@ window.addEventListener("load",function(){setTimeout(updateDash,300)});window.AP
       var sb=window.APLUS_DATABASE.client();
       if(!sb){error.textContent="Authentication service is not configured.";return;}
       sb.auth.getUser().then(function(result){
-        if(recoveryMode){
+        if(window.APLUS_RECOVERY_MODE){
           document.body.classList.remove("aplus-auth-pending");
           gate.classList.remove("hidden");
           if(result.data&&result.data.user){open("change");}
@@ -689,11 +689,11 @@ window.addEventListener("load",function(){setTimeout(updateDash,300)});window.AP
       });
       sb.auth.onAuthStateChange(function(event,session){
         if(event==="PASSWORD_RECOVERY"&&session&&session.user){
-          recoveryMode=true;
+          window.APLUS_RECOVERY_MODE=true;
           document.body.classList.remove("aplus-auth-pending");
           gate.classList.remove("hidden");
           open("change");
-        }else if(session&&session.user&&!recoveryMode) openApp();
+        }else if(session&&session.user&&!window.APLUS_RECOVERY_MODE) openApp();
         else if(event==="SIGNED_OUT"){document.body.classList.remove("aplus-auth-pending");gate.classList.remove("hidden");document.getElementById("aplusUserBar").style.display="none";}
       });
       form.addEventListener("submit",async function(e){
@@ -932,7 +932,7 @@ window.APLUS_REFRESH_CLEAN_ARCHITECTURE=refresh;
   function el(id){return document.getElementById(id)}
   function client(){return window.APLUS_DATABASE&&window.APLUS_DATABASE.client?window.APLUS_DATABASE.client():null}
   var modal=el("aplusAuthModal"), mode="signup";
-  var recoveryMode=window.location.hash.indexOf("type=recovery")!==-1;
+  window.APLUS_RECOVERY_MODE=window.location.hash.indexOf("type=recovery")!==-1;
   function open(m){
     mode=m; modal.classList.add("open");
     el("authModalTitle").textContent=m==="signup"?"Create student account":m==="change"?"Set new password":"Reset password";
