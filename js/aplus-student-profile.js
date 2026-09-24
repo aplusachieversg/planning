@@ -329,6 +329,7 @@
     if(weakToggle&&weakPanel){const updateWeakSummary=()=>{const selected=split("spWeakTopics");weakSummary.textContent=selected.length?selected.length+" areas selected":"Select areas to develop";};weakToggle.addEventListener("click",()=>{const open=weakToggle.getAttribute("aria-expanded")==="true";weakToggle.setAttribute("aria-expanded",String(!open));weakPanel.hidden=open;weakToggle.classList.toggle("open",!open);});weakPanel.querySelectorAll('input[name="spWeakTopic"]').forEach(cb=>cb.addEventListener("change",()=>{updateWeakSummary();refreshAcademicOutputs();}));updateWeakSummary();}
     let academicDraftTimer=null,academicDraftBusy=false;
     async function saveAcademicDraft(){
+      if(window.APLUS_ACADEMIC_EXPLICIT_SAVE_MODE)return;
       if(window.APLUS_ACADEMIC_PROFILE_RESTORING||!window.APLUS_ACADEMIC_PROFILE_HYDRATED||academicDraftBusy||!window.APLUS_DATABASE||!window.APLUS_DATABASE.saveAcademicProfileDraft)return;
       academicDraftBusy=true;
       if(window.APLUS_PROFILE_STORE&&window.APLUS_PROFILE_STORE.saving)window.APLUS_PROFILE_STORE.saving();
@@ -349,7 +350,7 @@
         console.warn("Academic Profile autosave failed:",e);
       }finally{academicDraftBusy=false;}
     }
-    function queueAcademicDraftSave(){clearTimeout(academicDraftTimer);academicDraftTimer=setTimeout(saveAcademicDraft,600);}
+    function queueAcademicDraftSave(){if(window.APLUS_ACADEMIC_EXPLICIT_SAVE_MODE)return;clearTimeout(academicDraftTimer);academicDraftTimer=setTimeout(saveAcademicDraft,600);}
     function attachAcademicAutosaveListeners(){
       if(window.APLUS_ACADEMIC_AUTOSAVE_LISTENERS_ATTACHED)return;
       window.APLUS_ACADEMIC_AUTOSAVE_LISTENERS_ATTACHED=true;
