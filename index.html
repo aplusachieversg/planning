@@ -605,7 +605,7 @@ window.addEventListener("load",function(){setTimeout(updateDash,300)});window.AP
       var activities=row.evidence_profile&&Array.isArray(row.evidence_profile.activities)?row.evidence_profile.activities:[];
       var savedMaster={
         studentName:row.display_name||"",
-        studentId:(/^STU-[A-Za-z0-9_-]+$/.test(String(row.display_name||""))?String(row.display_name):String(row.user_id||"")),
+        studentId:(/^STD-\d{8}$/.test(String(row.display_name||""))?String(row.display_name):String(row.user_id||"")),
         profile:{
           currentLevel:ap.currentLevel||"",
           qualification:row.qualification||"",
