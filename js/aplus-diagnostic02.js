@@ -201,6 +201,7 @@
     },500);
   }
 
+  window.APLUS_DIAGNOSTIC_02={assess};
   window.APLUS_RUN_DIAGNOSTIC_02=run;
   window.APLUS_RUN_GAP_ENGINE=run;
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot);
