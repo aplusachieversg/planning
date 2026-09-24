@@ -30,6 +30,9 @@
         lastRow=await window.APLUS_RESTORE_SAVED_PROFILE();
         /* Hydrate every profile module from the same canonical DB row. */
         try{
+          if(window.APLUSAcademicProfile&&window.APLUSAcademicProfile.hydrateSavedProfile){
+            window.APLUSAcademicProfile.hydrateSavedProfile(lastRow);
+          }
           var evidence=lastRow&&lastRow.evidence_profile;
           var activities=evidence&&Array.isArray(evidence.activities)?evidence.activities:[];
           if(window.APLUSEvidenceProfile&&window.APLUSEvidenceProfile.hydrateSavedProfile){
