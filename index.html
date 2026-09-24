@@ -697,9 +697,21 @@ window.addEventListener("load",function(){setTimeout(updateDash,300)});window.AP
       });
       form.addEventListener("submit",async function(e){
         e.preventDefault(); error.textContent=""; button.disabled=true; button.textContent="Signing in…";
-        var r=await window.APLUS_DATABASE.signIn(email.value.trim(),password.value);
-        if(r.ok) openApp(); else error.textContent="Sign-in failed. Please check your email and password.";
-        button.disabled=false; button.textContent="Sign In";
+        try{
+          var r=await window.APLUS_DATABASE.signIn(email.value.trim(),password.value);
+          if(r.ok){
+            /* Supabase emits SIGNED_IN and the auth listener also opens the app.
+               Do not wait for profile restoration here, otherwise the button can
+               remain on "Signing in…" while database hydration is running. */
+            openApp();
+          }else{
+            error.textContent=r.error&&r.error.message?r.error.message:"Sign-in failed. Please check your email and password.";
+            button.disabled=false; button.textContent="Sign In";
+          }
+        }catch(err){
+          error.textContent=err&&err.message?err.message:"Sign-in failed. Please try again.";
+          button.disabled=false; button.textContent="Sign In";
+        }
       });
     } else setTimeout(waitForDatabase,50);
   }
