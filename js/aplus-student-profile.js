@@ -249,34 +249,10 @@
     syncCurrentGradeControls();
     const preSyncSubjects=selectedSubjects();
     const preSyncGrades=preSyncSubjects.map(x=>({level:x.level,subject:x.subject,grade:x.grade}));
-    // Sync the target programme requirements before Master Profile creation.
-    // This prevents admissionAcademic from being built against stale/fallback records.
-    let requirementSyncStatus="not_attempted";
-    const targetField=read("spTargetField")||read("field")||"Medicine";
-    const targetUniversityRaw=read("spTargetUniversity")||read("uni")||"Not decided yet";
-    const targetEntryYear=Number(read("spEntryYear")||read("entryYear")||"2027");
-    const targetUniversity=/^NUS Medicine$/i.test(targetUniversityRaw)||/^NUS Law$/i.test(targetUniversityRaw)?"NUS":/^NTU Medicine$/i.test(targetUniversityRaw)?"NTU":targetUniversityRaw;
-    const targetCourse=targetField;
-    const canSync=targetUniversity==="NUS"||targetUniversity==="NTU";
-    if(canSync&&window.APLUS_REQUIREMENTS&&window.APLUS_REQUIREMENTS.sync&&Number.isFinite(targetEntryYear)){
-      try{
-        const req=await window.APLUS_REQUIREMENTS.sync(targetUniversity,targetCourse,targetEntryYear);
-        requirementSyncStatus=Array.isArray(req)&&req.length?"loaded":"no_verified_records";
-      }catch(e){
-        requirementSyncStatus="sync_failed_using_fallback";
-      }
-    }else if(targetUniversityRaw==="Not decided yet"){
-      requirementSyncStatus="target_not_selected";
-    }else{
-      requirementSyncStatus="not_supported_yet";
-    }
-    // Re-apply the captured grades if an async requirement refresh touched the form.
-    preSyncGrades.forEach(function(saved){
-      const key=saved.level+"__"+String(saved.subject||"").replace(/[^a-z0-9]+/gi,"_");
-      if(saved.grade&&saved.grade!=="not_available")subjectGrades[key]=saved.grade;
-      const el=Array.from(document.querySelectorAll("#spStrengthSummary select[data-grade-key]")).find(function(s){return s.getAttribute("data-grade-key")===key;});
-      if(el&&saved.grade&&saved.grade!=="not_available")el.value=saved.grade;
-    });
+    // Diagnostic 01 is Academic Profile only. Do not run target-specific
+    // requirement synchronisation here; it can trigger unrelated refreshes and must
+    // never be allowed to change the academic form being saved.
+    const requirementSyncStatus="not_attempted";
     const base=collect();
     // Use the snapshot captured before the async requirements sync as the canonical
     // subject/grade payload for this save. This prevents any intermediate UI refresh
