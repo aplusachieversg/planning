@@ -64,6 +64,13 @@
     if(!user) return {ok:false,code:"not_authenticated"};
     // Canonicalise grades one more time at the database boundary.
     // If subjectGrades contains a newer live value, overlay it onto subjects.
+    // Student ID is account-bound: once a STU- ID exists, never generate/replace it on later saves.
+    let existingProfile=null;
+    const {data:existingRow,error:existingError}=await sb.from("student_profiles").select("display_name").eq("user_id",user.id).maybeSingle();
+    if(existingError) return {ok:false,code:"db_error",message:existingError.message};
+    existingProfile=existingRow||null;
+    const existingStudentId=existingProfile&&/^STU-[A-Za-z0-9_-]+$/.test(String(existingProfile.display_name||""))?String(existingProfile.display_name):"";
+    const stableStudentId=existingStudentId||String(profile.studentId||"").trim()||("STU-"+Date.now());
     const rawSubjects=Array.isArray(profile.profile.subjects)?profile.profile.subjects:[];
     const gradeRows=Array.isArray(profile.profile.subjectGrades)?profile.profile.subjectGrades:[];
     const gradeMap=new Map(gradeRows.map(x=>[String(x.level||"")+"::"+String(x.subject||"").toLowerCase(),x.grade]));
@@ -74,7 +81,7 @@
     });
     const payload={
       user_id:user.id,
-      display_name:profile.profile.displayName||profile.studentName||profile.studentId||"",
+      display_name:stableStudentId,
       qualification:profile.profile.qualification||"",
       entry_year:profile.target.entryYear||null,
       target_university:profile.target.university||"",
