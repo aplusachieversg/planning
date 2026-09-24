@@ -60,6 +60,23 @@
     setState("saved",lastRow);
   }
 
+  /* User interaction is the only path that moves READY/SAVED -> DIRTY.
+     Programmatic hydration uses element.value/checked without dispatching input/change,
+     so refresh can never become a save trigger. */
+  document.addEventListener("input",function(e){
+    if(e.target&&e.target.closest&&e.target.closest("#planner"))markDirty();
+  },true);
+  document.addEventListener("change",function(e){
+    if(e.target&&e.target.closest&&e.target.closest("#planner"))markDirty();
+  },true);
+  window.addEventListener("APLUS_INFORMATION_SAVED",function(e){
+    var d=e.detail||{};
+    if(d.data)saved(d.data);
+  });
+  window.addEventListener("beforeunload",function(){
+    /* Intentionally no save here. Browser refresh/unload is READ-only. */
+  });
+
   window.APLUS_PROFILE_STORE={
     version:"1.0",
     getState:function(){return state;},
