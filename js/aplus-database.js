@@ -100,6 +100,32 @@
     if(error) return {ok:false,code:"db_error",message:error.message};
     return {ok:true,data};
   }
+
+  async function saveExperienceProfile(activities){
+    const sb=client();
+    if(!sb) return {ok:false,code:"not_configured"};
+    const {data:{user}}=await sb.auth.getUser();
+    if(!user) return {ok:false,code:"not_authenticated"};
+    const {data:existing,error:readError}=await sb.from("student_profiles").select("id,display_name,qualification,entry_year,target_university,target_programme,academic_profile,evidence_profile").eq("user_id",user.id).maybeSingle();
+    if(readError) return {ok:false,code:"db_error",message:readError.message};
+    const evidence=Object.assign({},(existing&&existing.evidence_profile)||{},{
+      activities:Array.isArray(activities)?activities:[],
+      updatedAt:new Date().toISOString()
+    });
+    const payload={
+      user_id:user.id,
+      display_name:(existing&&existing.display_name)||"",
+      qualification:(existing&&existing.qualification)||"",
+      entry_year:(existing&&existing.entry_year)||null,
+      target_university:(existing&&existing.target_university)||"",
+      target_programme:(existing&&existing.target_programme)||"",
+      academic_profile:(existing&&existing.academic_profile)||{},
+      evidence_profile:evidence
+    };
+    const {data,error}=await sb.from("student_profiles").upsert(payload,{onConflict:"user_id"}).select("*").single();
+    if(error) return {ok:false,code:"db_error",message:error.message};
+    return {ok:true,data};
+  }
   async function signIn(email,password){
     const sb=client(); if(!sb) return {ok:false,code:"not_configured"};
     const {data,error}=await sb.auth.signInWithPassword({email,password});
@@ -107,5 +133,5 @@
     return {ok:true,data};
   }
   async function signOut(){const sb=client(); if(sb) await sb.auth.signOut(); return {ok:true};}
-  window.APLUS_DATABASE={ready,submit,list,get,updateStatus,signIn,signOut,saveStudentProfile,getStudentProfile,client,version:"1.1"};
+  window.APLUS_DATABASE={ready,submit,list,get,updateStatus,signIn,signOut,saveStudentProfile,getStudentProfile,saveExperienceProfile,client,version:"1.2"};
 })();
