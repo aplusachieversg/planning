@@ -676,6 +676,7 @@ window.addEventListener("load",function(){setTimeout(updateDash,300)});window.AP
     bar.style.display="flex";
   }
   var openingApp=false;
+  var appBootPromise=null;
   function waitForDomReady(){
     if(document.readyState==="complete")return Promise.resolve();
     return new Promise(function(resolve){
@@ -683,25 +684,34 @@ window.addEventListener("load",function(){setTimeout(updateDash,300)});window.AP
     });
   }
   async function openApp(){
-    if(openingApp)return;
+    /* One authenticated session = one READ/HYDRATE boot.
+       Multiple auth callbacks share this promise instead of starting another cycle. */
+    if(appBootPromise)return appBootPromise;
     openingApp=true;
     document.body.classList.remove("aplus-auth-pending");
     gate.classList.add("hidden");
-    try{
-      await waitForDomReady();
-      await new Promise(function(resolve){setTimeout(resolve,50);});
-      var sb=window.APLUS_DATABASE&&window.APLUS_DATABASE.client?window.APLUS_DATABASE.client():null;
-      var auth=sb?await sb.auth.getUser():null;
-      if(!auth||!auth.data||!auth.data.user)return;
-      var userId=auth.data.user.id;
-      var result;
-      if(window.APLUS_PROFILE_STORE&&window.APLUS_PROFILE_STORE.boot){
-        result=await window.APLUS_PROFILE_STORE.boot(userId);
-      }else{
-        result={ok:true,data:await window.APLUS_RESTORE_SAVED_PROFILE()};
-      }
-      if(result&&result.ok)showUser(auth.data.user,result.data);
-    }catch(e){console.warn("APLUS app open error:",e);} finally {openingApp=false;}
+    appBootPromise=(async function(){
+      try{
+        await waitForDomReady();
+        await new Promise(function(resolve){setTimeout(resolve,50);});
+        var sb=window.APLUS_DATABASE&&window.APLUS_DATABASE.client?window.APLUS_DATABASE.client():null;
+        var auth=sb?await sb.auth.getUser():null;
+        if(!auth||!auth.data||!auth.data.user)return null;
+        var userId=auth.data.user.id;
+        var result;
+        if(window.APLUS_PROFILE_STORE&&window.APLUS_PROFILE_STORE.boot){
+          result=await window.APLUS_PROFILE_STORE.boot(userId);
+        }else{
+          result={ok:true,data:await window.APLUS_RESTORE_SAVED_PROFILE()};
+        }
+        if(result&&result.ok)showUser(auth.data.user,result.data);
+        return result||null;
+      }catch(e){
+        console.warn("APLUS app open error:",e);
+        return null;
+      }finally{openingApp=false;}
+    })();
+    return appBootPromise;
   }
   var forceLogin=new URLSearchParams(location.search).get("login")==="1";
   function waitForDatabase(){
@@ -729,7 +739,7 @@ window.addEventListener("load",function(){setTimeout(updateDash,300)});window.AP
           gate.classList.remove("hidden");
           open("change");
         }else if(session&&session.user&&!window.APLUS_RECOVERY_MODE) openApp();
-        else if(event==="SIGNED_OUT"){document.body.classList.remove("aplus-auth-pending");gate.classList.remove("hidden");document.getElementById("aplusUserBar").style.display="none";}
+        else if(event==="SIGNED_OUT"){appBootPromise=null;if(window.APLUS_PROFILE_STORE&&window.APLUS_PROFILE_STORE.reset)window.APLUS_PROFILE_STORE.reset();document.body.classList.remove("aplus-auth-pending");gate.classList.remove("hidden");document.getElementById("aplusUserBar").style.display="none";}
       });
       form.addEventListener("submit",async function(e){
         e.preventDefault(); error.textContent=""; button.disabled=true; button.textContent="Signing in…";
