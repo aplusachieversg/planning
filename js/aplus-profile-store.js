@@ -41,6 +41,9 @@
           if(window.APLUSTargetProfile&&window.APLUSTargetProfile.hydrateSavedProfile){
             window.APLUSTargetProfile.hydrateSavedProfile(lastRow);
           }
+          if(window.APLUSRequirementsProfile&&window.APLUSRequirementsProfile.hydrateSavedProfile){
+            window.APLUSRequirementsProfile.hydrateSavedProfile(window.APLUSTargetProfile&&window.APLUSTargetProfile.get?window.APLUSTargetProfile.get():null);
+          }
         }catch(e){console.warn("Profile module hydrate skipped:",e);}
         setState("ready",lastRow);
         return {ok:true,data:lastRow||null};
