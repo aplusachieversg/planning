@@ -943,6 +943,12 @@ function requirements(){
  '<button class="aplus-action" onclick="if(window.APLUS_RUN_DIAGNOSTIC_02)window.APLUS_RUN_DIAGNOSTIC_02();document.getElementById(\'gapModule\').scrollIntoView({behavior:\'smooth\'})">Check Requirements Against My Profile →</button>'+
  '<div class="aplus-muted">Requirements are target-year rules. They are not part of the student profile.</div>';
 }
+function development(){
+ const p=master()||{},e=p.evidence&&p.evidence.experienceProfile||{},qualities=Array.isArray(e.personalQualities)?e.personalQualities:[];
+ const actions=qualities.filter(q=>q.development&&q.development!=="Established").map(q=>({label:q.label,status:q.development}));
+ const host=document.getElementById("developmentContent");if(!host)return;
+ host.innerHTML='<div class="aplus-roadmap-grid">'+(actions.length?actions.map(function(x,i){return '<div class="aplus-road-step"><div class="num">0'+(i+1)+' · DEVELOPMENT</div><b>'+esc(x.label)+'</b><span>Current evidence level: '+esc(x.status)+'. Build this through genuine experiences, then record action, outcome and reflection.</span></div>'}).join(""):'<div class="aplus-info"><b>No development priority has been generated yet.</b><span>Complete Evidence records to generate development signals.</span></div>')+'</div><div class="aplus-muted">Development signals are planning indicators. They are not admissions scores or predictions.</div>';
+}
 function roadmap(){
  const p=master()||{},t=p.target||{},s=p.profile||{},e=p.evidence||{},a=p.application||{};
  const level=s.currentLevel||"Current stage",year=t.entryYear||"target entry year";
@@ -966,10 +972,10 @@ function build(){
  document.body.classList.add("aplus-clean-mode");
  const planner=document.getElementById("planner");if(!planner||document.getElementById("cleanArchitectureRoot"))return;
  const root=document.createElement("div");root.id="cleanArchitectureRoot";
- root.innerHTML='<div class="aplus-clean-header"><div class="k">APLUS ACADEMIC PLANNING</div><h2>Student Planning Workspace</h2><p>One clear workflow — each module has one responsibility.</p><div class="aplus-clean-nav"><a href="#academicModule">01 Academic</a><a href="#experienceModule">02 Experience</a><a href="#admissionProfileEngine">03 Admission</a><a href="#targetProfileEngine">04 Target</a><a href="#requirementsModule">05 Requirements</a><a href="#gapModule">06 Gap</a><a href="#roadmapModule">07 Roadmap</a><a href="#applicationModule">08 Application</a></div></div>'+
+ root.innerHTML='<div class="aplus-clean-header"><div class="k">APLUS ACADEMIC PLANNING</div><h2>Student Planning Workspace</h2><p>One clear workflow — each module has one responsibility.</p><div class="aplus-clean-nav"><a href="#academicModule">01 Academic</a><a href="#experienceModule">02 Experience</a><a href="#admissionProfileEngine">03 Admission</a><a href="#targetProfileEngine">04 Target</a><a href="#requirementsModule">05 Requirements</a><a href="#evidenceModule">06 Evidence</a><a href="#gapModule">07 Gap</a><a href="#developmentModule">08 Development</a><a href="#roadmapModule">09 Roadmap</a><a href="#applicationModule">10 Application</a></div></div>'+
  module("05","05 · REQUIREMENTS","Target Requirements","Verified target-year requirements are compared with the student's records here — not inside a profile.","<div id=\"requirementsContent\"></div>","requirementsModule")+
  module("07","07 · ROADMAP","Development Roadmap","Turn identified gaps into development priorities and time-based milestones.","<div id=\"roadmapContent\"></div>","roadmapModule")+
- module("08","08 · APPLICATION","Application Plan","Coordinate the final application using the completed profiles, target and roadmap.","<div id=\"applicationContent\"></div>","applicationModule");
+ module("10","10 · APPLICATION","Application Plan","Coordinate the final application using the completed profiles, target and roadmap.","<div id=\"applicationContent\"></div>","applicationModule");
  planner.appendChild(root);
  const student=document.getElementById("studentProfileEngine"),experience=document.getElementById("experienceProfileMount"),admission=document.getElementById("admissionProfileEngine"),target=document.getElementById("targetProfileEngine"),gap=document.getElementById("gapEngine");
  if(student){student.id="academicModule";student.classList.add("aplus-core-module");}
