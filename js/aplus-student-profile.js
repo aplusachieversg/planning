@@ -350,6 +350,9 @@
       // restoreSavedProfile() may run immediately after login, before Diagnostic 01 is mounted.
       if(!document.getElementById("spSubjectSelector") || !document.getElementById("studentProfileEngine")) return false;
       const ap=(row&&row.academic_profile)||{};
+      // DB is the canonical source on refresh. Do not let a previous browser cache
+      // compete with the database while rebuilding the subject/grade controls.
+      Object.keys(subjectGrades).forEach(function(k){delete subjectGrades[k];});
       // Restore grades from the canonical subjectGrades record as well as subjects.
       // This makes reload independent of which field was last populated by the save layer.
       const savedGradeRows=Array.isArray(ap.subjectGrades)?ap.subjectGrades:[];
@@ -399,7 +402,7 @@
       window.APLUS_ACADEMIC_PROFILE_RESTORING=false;
       window.dispatchEvent(new CustomEvent("APLUS_ACADEMIC_PROFILE_RESTORED"));
       return true;
-    }catch(e){return false;}
+    }catch(e){console.warn("APLUS Academic Profile hydration failed:",e, row); window.APLUS_ACADEMIC_PROFILE_HYDRATED=false; window.APLUS_ACADEMIC_PROFILE_RESTORING=false; return false;}
   }
   window.APLUS_BUILD_STUDENT_PROFILE=build;
   window.APLUS_STUDENT_PROFILE={collect,save,build,diagnosticState,hydrateSavedProfile};
