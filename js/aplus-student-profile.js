@@ -327,7 +327,15 @@
   function hydrateSavedProfile(row){
     try{
       const ap=(row&&row.academic_profile)||{};
-      const subjects=arr(ap.subjects);
+      // Restore grades from the canonical subjectGrades record as well as subjects.
+      // This makes reload independent of which field was last populated by the save layer.
+      const savedGradeRows=Array.isArray(ap.subjectGrades)?ap.subjectGrades:[];
+      const savedGradeMap=new Map(savedGradeRows.map(x=>[String(x.level||"")+"::"+String(x.subject||"").toLowerCase(),x.grade]));
+      const subjects=arr(ap.subjects).map(function(x){
+        const key=String(x.level||"")+"::"+String(x.subject||"").toLowerCase();
+        const g=savedGradeMap.get(key);
+        return Object.assign({},x,(g&&g!=="not_available")?{grade:g}:{});
+      });
       const set=(id,value)=>{const el=document.getElementById(id);if(el&&value!=null&&value!=="")el.value=String(value);};
       set("spTargetField",ap.field);
       const savedField=String(ap.field||"");
