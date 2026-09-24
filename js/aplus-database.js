@@ -33,6 +33,47 @@
     window.dispatchEvent(new CustomEvent("APLUS_INFORMATION_SAVED",{detail:{module:"Admission Profile",data:data}}));
     return {ok:true,data};
   }
+  async function saveTargetProfile(target){
+    const sb=client();if(!sb)return {ok:false,code:"not_configured"};
+    const {data:{user}}=await sb.auth.getUser();if(!user)return {ok:false,code:"not_authenticated"};
+    const {data:existing,error:readError}=await sb.from("student_profiles").select("id,display_name,qualification,entry_year,target_university,target_programme,academic_profile,evidence_profile,target_profile").eq("user_id",user.id).maybeSingle();
+    if(readError)return {ok:false,code:"db_error",message:readError.message};
+    let stableStudentId=existing&&/^STD-\d{8}$/.test(String(existing.display_name||""))?String(existing.display_name):"";
+    if(!stableStudentId){
+      const {data:ids,error:idError}=await sb.from("student_profiles").select("display_name").like("display_name","STD-%");
+      if(idError)return {ok:false,code:"db_error",message:idError.message};
+      const nums=(ids||[]).map(x=>{const m=String(x.display_name||"").match(/^STD-(\d{8})$/);return m?Number(m[1]):0;});
+      stableStudentId="STD-"+String(Math.max(0,...nums)+1).padStart(8,"0");
+    }
+    const t=target||{};
+    const ap=Object.assign({},(existing&&existing.academic_profile)||{},{
+      field:String(t.field||""),
+      updatedAt:new Date().toISOString()
+    });
+    const payload={
+      user_id:user.id,
+      display_name:stableStudentId,
+      qualification:(existing&&existing.qualification)||"",
+      entry_year:Number(t.entryYear)||null,
+      target_university:String(t.university||""),
+      target_programme:String(t.course||""),
+      academic_profile:ap,
+      evidence_profile:(existing&&existing.evidence_profile)||{},
+      target_profile:{
+        field:String(t.field||""),
+        university:String(t.university||""),
+        course:String(t.course||""),
+        country:String(t.country||""),
+        entryYear:Number(t.entryYear)||null,
+        scholarship:String(t.scholarship||"Not decided"),
+        updatedAt:new Date().toISOString()
+      }
+    };
+    const {data,error}=await sb.from("student_profiles").upsert(payload,{onConflict:"user_id"}).select("*").single();
+    if(error)return {ok:false,code:"db_error",message:error.message};
+    window.dispatchEvent(new CustomEvent("APLUS_INFORMATION_SAVED",{detail:{module:"Target",data:data}}));
+    return {ok:true,data};
+  }
   async function signIn(email,password){const sb=client();if(!sb)return {ok:false,code:"not_configured"};const {data,error}=await sb.auth.signInWithPassword({email,password});if(error)return {ok:false,code:"auth_error",message:error.message};return {ok:true,data};}
   async function signOut(){const sb=client();if(sb)await sb.auth.signOut();return {ok:true};}
   window.APLUS_DATABASE={ready,submit,list,get,updateStatus,signIn,signOut,saveStudentProfile,saveAcademicGrades,saveAcademicProfileDraft,getStudentProfile,saveExperienceProfile,saveAdmissionProfile,client,version:"1.5"};
