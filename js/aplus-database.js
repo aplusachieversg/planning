@@ -69,8 +69,15 @@
     const {data:existingRow,error:existingError}=await sb.from("student_profiles").select("display_name").eq("user_id",user.id).maybeSingle();
     if(existingError) return {ok:false,code:"db_error",message:existingError.message};
     existingProfile=existingRow||null;
-    const existingStudentId=existingProfile&&/^STU-[A-Za-z0-9_-]+$/.test(String(existingProfile.display_name||""))?String(existingProfile.display_name):"";
-    const stableStudentId=existingStudentId||String(profile.studentId||"").trim()||("STU-"+Date.now());
+    const existingStudentId=existingProfile&&/^STD-\d{8}$/.test(String(existingProfile.display_name||""))?String(existingProfile.display_name):"";
+    let stableStudentId=existingStudentId||String(profile.studentId||"").trim();
+    if(!/^STD-\d{8}$/.test(stableStudentId)){
+      const {data:ids,error:idError}=await sb.from("student_profiles").select("display_name").like("display_name","STD-%");
+      if(idError) return {ok:false,code:"db_error",message:idError.message};
+      const nums=(ids||[]).map(x=>{const m=String(x.display_name||"").match(/^STD-(\d{8})$/);return m?Number(m[1]):0;});
+      const next=Math.max(0,...nums)+1;
+      stableStudentId="STD-"+String(next).padStart(8,"0");
+    }
     const rawSubjects=Array.isArray(profile.profile.subjects)?profile.profile.subjects:[];
     const gradeRows=Array.isArray(profile.profile.subjectGrades)?profile.profile.subjectGrades:[];
     const gradeMap=new Map(gradeRows.map(x=>[String(x.level||"")+"::"+String(x.subject||"").toLowerCase(),x.grade]));
