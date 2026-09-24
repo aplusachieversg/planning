@@ -62,6 +62,16 @@
     if(!sb) return {ok:false,code:"not_configured"};
     const {data:{user}}=await sb.auth.getUser();
     if(!user) return {ok:false,code:"not_authenticated"};
+    // Canonicalise grades one more time at the database boundary.
+    // If subjectGrades contains a newer live value, overlay it onto subjects.
+    const rawSubjects=Array.isArray(profile.profile.subjects)?profile.profile.subjects:[];
+    const gradeRows=Array.isArray(profile.profile.subjectGrades)?profile.profile.subjectGrades:[];
+    const gradeMap=new Map(gradeRows.map(x=>[String(x.level||"")+"::"+String(x.subject||"").toLowerCase(),x.grade]));
+    const subjects=rawSubjects.map(x=>{
+      const key=String(x.level||"")+"::"+String(x.subject||"").toLowerCase();
+      const g=gradeMap.get(key);
+      return Object.assign({},x,(g&&g!=="not_available")?{grade:g}:{});
+    });
     const payload={
       user_id:user.id,
       display_name:profile.profile.displayName||profile.studentName||profile.studentId||"",
@@ -73,7 +83,8 @@
         field:profile.target.field||"",
         currentLevel:profile.profile.currentLevel||"",
         academicProfile:profile.profile.academicProfile||"",
-        subjects:profile.profile.subjects||[],
+        subjects,
+        subjectGrades:subjects.map(x=>({level:x.level,subject:x.subject,grade:x.grade||"not_available"})),
         strengths:profile.profile.strengths||[],
         weakTopics:profile.profile.weakTopics||[],
         readiness:profile.readiness||{},
@@ -90,6 +101,13 @@
     };
     const {data,error}=await sb.from("student_profiles").upsert(payload,{onConflict:"user_id"}).select("*").single();
     if(error) return {ok:false,code:"db_error",message:error.message};
+    const savedSubjects=Array.isArray(data&&data.academic_profile&&data.academic_profile.subjects)?data.academic_profile.subjects:[];
+    const expectedGraded=subjects.filter(x=>x.grade&&x.grade!=="not_available");
+    const missing=expectedGraded.filter(x=>{
+      const y=savedSubjects.find(s=>String(s.level)===String(x.level)&&String(s.subject).toLowerCase()===String(x.subject).toLowerCase());
+      return !y||String(y.grade||"not_available")!==String(x.grade);
+    });
+    if(missing.length) return {ok:false,code:"grade_verification_failed",message:"Database save returned successfully, but "+missing.length+" subject grade(s) could not be verified.",data};
     return {ok:true,data};
   }
   async function getStudentProfile(){
