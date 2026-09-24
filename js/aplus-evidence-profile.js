@@ -24,3 +24,25 @@
   async function save(list){activities=normalize(list);markDirty();setState("saving");try{const r=window.APLUS_DATABASE&&window.APLUS_DATABASE.saveExperienceProfile?await window.APLUS_DATABASE.saveExperienceProfile(activities):{ok:false,code:"database_unavailable"};if(!r||!r.ok){setState("dirty");return r||{ok:false};}try{localStorage.setItem(KEY,JSON.stringify(activities));localStorage.setItem("APLUS_UI_ACTIVITIES",JSON.stringify(activities));}catch(e){}if(window.APLUS_PROFILE_STORE&&window.APLUS_PROFILE_STORE.saved)window.APLUS_PROFILE_STORE.saved(r.data||null);setState("saved");return r;}catch(e){setState("dirty");return {ok:false,code:"db_error",message:e.message};}}
   window.APLUSEvidenceProfile={version:"1.1",read:read,get:function(){return read();},getAnalysis:getAnalysis,hydrateSavedProfile:hydrateSavedProfile,markDirty:markDirty,save:save,getState:function(){return state;}};
 })();
+
+/* Visibility / boot bridge: the Experience module must never depend on script timing. */
+(function(){
+  "use strict";
+  function bootExperience(){
+    var mount=document.getElementById("experienceProfileMount")||document.getElementById("experienceModule");
+    if(!mount)return false;
+    if(window.APLUSExperienceProfile&&typeof window.APLUSExperienceProfile.render==="function"){
+      try{window.APLUSExperienceProfile.render();return true;}catch(e){console.error("APLUS Experience render failed",e);}
+    }
+    return false;
+  }
+  function start(){
+    var tries=0, timer=setInterval(function(){
+      tries++;
+      if(bootExperience()||tries>50)clearInterval(timer);
+    },120);
+    bootExperience();
+  }
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",start);else start();
+  window.addEventListener("APLUS_EXPERIENCE_READY",bootExperience);
+})();
