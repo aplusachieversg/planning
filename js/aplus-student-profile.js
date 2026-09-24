@@ -151,7 +151,7 @@
       if(el){
         el.value=(subjectGrades[k]&&subjectGrades[k]!=="not_available")?subjectGrades[k]:(x.grade||"not_available");
         subjectGrades[k]=el.value;
-        el.addEventListener("change",async()=>{ subjectGrades[k]=el.value||"not_available"; persistGradeState(); refreshAcademicOutputs(); updateALevelScore(); try{ if(window.APLUS_DATABASE&&window.APLUS_DATABASE.saveAcademicGrades){ const rows=selectedSubjects().map(function(s){const kk=s.level+"__"+String(s.subject||"").replace(/[^a-z0-9]+/gi,"_"); return {level:s.level,subject:s.subject,grade:subjectGrades[kk]||"not_available"};}); await window.APLUS_DATABASE.saveAcademicGrades(rows); } }catch(e){ console.warn("Academic grade autosave failed:",e); } });
+        el.addEventListener("change",async()=>{ subjectGrades[k]=el.value||"not_available"; persistGradeState(); refreshAcademicOutputs(); updateALevelScore(); try{ if(window.APLUS_DATABASE&&window.APLUS_DATABASE.saveAcademicGrades){ const rows=selectedSubjects().map(function(s){const kk=s.level+"__"+String(s.subject||"").replace(/[^a-z0-9]+/gi,"_"); return {level:s.level,subject:s.subject,grade:subjectGrades[kk]||"not_available"};}); await window.APLUS_DATABASE.saveAcademicGrades(rows); queueAcademicDraftSave(); } }catch(e){ console.warn("Academic grade autosave failed:",e); } });
       }
     });
     updateALevelScore();
