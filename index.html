@@ -983,7 +983,7 @@ function build(){
  if(admission){admission.classList.add("aplus-core-module");}
  if(target){target.classList.add("aplus-core-module");}
  if(gap){gap.id="gapModule";gap.classList.add("aplus-core-module");}
- root.appendChild(document.getElementById("studentProfileEngine"));root.appendChild(document.getElementById("experienceProfileMount"));root.appendChild(document.getElementById("admissionProfileEngine"));root.appendChild(document.getElementById("targetProfileEngine"));root.appendChild(document.getElementById("requirementsModule"));root.appendChild(document.getElementById("evidenceModule"));root.appendChild(document.getElementById("gapEngine"));root.appendChild(document.getElementById("roadmapModule"));root.appendChild(document.getElementById("applicationModule"));
+ [student,experience,admission,target,document.getElementById("requirementsModule"),document.getElementById("evidenceModule"),gap,document.getElementById("roadmapModule"),document.getElementById("applicationModule")].forEach(function(node){if(node)root.appendChild(node);});
  requirements();roadmap();application();
 }
 function refresh(){if(document.getElementById("cleanArchitectureRoot")){requirements();roadmap();application()}}
