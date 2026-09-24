@@ -626,7 +626,7 @@ window.addEventListener("load",function(){setTimeout(updateDash,300)});window.AP
       }
 
       // Wait for Diagnostic 01 to finish rendering. No polling loop and no repeated hydrate.
-      if(!(window.APLUS_STUDENT_PROFILE&&window.APLUS_STUDENT_PROFILE.hydrateSavedProfile)){
+      if(!(window.APLUS_STUDENT_PROFILE&&window.APLUS_STUDENT_PROFILE.hydrateSavedProfile&&document.getElementById("spSubjectSelector")&&document.getElementById("studentProfileEngine"))){
         await new Promise(function(resolve){
           var done=false;
           var finish=function(){
