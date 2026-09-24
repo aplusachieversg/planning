@@ -704,7 +704,7 @@ window.addEventListener("load",function(){setTimeout(updateDash,300)});window.AP
         try{
           var r=await window.APLUS_DATABASE.signIn(email.value.trim(),password.value);
           if(r.ok){
-            /* The auth-state listener owns the transition into the app. */
+            openApp();
           }else{
             error.textContent=r.error&&r.error.message?r.error.message:"Sign-in failed. Please check your email and password.";
             button.disabled=false; button.textContent="Sign In";
