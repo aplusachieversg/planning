@@ -597,75 +597,60 @@ window.addEventListener("load",function(){setTimeout(updateDash,300)});window.AP
   window.APLUS_RECOVERY_MODE=window.location.hash.indexOf("type=recovery")!==-1;
   async function restoreSavedProfile(){
     try{
-      if(!window.APLUS_DATABASE||!window.APLUS_DATABASE.getStudentProfile){window.APLUS_ACADEMIC_PROFILE_RESTORING=false;return;}
+      if(!window.APLUS_DATABASE||!window.APLUS_DATABASE.getStudentProfile){
+        window.APLUS_ACADEMIC_PROFILE_HYDRATED=true;
+        window.APLUS_ACADEMIC_PROFILE_RESTORING=false;
+        return;
+      }
+
+      // Standard website lifecycle:
+      // READ once -> wait for UI READY -> HYDRATE once -> READY.
+      // Refresh/load is strictly read-only. No autosave is allowed during hydration.
+      window.APLUS_ACADEMIC_PROFILE_RESTORING=true;
+      window.APLUS_ACADEMIC_PROFILE_HYDRATED=false;
+
       var r=await window.APLUS_DATABASE.getStudentProfile();
-      if(!r||!r.ok||!r.data){window.APLUS_ACADEMIC_PROFILE_RESTORING=false;return;}
+      if(!r||!r.ok){
+        window.APLUS_ACADEMIC_PROFILE_HYDRATED=true;
+        window.APLUS_ACADEMIC_PROFILE_RESTORING=false;
+        return;
+      }
+
       var row=r.data;
-      var ap=row.academic_profile||{};
-      var activities=row.evidence_profile&&Array.isArray(row.evidence_profile.activities)?row.evidence_profile.activities:[];
-      var savedMaster={
-        studentName:row.display_name||"",
-        studentId:(/^STD-\d{8}$/.test(String(row.display_name||""))?String(row.display_name):String(row.user_id||"")),
-        profile:{
-          currentLevel:ap.currentLevel||"",
-          qualification:row.qualification||"",
-          academicProfile:ap.academicProfile||"",
-          subjects:Array.isArray(ap.subjects)?ap.subjects:[],
-          subjectGrades:Array.isArray(ap.subjectGrades)?ap.subjectGrades:[],
-          strengths:Array.isArray(ap.strengths)?ap.strengths:[],
-          weakTopics:Array.isArray(ap.weakTopics)?ap.weakTopics:[],
-          aLevelScore:ap.aLevelScore||null,
-          admissionAcademic:ap.admissionAcademic||null
-        },
-        target:{
-          field:ap.field||"",
-          university:row.target_university||"",
-          course:row.target_programme||"",
-          entryYear:row.entry_year||""
-        },
-        evidence:{activities:activities},
-        readiness:ap.readiness||{}
-      };
-      try{
-        var existing=JSON.parse(localStorage.getItem("APLUS_MASTER_PROFILE")||"{}");
-        savedMaster=Object.assign(existing,savedMaster,{profile:Object.assign({},existing.profile||{},savedMaster.profile),target:Object.assign({},existing.target||{},savedMaster.target),evidence:Object.assign({},existing.evidence||{},savedMaster.evidence)});
-      }catch(e){}
-      localStorage.setItem("APLUS_MASTER_PROFILE",JSON.stringify(savedMaster));
-      localStorage.setItem("aplus_experience_profile_v1",JSON.stringify(activities));
-      localStorage.setItem("APLUS_UI_ACTIVITIES",JSON.stringify(activities));
-      function hydrate(){
-        if(window.APLUS_STUDENT_PROFILE&&window.APLUS_STUDENT_PROFILE.hydrateSavedProfile){
-          window.APLUS_STUDENT_PROFILE.hydrateSavedProfile(row);
+      if(!row){
+        // New account: there is nothing to restore, but the form is now allowed to save
+        // after an explicit user edit.
+        window.APLUS_ACADEMIC_PROFILE_HYDRATED=true;
+        window.APLUS_ACADEMIC_PROFILE_RESTORING=false;
+        return;
+      }
+
+      // Wait for Diagnostic 01 to finish rendering. No polling loop and no repeated hydrate.
+      if(!(window.APLUS_STUDENT_PROFILE&&window.APLUS_STUDENT_PROFILE.hydrateSavedProfile)){
+        await new Promise(function(resolve){
+          var done=false;
+          var finish=function(){
+            if(done)return;
+            done=true;
+            window.removeEventListener("APLUS_STUDENT_PROFILE_READY",finish);
+            resolve();
+          };
+          window.addEventListener("APLUS_STUDENT_PROFILE_READY",finish,{once:true});
+          setTimeout(finish,5000);
+        });
+      }
+
+      if(window.APLUS_STUDENT_PROFILE&&window.APLUS_STUDENT_PROFILE.hydrateSavedProfile){
+        var hydrated=window.APLUS_STUDENT_PROFILE.hydrateSavedProfile(row);
+        if(hydrated){
           document.dispatchEvent(new CustomEvent("APLUS_ACCOUNT_PROFILE_RESTORED"));
-          return true;
         }
-        return false;
       }
-      var restored=false;
-      var onProfileReady=function(){
-        if(restored)return;
-        restored=hydrate();
-        if(restored)window.removeEventListener("APLUS_STUDENT_PROFILE_READY",onProfileReady);
-      };
-      window.addEventListener("APLUS_STUDENT_PROFILE_READY",onProfileReady);
-      if(document.readyState==="loading"){
-        document.addEventListener("DOMContentLoaded",function(){
-          var tries=0;
-          (function waitForModule(){
-            if(restored||hydrate()){restored=true;window.removeEventListener("APLUS_STUDENT_PROFILE_READY",onProfileReady);return;}
-            if(tries++>100)return;
-            setTimeout(waitForModule,100);
-          })();
-        },{once:true});
-      }else{
-        var tries=0;
-        (function waitForModule(){
-          if(restored||hydrate()){restored=true;window.removeEventListener("APLUS_STUDENT_PROFILE_READY",onProfileReady);return;}
-          if(tries++>100)return;
-          setTimeout(waitForModule,100);
-        })();
-      }
-    }catch(e){console.warn("APLUS saved profile restore skipped:",e);}
+    }catch(e){
+      console.warn("APLUS saved profile restore skipped:",e);
+      window.APLUS_ACADEMIC_PROFILE_HYDRATED=true;
+      window.APLUS_ACADEMIC_PROFILE_RESTORING=false;
+    }
   }
   function showUser(user,row){
     var bar=document.getElementById("aplusUserBar"); if(!bar)return;
