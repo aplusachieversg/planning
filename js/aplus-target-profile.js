@@ -25,6 +25,21 @@
   function cache(data){
     try{localStorage.setItem(KEY,JSON.stringify(data));}catch(e){}
   }
+  function syncMasterCache(data){
+    try{
+      var master=JSON.parse(localStorage.getItem("APLUS_MASTER_PROFILE")||"{}");
+      master.target=Object.assign({},master.target||{},{
+        field:data.field||"",
+        university:data.university||"",
+        course:data.course||"",
+        country:data.country||"",
+        entryYear:data.entryYear?Number(data.entryYear):null,
+        scholarship:data.scholarship||"Not decided"
+      });
+      localStorage.setItem("APLUS_MASTER_PROFILE",JSON.stringify(master));
+      if(window.APLUS_refreshDashboard)window.APLUS_refreshDashboard();
+    }catch(e){console.warn("Target master cache sync skipped:",e);}
+  }
   function fromRow(row){
     var t=row&&row.target_profile;
     if(t&&typeof t==="object")return Object.assign({},DEFAULTS,t);
@@ -41,6 +56,7 @@
     try{
       var t=fromRow(row);
       cache(t);
+      syncMasterCache(t);
       render(t);
       return true;
     }catch(e){console.warn("Target Profile hydrate failed:",e);return false;}
@@ -117,6 +133,7 @@
     var btn=document.getElementById("targetSave");
     if(btn)btn.disabled=true;
     cache(data);
+    syncMasterCache(data);
     if(window.APLUS_PROFILE_STORE&&window.APLUS_PROFILE_STORE.markDirty)window.APLUS_PROFILE_STORE.markDirty();
     if(window.APLUS_PROFILE_STORE&&window.APLUS_PROFILE_STORE.saving)window.APLUS_PROFILE_STORE.saving();
     try{
