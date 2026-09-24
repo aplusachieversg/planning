@@ -38,6 +38,9 @@
           if(window.APLUSAdmissionProfile&&window.APLUSAdmissionProfile.hydrateSavedProfile){
             window.APLUSAdmissionProfile.hydrateSavedProfile(lastRow);
           }
+          if(window.APLUSTargetProfile&&window.APLUSTargetProfile.hydrateSavedProfile){
+            window.APLUSTargetProfile.hydrateSavedProfile(lastRow);
+          }
         }catch(e){console.warn("Profile module hydrate skipped:",e);}
         setState("ready",lastRow);
         return {ok:true,data:lastRow||null};
