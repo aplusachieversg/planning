@@ -130,6 +130,24 @@
     window.dispatchEvent(new CustomEvent("APLUS_INFORMATION_SAVED",{detail:{module:"Academic Profile",data:data}}));
     return {ok:true,data};
   }
+
+  async function saveAcademicGrades(subjectGrades){
+    const sb=client(); if(!sb) return {ok:false,code:"not_configured"};
+    const {data:{user}}=await sb.auth.getUser();
+    if(!user) return {ok:false,code:"not_authenticated"};
+    const {data:existing,error:readError}=await sb.from("student_profiles").select("id,display_name,qualification,entry_year,target_university,target_programme,academic_profile,evidence_profile").eq("user_id",user.id).maybeSingle();
+    if(readError) return {ok:false,code:"db_error",message:readError.message};
+    if(!existing) return {ok:false,code:"profile_not_found",message:"Student profile has not been created yet."};
+    const ap=Object.assign({},existing.academic_profile||{});
+    const oldSubjects=Array.isArray(ap.subjects)?ap.subjects:[];
+    const rows=Array.isArray(subjectGrades)?subjectGrades:[];
+    const gm=new Map(rows.map(x=>[String(x.level||"")+"::"+String(x.subject||"").toLowerCase(),x.grade||"not_available"]));
+    const subjects=oldSubjects.map(x=>{const k=String(x.level||"")+"::"+String(x.subject||"").toLowerCase();const g=gm.get(k);return g&&g!=="not_available"?Object.assign({},x,{grade:g}):x;});
+    const payload={user_id:user.id,display_name:existing.display_name||"",qualification:existing.qualification||"",entry_year:existing.entry_year||null,target_university:existing.target_university||"",target_programme:existing.target_programme||"",academic_profile:Object.assign(ap,{subjects,subjectGrades:rows}),evidence_profile:existing.evidence_profile||{}};
+    const {data,error}=await sb.from("student_profiles").upsert(payload,{onConflict:"user_id"}).select("*").single();
+    if(error) return {ok:false,code:"db_error",message:error.message};
+    return {ok:true,data};
+  }
   async function getStudentProfile(){
     const sb=client(); if(!sb) return {ok:false,code:"not_configured"};
     const {data:{user}}=await sb.auth.getUser();
@@ -172,5 +190,5 @@
     return {ok:true,data};
   }
   async function signOut(){const sb=client(); if(sb) await sb.auth.signOut(); return {ok:true};}
-  window.APLUS_DATABASE={ready,submit,list,get,updateStatus,signIn,signOut,saveStudentProfile,getStudentProfile,saveExperienceProfile,client,version:"1.2"};
+  window.APLUS_DATABASE={ready,submit,list,get,updateStatus,signIn,signOut,saveStudentProfile,saveAcademicGrades,getStudentProfile,saveExperienceProfile,client,version:"1.3"};
 })();
