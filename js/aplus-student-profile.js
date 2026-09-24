@@ -277,7 +277,15 @@
       const el=Array.from(document.querySelectorAll("#spStrengthSummary select[data-grade-key]")).find(function(s){return s.getAttribute("data-grade-key")===key;});
       if(el&&saved.grade&&saved.grade!=="not_available")el.value=saved.grade;
     });
-    const base=collect(),diag=diagnosticState(base);
+    const base=collect();
+    // Use the snapshot captured before the async requirements sync as the canonical
+    // subject/grade payload for this save. This prevents any intermediate UI refresh
+    // from causing selected subjects or live grades to be lost.
+    base.profile.subjects=preSyncSubjects.map(function(x){return Object.assign({},x);});
+    base.profile.subjectGrades=preSyncSubjects.map(function(x){return {level:x.level,subject:x.subject,grade:x.grade||"not_available"};});
+    if(window.APLUS_ALEVEL_SCORE) base.profile.aLevelScore=window.APLUS_ALEVEL_SCORE.calculate(base.profile.subjects);
+    if(window.APLUS_ACADEMIC_ANALYSIS) base.profile.academicAnalysis=window.APLUS_ACADEMIC_ANALYSIS.analyze(base.profile.subjects,read("spAcademic")||"unknown");
+    const diag=diagnosticState(base);
     base.metadata.requirementsSync=requirementSyncStatus;
     base.diagnostic01={version:"5.0",completedAt:new Date().toISOString(),profile:"ACADEMIC_PROFILE",state:diag.state,nextActions:diag.next}; save(base);
     let dbSync="local_only";
