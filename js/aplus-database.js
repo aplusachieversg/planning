@@ -18,21 +18,3 @@
   async function signOut(){const sb=client();if(sb)await sb.auth.signOut();return {ok:true};}
   window.APLUS_DATABASE={ready,submit,list,get,updateStatus,signIn,signOut,saveStudentProfile,saveAcademicGrades,saveAcademicProfileDraft,getStudentProfile,saveExperienceProfile,client,version:"1.4"};
 })();
-(function(){
-  "use strict";
-  let restored=false,attempts=0;
-  const norm=v=>String(v==null?"":v).trim().toLowerCase();
-  async function restore(){
-    if(restored||!window.APLUS_DATABASE||!window.APLUS_DATABASE.getStudentProfile)return;
-    if(!document.getElementById("spSubjectSelector"))return;
-    const r=await window.APLUS_DATABASE.getStudentProfile();if(!r||!r.ok||!r.data)return;
-    const ap=r.data.academic_profile||{},subjects=Array.isArray(ap.subjects)?ap.subjects:[],grades=Array.isArray(ap.subjectGrades)?ap.subjectGrades:[];if(!subjects.length)return;
-    const level=document.getElementById("spLevel"),qual=document.getElementById("spQualification"),academic=document.getElementById("spAcademic");
-    if(level&&ap.currentLevel)level.value=ap.currentLevel;if(qual&&r.data.qualification)qual.value=r.data.qualification;if(academic&&ap.academicProfile)academic.value=ap.academicProfile;
-    const boxes=document.querySelectorAll("#spSubjectSelector input[data-subject-key]");boxes.forEach(cb=>{const hit=subjects.some(s=>norm(s.level)===norm(cb.dataset.level)&&norm(s.subject)===norm(cb.dataset.subject));if(hit)cb.checked=true;});
-    const fire=el=>el&&el.dispatchEvent(new Event("change",{bubbles:true}));
-    const first=document.querySelector("#spSubjectSelector input[data-subject-key]:checked");if(first)fire(first);
-    setTimeout(()=>{const gradeMap=new Map(grades.map(x=>[norm(x.level)+"::"+norm(x.subject),x.grade||"not_available"]));document.querySelectorAll("#spStrengthSummary select[data-grade-key]").forEach(sel=>{const key=sel.getAttribute("data-grade-key")||"",parts=key.split("__"),lvl=parts.shift()||"",subjectKey=parts.join("__");const row=subjects.find(s=>norm(s.level)===norm(lvl)&&String(s.subject||"").replace(/[^a-z0-9]+/gi,"_").toLowerCase()===subjectKey.toLowerCase());if(row){const g=gradeMap.get(norm(row.level)+"::"+norm(row.subject))||row.grade||"not_available";sel.value=g;fire(sel);}});restored=true;},250);
-  }
-  const timer=setInterval(()=>{if(attempts++>80){clearInterval(timer);return;}restore();if(restored)clearInterval(timer);},250);
-})();
