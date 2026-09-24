@@ -296,6 +296,17 @@ textarea:focus{
   .wrap{padding:42px 5%}
   .aplus-dashboard{padding:30px 5% 12px}
 }
+</style><style id="aplus-auth-extra-style">
+.auth-links{display:flex;justify-content:space-between;gap:12px;margin-top:8px}
+.auth-links button{border:0;background:none;padding:0;color:#4938a8;font-size:11px;font-weight:800;cursor:pointer}
+.auth-modal{position:fixed;inset:0;z-index:100000;display:none;align-items:center;justify-content:center;padding:24px;background:rgba(8,13,32,.62);backdrop-filter:blur(8px)}
+.auth-modal.open{display:flex}
+.auth-modal-card{width:min(460px,100%);background:#fff;color:#101828;border-radius:20px;padding:28px;box-shadow:0 30px 90px rgba(0,0,0,.35)}
+.auth-modal-card h2{margin:0 0 7px;font-size:24px}.auth-modal-card p{margin:0 0 18px;color:#667085;font-size:13px;line-height:1.5}
+.auth-modal-card input{width:100%;padding:12px 13px;border:1px solid #dbe1eb;border-radius:10px;font-size:14px}
+.auth-modal-actions{display:flex;gap:9px;margin-top:16px}.auth-modal-actions button{flex:1;padding:11px;border-radius:10px;font-weight:800;cursor:pointer}
+.auth-primary{border:0;background:#4938a8;color:#fff}.auth-secondary{border:1px solid #dbe1eb;background:#fff;color:#475467}
+.auth-modal-status{min-height:20px;margin-top:12px;font-size:12px;color:#667085}
 </style></head>
 <body class="aplus-auth-pending"><div id="aplusAuthGate">
   <div class="auth-card">
@@ -314,6 +325,10 @@ textarea:focus{
       <button class="auth-submit" id="aplusAuthSubmit" type="submit">Sign In</button>
       <div class="auth-error" id="aplusAuthError"></div>
     </form>
+    <div class="auth-links">
+      <button type="button" id="aplusForgotBtn">Forgot password?</button>
+      <button type="button" id="aplusCreateBtn">Create student account</button>
+    </div>
     <div class="auth-divider"><span>YOUR PERSONAL WORKSPACE</span></div>
     <div class="auth-benefits">
       <span>✓ Saved Academic Profile</span>
@@ -321,6 +336,20 @@ textarea:focus{
       <span>✓ Updated planning records</span>
     </div>
     <p class="auth-note">Your profile is linked to your APLUS account. When you return, your saved information can be loaded and updated instead of being entered again.</p>
+  </div>
+</div><div class="auth-modal" id="aplusAuthModal">
+  <div class="auth-modal-card">
+    <h2 id="authModalTitle">Create student account</h2>
+    <p id="authModalText">Create your personal APLUS planning account. Your planning records will be linked to this account.</p>
+    <label for="authModalEmail">Email</label>
+    <input id="authModalEmail" type="email" placeholder="Your email" autocomplete="email">
+    <label for="authModalPassword" id="authModalPasswordLabel">Password</label>
+    <input id="authModalPassword" type="password" placeholder="Create a password" autocomplete="new-password">
+    <div class="auth-modal-actions">
+      <button class="auth-secondary" type="button" id="authModalClose">Cancel</button>
+      <button class="auth-primary" type="button" id="authModalSubmit">Continue</button>
+    </div>
+    <div class="auth-modal-status" id="authModalStatus"></div>
   </div>
 </div><nav><div class="brand">APLUS <span>ACADEMIC PLANNER</span></div><div><a href="#how">Platform</a><a href="#planner">Planner</a><a href="#database">Intelligence</a><a class="navbtn" href="#planner">Start Planning →</a></div></nav>
 <section class="hero"><div class="hero-inner"><div><div class="eyebrow">APLUS · ACADEMIC PLANNING PLATFORM</div><h1>Turn ambition into a clear academic roadmap.</h1><p>Evidence-based planning that connects your target university and course to requirements, student evidence, development priorities and application timelines.</p><a class="cta" href="#planner">Build My Academic Plan →</a><div class="hero-trust"><span><b>Target-first</b> planning</span><span><b>Verified</b> requirements</span><span><b>Longitudinal</b> student profile</span></div></div><div class="mini"><div class="mini-head"><strong>Student Planning Workspace</strong><span class="live">● LIVE PROFILE</span></div><div class="preview"><div class="preview-top"><span>Planning Snapshot</span><b>Entry 2029</b></div><div class="preview-target"><small style="color:#667085">TARGET COURSE</small><br><b>Medicine · Singapore</b><div class="preview-grid"><div class="metric"><small>Academic</small><b>Developing</b></div><div class="metric"><small>Evidence</small><b>8 items</b></div><div class="metric"><small>Priority</small><b>UCAT</b></div></div></div><div class="preview-row"><span style="font-size:11px;font-weight:700">Planning readiness</span><div class="progress2"><i></i></div><b style="font-size:11px">68%</b></div><div class="preview-target" style="margin-top:10px"><small style="color:#667085">NEXT PRIORITIES</small><div style="font-size:12px;line-height:1.8;margin-top:5px">01 · Strengthen academic trajectory<br>02 · Build leadership evidence<br>03 · Schedule assessment preparation</div></div></div></div></div><section class="aplus-dashboard" id="dashboard"><div class="dash-shell"><div class="dash-head"><div><div class="dash-kicker">MY APLUS PLANNING WORKSPACE</div><h2>Your plan at a glance.</h2><p>Status, priorities and next actions — without the information overload.</p></div><button class="dash-action" onclick="document.getElementById('planner').scrollIntoView({behavior:'smooth'})">Update My Plan →</button></div><div class="dash-grid"><div class="dash-card target-card"><small>TARGET COURSE</small><div class="target-line"><div><div class="target-name" id="dashTarget">Medicine · Singapore</div><div class="target-meta" id="dashEntry">Target Entry Year 2029</div></div><div style="text-align:right;font-size:11px"><span class="status-dot"></span>Planning active</div></div><div class="dash-foot"><span class="dash-chip" style="background:#ffffff18;color:#e5ebff">Target-first</span><span class="dash-chip" style="background:#ffffff18;color:#e5ebff">Verified data</span><span class="dash-chip" style="background:#ffffff18;color:#e5ebff">Longitudinal</span></div></div><div class="dash-card"><div class="mini-label">Planning Readiness</div><div class="readiness" id="dashReadiness">—</div><small id="dashReadinessText">Complete your profile to activate.</small></div><div class="dash-card"><div class="mini-label">Current Focus</div><h3 id="dashFocus" style="margin-top:14px">Build your starting profile</h3><small id="dashFocusText">Your next priorities will appear here.</small></div></div><div class="dash-grid" style="margin-top:14px"><div class="dash-card"><div class="mini-label">TOP PRIORITIES</div><div class="priority-list" id="dashPriorities"><div class="priority"><span class="priority-num">01</span><span>Set a target university and entry year.</span></div><div class="priority"><span class="priority-num">02</span><span>Complete the student profile and evidence record.</span></div><div class="priority"><span class="priority-num">03</span><span>Generate your Gap Analysis and Roadmap.</span></div></div></div><div class="dash-card" style="grid-column:span 2"><div class="mini-label">PLANNING TIMELINE</div><div class="timeline"><div class="titem"><b>NOW</b><span>Profile & target</span></div><div class="titem"><b>NEXT</b><span>Close priority gaps</span></div><div class="titem"><b>BUILD</b><span>Evidence & readiness</span></div><div class="titem"><b>APPLY</b><span>Coordinate deadlines</span></div></div></div></div></div></section><section class="aplus-intelligence" id="planningIntelligence" style="display:block"><div class="pi-shell"><div id="planningIntelligenceHost"><div class="pi-panel"><div class="pi-kicker">APLUS PLANNING INTELLIGENCE</div><h2 style="margin:7px 0">Know what matters next.</h2><p>Connecting your target, verified requirements, profile evidence and development priorities.</p><p style="color:#667085">Save your Student Profile to generate your target-year planning intelligence.</p></div></div><button class="pi-refresh" onclick="APLUS_REFRESH_PLANNING_INTELLIGENCE()">Refresh Planning Intelligence ↻</button></div></section></section>
@@ -565,7 +594,35 @@ window.addEventListener("load",function(){setTimeout(updateDash,300)});window.AP
       var r=await window.APLUS_DATABASE.getStudentProfile();
       if(!r||!r.ok||!r.data)return;
       var row=r.data;
+      var ap=row.academic_profile||{};
       var activities=row.evidence_profile&&Array.isArray(row.evidence_profile.activities)?row.evidence_profile.activities:[];
+      var savedMaster={
+        studentName:row.display_name||"",
+        studentId:(row.user_id||""),
+        profile:{
+          currentLevel:ap.currentLevel||"",
+          qualification:row.qualification||"",
+          academicProfile:ap.academicProfile||"",
+          subjects:Array.isArray(ap.subjects)?ap.subjects:[],
+          strengths:Array.isArray(ap.strengths)?ap.strengths:[],
+          weakTopics:Array.isArray(ap.weakTopics)?ap.weakTopics:[],
+          aLevelScore:ap.aLevelScore||null,
+          admissionAcademic:ap.admissionAcademic||null
+        },
+        target:{
+          field:ap.field||"",
+          university:row.target_university||"",
+          course:row.target_programme||"",
+          entryYear:row.entry_year||""
+        },
+        evidence:{activities:activities},
+        readiness:ap.readiness||{}
+      };
+      try{
+        var existing=JSON.parse(localStorage.getItem("APLUS_MASTER_PROFILE")||"{}");
+        savedMaster=Object.assign(existing,savedMaster,{profile:Object.assign({},existing.profile||{},savedMaster.profile),target:Object.assign({},existing.target||{},savedMaster.target),evidence:Object.assign({},existing.evidence||{},savedMaster.evidence)});
+      }catch(e){}
+      localStorage.setItem("APLUS_MASTER_PROFILE",JSON.stringify(savedMaster));
       localStorage.setItem("aplus_experience_profile_v1",JSON.stringify(activities));
       localStorage.setItem("APLUS_UI_ACTIVITIES",JSON.stringify(activities));
       function hydrate(){
@@ -820,4 +877,44 @@ window.addEventListener("load",function(){setTimeout(boot,500)});
 window.APLUS_REFRESH_CLEAN_ARCHITECTURE=refresh;
 })();
 </script>
-</body></html>
+<script>
+(function(){
+  function el(id){return document.getElementById(id)}
+  function client(){return window.APLUS_DATABASE&&window.APLUS_DATABASE.client?window.APLUS_DATABASE.client():null}
+  var modal=el("aplusAuthModal"), mode="signup";
+  function open(m){
+    mode=m; modal.classList.add("open");
+    el("authModalTitle").textContent=m==="signup"?"Create student account":"Reset password";
+    el("authModalText").textContent=m==="signup"?"Create your personal APLUS planning account. Your planning records will be linked to this account.":"Enter your email and we will send a password reset link.";
+    el("authModalPasswordLabel").style.display=m==="signup"?"block":"none";
+    el("authModalPassword").style.display=m==="signup"?"block":"none";
+    el("authModalPassword").value=""; el("authModalEmail").value=el("aplusAuthEmail").value||"";
+    el("authModalStatus").textContent="";
+  }
+  function close(){modal.classList.remove("open")}
+  el("aplusCreateBtn").onclick=function(){open("signup")};
+  el("aplusForgotBtn").onclick=function(){open("reset")};
+  el("authModalClose").onclick=close;
+  modal.addEventListener("click",function(e){if(e.target===modal)close()});
+  el("authModalSubmit").onclick=async function(){
+    var sb=client(),email=el("authModalEmail").value.trim(),password=el("authModalPassword").value,status=el("authModalStatus");
+    if(!sb){status.textContent="Authentication service is not configured.";return}
+    if(!email){status.textContent="Please enter your email.";return}
+    this.disabled=true;
+    try{
+      if(mode==="signup"){
+        if(!password){status.textContent="Please create a password.";return}
+        var r=await sb.auth.signUp({email:email,password:password});
+        if(r.error)throw r.error;
+        status.textContent=r.data&&r.data.session?"Account created. Signing you in…":"Account created. Check your email if confirmation is required.";
+        if(r.data&&r.data.session){close();location.reload()}
+      }else{
+        var r2=await sb.auth.resetPasswordForEmail(email,{redirectTo:location.origin+location.pathname});
+        if(r2.error)throw r2.error;
+        status.textContent="Password reset instructions have been sent if the account exists.";
+      }
+    }catch(e){status.textContent=e&&e.message?e.message:"Request failed. Please try again."}
+    finally{this.disabled=false}
+  };
+})();
+</script></body></html>
