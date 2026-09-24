@@ -597,9 +597,9 @@ window.addEventListener("load",function(){setTimeout(updateDash,300)});window.AP
   window.APLUS_RECOVERY_MODE=window.location.hash.indexOf("type=recovery")!==-1;
   async function restoreSavedProfile(){
     try{
-      if(!window.APLUS_DATABASE||!window.APLUS_DATABASE.getStudentProfile)return;
+      if(!window.APLUS_DATABASE||!window.APLUS_DATABASE.getStudentProfile){window.APLUS_ACADEMIC_PROFILE_RESTORING=false;return;}
       var r=await window.APLUS_DATABASE.getStudentProfile();
-      if(!r||!r.ok||!r.data)return;
+      if(!r||!r.ok||!r.data){window.APLUS_ACADEMIC_PROFILE_RESTORING=false;return;}
       var row=r.data;
       var ap=row.academic_profile||{};
       var activities=row.evidence_profile&&Array.isArray(row.evidence_profile.activities)?row.evidence_profile.activities:[];
