@@ -665,6 +665,7 @@ window.addEventListener("load",function(){setTimeout(updateDash,300)});window.AP
       document.dispatchEvent(new CustomEvent("APLUS_ACCOUNT_PROFILE_RESTORED"));if(window.APLUS_ENABLE_ACADEMIC_AUTOSAVE)window.APLUS_ENABLE_ACADEMIC_AUTOSAVE();
     }
   }
+  window.APLUS_RESTORE_SAVED_PROFILE=restoreSavedProfile;
   function showUser(user,row){
     var bar=document.getElementById("aplusUserBar"); if(!bar)return;
     var name=(row&&row.display_name)||((user&&user.user_metadata&&(user.user_metadata.full_name||user.user_metadata.name))||"");
