@@ -108,6 +108,7 @@
       return !y||String(y.grade||"not_available")!==String(x.grade);
     });
     if(missing.length) return {ok:false,code:"grade_verification_failed",message:"Database save returned successfully, but "+missing.length+" subject grade(s) could not be verified.",data};
+    window.dispatchEvent(new CustomEvent("APLUS_INFORMATION_SAVED",{detail:{module:"Academic Profile",data:data}}));
     return {ok:true,data};
   }
   async function getStudentProfile(){
@@ -142,6 +143,7 @@
     };
     const {data,error}=await sb.from("student_profiles").upsert(payload,{onConflict:"user_id"}).select("*").single();
     if(error) return {ok:false,code:"db_error",message:error.message};
+    window.dispatchEvent(new CustomEvent("APLUS_INFORMATION_SAVED",{detail:{module:"Experience Profile",data:data}}));
     return {ok:true,data};
   }
   async function signIn(email,password){
