@@ -28,6 +28,14 @@
           throw new Error("Profile restore routine is not ready.");
         }
         lastRow=await window.APLUS_RESTORE_SAVED_PROFILE();
+        /* Hydrate every profile module from the same canonical DB row. */
+        try{
+          var evidence=lastRow&&lastRow.evidence_profile;
+          var activities=evidence&&Array.isArray(evidence.activities)?evidence.activities:[];
+          if(window.APLUSExperienceProfile&&window.APLUSExperienceProfile.hydrateSavedProfile){
+            window.APLUSExperienceProfile.hydrateSavedProfile(activities);
+          }
+        }catch(e){console.warn("Experience Profile hydrate skipped:",e);}
         setState("ready",lastRow);
         return {ok:true,data:lastRow||null};
       }catch(e){
