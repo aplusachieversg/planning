@@ -310,6 +310,7 @@
     const toggle=document.getElementById("spSubjectToggle"),panel=document.getElementById("spSubjectSelector");
     if(toggle&&panel){toggle.addEventListener("click",()=>{const open=toggle.getAttribute("aria-expanded")==="true";toggle.setAttribute("aria-expanded",String(!open));panel.hidden=open;toggle.classList.toggle("open",!open);});}
     renderSubjects(); updateSubjectGrades(); refreshAcademicOutputs();
+    window.dispatchEvent(new CustomEvent("APLUS_STUDENT_PROFILE_READY"));
     const weakToggle=document.getElementById("spWeakToggle"),weakPanel=document.getElementById("spWeakSelector"),weakSummary=document.getElementById("spWeakSummary");
     if(weakToggle&&weakPanel){const updateWeakSummary=()=>{const selected=split("spWeakTopics");weakSummary.textContent=selected.length?selected.length+" areas selected":"Select areas to develop";};weakToggle.addEventListener("click",()=>{const open=weakToggle.getAttribute("aria-expanded")==="true";weakToggle.setAttribute("aria-expanded",String(!open));weakPanel.hidden=open;weakToggle.classList.toggle("open",!open);});weakPanel.querySelectorAll('input[name="spWeakTopic"]').forEach(cb=>cb.addEventListener("change",()=>{updateWeakSummary();refreshAcademicOutputs();}));updateWeakSummary();}
     ["spAcademicProfile"].forEach(function(id){const el=document.getElementById(id);if(!el)return;el.addEventListener("input",refreshAcademicOutputs);el.addEventListener("change",refreshAcademicOutputs);});
@@ -317,6 +318,9 @@
 
   function hydrateSavedProfile(row){
     try{
+      // Do not hydrate against a module that exists but whose UI has not been injected yet.
+      // restoreSavedProfile() may run immediately after login, before Diagnostic 01 is mounted.
+      if(!document.getElementById("spSubjectSelector") || !document.getElementById("studentProfileEngine")) return false;
       const ap=(row&&row.academic_profile)||{};
       // Restore grades from the canonical subjectGrades record as well as subjects.
       // This makes reload independent of which field was last populated by the save layer.
