@@ -10,7 +10,11 @@
   const split=id=>{const e=document.getElementById(id);if(id==="spWeakTopics")return Array.from(document.querySelectorAll('input[name="spWeakTopic"]:checked')).map(x=>x.value);if(e&&e.tagName==="SELECT"&&e.multiple)return Array.from(e.selectedOptions).map(o=>o.value).filter(Boolean);return read(id).split(",").map(x=>x.trim()).filter(Boolean);};
   const tax=()=>window.APLUS_SUBJECT_TAXONOMY;
   const subjectGrades={};
+  const GRADE_STATE_KEY="APLUS_ACADEMIC_GRADE_STATE_V1";
+  function persistGradeState(){try{localStorage.setItem(GRADE_STATE_KEY,JSON.stringify(subjectGrades));}catch(e){}}
+  function loadGradeState(){try{const x=JSON.parse(localStorage.getItem(GRADE_STATE_KEY)||"{}");if(x&&typeof x==="object")Object.assign(subjectGrades,x);}catch(e){}}
   function selectedSubjects(){
+     loadGradeState();
     const out=[];
     document.querySelectorAll("#spSubjectSelector input[data-subject-key]:checked").forEach(cb=>{
       const level=cb.dataset.level, subject=cb.dataset.subject, category=cb.dataset.category;
@@ -145,9 +149,9 @@
       const k=x.level+"__"+x.subject.replace(/[^a-z0-9]+/gi,"_");
       const el=Array.from(host.querySelectorAll("select[data-grade-key]")).find(s=>s.getAttribute("data-grade-key")===k);
       if(el){
-        el.value=x.grade||subjectGrades[k]||"not_available";
+        el.value=(subjectGrades[k]&&subjectGrades[k]!=="not_available")?subjectGrades[k]:(x.grade||"not_available");
         subjectGrades[k]=el.value;
-        el.addEventListener("change",()=>{ subjectGrades[k]=el.value; refreshAcademicOutputs(); updateALevelScore(); });
+        el.addEventListener("change",()=>{ subjectGrades[k]=el.value||"not_available"; persistGradeState(); refreshAcademicOutputs(); updateALevelScore(); });
       }
     });
     updateALevelScore();
@@ -187,10 +191,12 @@
     document.querySelectorAll("#spStrengthSummary select[data-grade-key]").forEach(function(el){
       const key=el.getAttribute("data-grade-key");
       if(key) subjectGrades[key]=el.value||"not_available";
+      persistGradeState();
     });
   }
 
   function collect(){
+     loadGradeState();
     // Always read the live grade selectors immediately before collecting.
     // This prevents the in-memory grade map from becoming stale after UI re-renders.
     syncCurrentGradeControls();
@@ -258,7 +264,8 @@
     // subject/grade payload for this save. This prevents any intermediate UI refresh
     // from causing selected subjects or live grades to be lost.
     base.profile.subjects=preSyncSubjects.map(function(x){return Object.assign({},x);});
-    base.profile.subjectGrades=preSyncSubjects.map(function(x){return {level:x.level,subject:x.subject,grade:x.grade||"not_available"};});
+    base.profile.subjectGrades=preSyncSubjects.map(function(x){const k=x.level+"__"+String(x.subject||"").replace(/[^a-z0-9]+/gi,"_");return {level:x.level,subject:x.subject,grade:(subjectGrades[k]&&subjectGrades[k]!=="not_available")?subjectGrades[k]:(x.grade||"not_available")};});
+     base.profile.subjects=base.profile.subjects.map(function(x){const k=x.level+"__"+String(x.subject||"").replace(/[^a-z0-9]+/gi,"_");const g=subjectGrades[k];return Object.assign({},x,(g&&g!=="not_available")?{grade:g}:{});});
     if(window.APLUS_ALEVEL_SCORE) base.profile.aLevelScore=window.APLUS_ALEVEL_SCORE.calculate(base.profile.subjects);
     if(window.APLUS_ACADEMIC_ANALYSIS) base.profile.academicAnalysis=window.APLUS_ACADEMIC_ANALYSIS.analyze(base.profile.subjects,read("spAcademic")||"unknown");
     const diag=diagnosticState(base);
@@ -354,6 +361,7 @@
       const uniEl=document.getElementById("spTargetUniversity");
       if(uniEl && uiUniversity && Array.from(uniEl.options).some(o=>o.value===uiUniversity)) uniEl.value=uiUniversity;
       refreshAcademicOutputs();
+      persistGradeState();
       return true;
     }catch(e){return false;}
   }
