@@ -657,16 +657,19 @@ window.addEventListener("load",function(){setTimeout(updateDash,300)});window.AP
     document.getElementById("aplusUserAvatar").textContent=name.trim().charAt(0).toUpperCase()||"A";
     bar.style.display="flex";
   }
+  var openingApp=false;
   async function openApp(){
+    if(openingApp)return;
+    openingApp=true;
     document.body.classList.remove("aplus-auth-pending");
     gate.classList.add("hidden");
-    await restoreSavedProfile();
     try{
+      await restoreSavedProfile();
       var sb=window.APLUS_DATABASE&&window.APLUS_DATABASE.client?window.APLUS_DATABASE.client():null;
       var u=sb?await sb.auth.getUser():null;
       var pr=window.APLUS_DATABASE&&window.APLUS_DATABASE.getStudentProfile?await window.APLUS_DATABASE.getStudentProfile():null;
       if(u&&u.data&&u.data.user)showUser(u.data.user,pr&&pr.data);
-    }catch(e){}
+    }catch(e){console.warn("APLUS app open error:",e);} finally {openingApp=false;}
   }
   var forceLogin=new URLSearchParams(location.search).get("login")==="1";
   function waitForDatabase(){
@@ -701,10 +704,7 @@ window.addEventListener("load",function(){setTimeout(updateDash,300)});window.AP
         try{
           var r=await window.APLUS_DATABASE.signIn(email.value.trim(),password.value);
           if(r.ok){
-            /* Supabase emits SIGNED_IN and the auth listener also opens the app.
-               Do not wait for profile restoration here, otherwise the button can
-               remain on "Signing in…" while database hydration is running. */
-            openApp();
+            /* The auth-state listener owns the transition into the app. */
           }else{
             error.textContent=r.error&&r.error.message?r.error.message:"Sign-in failed. Please check your email and password.";
             button.disabled=false; button.textContent="Sign In";
