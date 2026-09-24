@@ -594,6 +594,7 @@ window.addEventListener("load",function(){setTimeout(updateDash,300)});window.AP
   var password=document.getElementById("aplusAuthPassword");
   var error=document.getElementById("aplusAuthError");
   var button=document.getElementById("aplusAuthSubmit");
+  var recoveryMode=window.location.hash.indexOf("type=recovery")!==-1;
   async function restoreSavedProfile(){
     try{
       if(!window.APLUS_DATABASE||!window.APLUS_DATABASE.getStudentProfile)return;
