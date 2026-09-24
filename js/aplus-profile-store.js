@@ -27,12 +27,9 @@
         if(typeof window.APLUS_RESTORE_SAVED_PROFILE!=="function"){
           throw new Error("Profile restore routine is not ready.");
         }
-        await window.APLUS_RESTORE_SAVED_PROFILE();
-        var db=window.APLUS_DATABASE;
-        var result=db&&db.getStudentProfile?await db.getStudentProfile():null;
-        if(result&&result.ok)lastRow=result.data||null;
+        lastRow=await window.APLUS_RESTORE_SAVED_PROFILE();
         setState("ready",lastRow);
-        return {ok:true,data:lastRow};
+        return {ok:true,data:lastRow||null};
       }catch(e){
         setState("error",e);
         throw e;
