@@ -679,4 +679,101 @@ function boot(){
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot);else setTimeout(boot,300);
 })();
 </script>
+
+<style id="aplus-clean-architecture">
+/* Clean APLUS planning workspace: one module, one responsibility. */
+body.aplus-clean-mode #how,body.aplus-clean-mode #database,body.aplus-clean-mode #medicineProfile,body.aplus-clean-mode #medicineProfiles,body.aplus-clean-mode #combination{display:none!important}
+body.aplus-clean-mode #planningIntelligence{display:none!important}
+body.aplus-clean-mode #planner>.section-title{display:none}
+body.aplus-clean-mode #planner{padding-top:28px}
+.aplus-clean-header{max-width:1180px;margin:0 auto 22px}
+.aplus-clean-header .k{font-size:10px;letter-spacing:.15em;font-weight:900;color:#4938a8}
+.aplus-clean-header h2{font-size:30px;margin:6px 0}.aplus-clean-header p{margin:0;color:#667085}
+.aplus-clean-nav{display:flex;gap:8px;overflow:auto;padding:4px 0 14px;margin-bottom:20px;scrollbar-width:none}
+.aplus-clean-nav a{flex:0 0 auto;text-decoration:none;padding:9px 12px;border:1px solid #e1e5ed;border-radius:999px;color:#475467;background:#fff;font-size:11px;font-weight:800}
+.aplus-clean-nav a:hover{border-color:#b9afff;background:#f8f6ff}
+.aplus-core-module{background:#fff;border:1px solid #e4e8ef;border-radius:18px;padding:24px;margin:0 0 18px;box-shadow:0 5px 20px rgba(16,24,40,.04);scroll-margin-top:90px}
+.aplus-core-module .module-top{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin-bottom:18px}
+.aplus-core-module .module-k{font-size:10px;letter-spacing:.14em;font-weight:900;color:#4938a8}
+.aplus-core-module h3{margin:5px 0 5px;font-size:22px}.aplus-core-module .module-desc{margin:0;color:#667085;font-size:13px;line-height:1.5}
+.aplus-core-no{font-size:10px;font-weight:900;color:#4938a8;background:#f0edff;border-radius:999px;padding:7px 10px;white-space:nowrap}
+.aplus-requirement-grid,.aplus-roadmap-grid,.aplus-app-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.aplus-info{border:1px solid #e7eaf0;border-radius:13px;padding:15px;background:#fbfcfe}
+.aplus-info b{display:block;font-size:12px;margin-bottom:5px}.aplus-info span{font-size:12px;color:#667085;line-height:1.45}
+.aplus-action{border:0;background:#4938a8;color:#fff;border-radius:10px;padding:11px 15px;font-weight:850;cursor:pointer;margin-top:15px}
+.aplus-muted{font-size:11px;color:#98a2b3;margin-top:10px}
+.aplus-road-step{border:1px solid #e7eaf0;border-radius:13px;padding:15px;background:#fbfcfe}
+.aplus-road-step .num{font-size:10px;color:#4938a8;font-weight:900}.aplus-road-step b{display:block;margin:5px 0}.aplus-road-step span{font-size:12px;color:#667085;line-height:1.45}
+@media(max-width:800px){.aplus-requirement-grid,.aplus-roadmap-grid,.aplus-app-grid{grid-template-columns:1fr}}
+</style>
+<script>
+(function(){
+"use strict";
+function esc(v){return String(v==null?"":v).replace(/[&<>"]/g,function(m){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]})}
+function master(){try{return JSON.parse(localStorage.getItem("APLUS_MASTER_PROFILE")||"null")}catch(e){return null}}
+function module(no,k,title,desc,body,id){
+ return '<section class="aplus-core-module" id="'+id+'"><div class="module-top"><div><div class="module-k">'+k+'</div><h3>'+title+'</h3><p class="module-desc">'+desc+'</p></div><span class="aplus-core-no">'+no+'</span></div>'+body+'</section>';
+}
+function requirements(){
+ const p=master()||{},t=p.target||{},s=p.profile||{},req=(window.APLUS_REQUIREMENTS&&window.APLUS_REQUIREMENTS.get)?window.APLUS_REQUIREMENTS.get(t.university,t.course,t.entryYear):[];
+ const rows=Array.isArray(req)?req:[];
+ const academic=rows.filter(x=>String(x.category||"").toLowerCase()==="academic");
+ const assessment=rows.filter(x=>/ucat|fsa|mmi|assessment/i.test(String(x.requirement||"")+" "+String(x.threshold||"")));
+ document.getElementById("requirementsContent").innerHTML=
+ '<div class="aplus-requirement-grid">'+
+ '<div class="aplus-info"><b>Target</b><span>'+esc(t.university||"Not selected")+' · '+esc(t.course||"Not selected")+'</span></div>'+
+ '<div class="aplus-info"><b>Entry Year</b><span>'+esc(t.entryYear||"Not selected")+'</span></div>'+
+ '<div class="aplus-info"><b>Academic Requirements</b><span>'+esc(academic.length?academic.length+" verified record(s)":"No verified record loaded yet")+'</span></div>'+
+ '</div>'+
+ '<div style="margin-top:12px" class="aplus-requirement-grid">'+
+ '<div class="aplus-info"><b>Academic</b><span>'+esc(academic.slice(0,3).map(x=>(x.requirement||"")+" "+(x.threshold||"")).join(" · ")||"Check target requirements")+'</span></div>'+
+ '<div class="aplus-info"><b>Assessment</b><span>'+esc(assessment.slice(0,2).map(x=>x.requirement||x.threshold||"").join(" · ")||"Target-specific assessment rules")+'</span></div>'+
+ '<div class="aplus-info"><b>Student Evidence</b><span>'+esc((s.subjects||[]).length+" academic subject(s) recorded")+'</span></div>'+
+ '</div>'+
+ '<button class="aplus-action" onclick="if(window.APLUS_RUN_DIAGNOSTIC_02)window.APLUS_RUN_DIAGNOSTIC_02();document.getElementById(\'gapModule\').scrollIntoView({behavior:\'smooth\'})">Check Requirements Against My Profile →</button>'+
+ '<div class="aplus-muted">Requirements are target-year rules. They are not part of the student profile.</div>';
+}
+function roadmap(){
+ const p=master()||{},t=p.target||{},s=p.profile||{},e=p.evidence||{},a=p.application||{};
+ const level=s.currentLevel||"Current stage",year=t.entryYear||"target entry year";
+ const steps=[
+ ["NOW","Maintain academic trajectory","Use the Academic Profile and current grades as the baseline."],
+ ["BUILD","Develop evidence","Use Experience Profile to build sustained evidence, outcomes and reflection."],
+ ["PREPARE","Application readiness","Use Admission Profile for assessment, personal statement, referees and interview preparation."],
+ ["APPLY","Coordinate the application","Work backward from the target-year deadlines and verify official dates."]
+ ];
+ document.getElementById("roadmapContent").innerHTML='<div class="aplus-roadmap-grid">'+steps.map(function(x,i){return '<div class="aplus-road-step"><div class="num">0'+(i+1)+' · '+esc(x[0])+'</div><b>'+esc(x[1])+'</b><span>'+esc(x[2])+'</span></div>'}).join("")+'</div><div class="aplus-muted">Current stage: '+esc(level)+' · Target entry: '+esc(year)+' · Roadmap is generated from the saved profiles and target.</div>';
+}
+function application(){
+ const p=master()||{},t=p.target||{},a=p.application||{};
+ document.getElementById("applicationContent").innerHTML='<div class="aplus-app-grid">'+
+ '<div class="aplus-info"><b>Target Application</b><span>'+esc(t.university||"Not selected")+' · '+esc(t.course||"Not selected")+'</span></div>'+
+ '<div class="aplus-info"><b>Assessment</b><span>'+esc(a.assessmentType||"Not yet specified")+' · '+esc(a.assessmentReady||"Not started")+'</span></div>'+
+ '<div class="aplus-info"><b>Application Evidence</b><span>Personal statement: '+(a.personalStatementReady?"Ready":"Not ready")+' · Referees: '+esc(a.refereeCount||0)+'</span></div>'+
+ '</div><div class="aplus-muted">Application execution comes last. The Application module uses the completed Academic, Experience, Admission and Target records.</div>';
+}
+function build(){
+ document.body.classList.add("aplus-clean-mode");
+ const planner=document.getElementById("planner");if(!planner||document.getElementById("cleanArchitectureRoot"))return;
+ const root=document.createElement("div");root.id="cleanArchitectureRoot";
+ root.innerHTML='<div class="aplus-clean-header"><div class="k">APLUS ACADEMIC PLANNING</div><h2>Student Planning Workspace</h2><p>One clear workflow — each module has one responsibility.</p><div class="aplus-clean-nav"><a href="#academicModule">01 Academic</a><a href="#experienceModule">02 Experience</a><a href="#admissionProfileEngine">03 Admission</a><a href="#targetProfileEngine">04 Target</a><a href="#requirementsModule">05 Requirements</a><a href="#gapModule">06 Gap</a><a href="#roadmapModule">07 Roadmap</a><a href="#applicationModule">08 Application</a></div></div>'+
+ module("05","05 · REQUIREMENTS","Target Requirements","Verified target-year requirements are compared with the student's records here — not inside a profile.","<div id=\"requirementsContent\"></div>","requirementsModule")+
+ module("07","07 · ROADMAP","Development Roadmap","Turn identified gaps into development priorities and time-based milestones.","<div id=\"roadmapContent\"></div>","roadmapModule")+
+ module("08","08 · APPLICATION","Application Plan","Coordinate the final application using the completed profiles, target and roadmap.","<div id=\"applicationContent\"></div>","applicationModule");
+ planner.appendChild(root);
+ const student=document.getElementById("studentProfileEngine"),experience=document.getElementById("experienceProfileMount"),admission=document.getElementById("admissionProfileEngine"),target=document.getElementById("targetProfileEngine"),gap=document.getElementById("gapEngine");
+ if(student){student.id="academicModule";student.classList.add("aplus-core-module");}
+ if(experience){experience.id="experienceModule";experience.classList.add("aplus-core-module");}
+ if(admission){admission.classList.add("aplus-core-module");}
+ if(target){target.classList.add("aplus-core-module");}
+ if(gap){gap.id="gapModule";gap.classList.add("aplus-core-module");}
+ root.appendChild(document.getElementById("requirementsModule"));root.appendChild(document.getElementById("roadmapModule"));root.appendChild(document.getElementById("applicationModule"));
+ requirements();roadmap();application();
+}
+function refresh(){if(document.getElementById("cleanArchitectureRoot")){requirements();roadmap();application()}}
+function boot(){let n=0;const t=setInterval(function(){n++;if(document.getElementById("planner")&&document.getElementById("studentProfileEngine")&&document.getElementById("gapEngine")){clearInterval(t);build()}if(n>30)clearInterval(t)},300)}
+window.addEventListener("load",function(){setTimeout(boot,500)});
+window.APLUS_REFRESH_CLEAN_ARCHITECTURE=refresh;
+})();
+</script>
 </body></html>
