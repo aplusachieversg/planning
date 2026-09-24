@@ -43,10 +43,12 @@
         }).join("")+'</div></div>';
     }).join("");
     host.querySelectorAll("input[data-subject-key]").forEach(cb=>{
-      cb.addEventListener("change",()=>{
+      cb.addEventListener("change",function(){
         updateSubjectSummary();
         updateSubjectGrades();
         refreshAcademicOutputs();
+        if(window.APLUS_PROFILE_STORE&&window.APLUS_PROFILE_STORE.markDirty)window.APLUS_PROFILE_STORE.markDirty();
+        queueAcademicDraftSave();
       });
     });
   }
@@ -154,7 +156,16 @@
       if(el){
         el.value=(subjectGrades[k]&&subjectGrades[k]!=="not_available")?subjectGrades[k]:(x.grade||"not_available");
         subjectGrades[k]=el.value;
-        el.addEventListener("change",async()=>{ subjectGrades[k]=el.value||"not_available"; persistGradeState(); refreshAcademicOutputs(); updateALevelScore(); try{ if(window.APLUS_DATABASE&&window.APLUS_DATABASE.saveAcademicGrades){ const rows=selectedSubjects().map(function(s){const kk=s.level+"__"+String(s.subject||"").replace(/[^a-z0-9]+/gi,"_"); return {level:s.level,subject:s.subject,grade:subjectGrades[kk]||"not_available"};}); await window.APLUS_DATABASE.saveAcademicGrades(rows); queueAcademicDraftSave(); } }catch(e){ console.warn("Academic grade autosave failed:",e); } });
+        el.addEventListener("change",function(){
+          subjectGrades[k]=el.value||"not_available";
+          persistGradeState();
+          refreshAcademicOutputs();
+          updateALevelScore();
+          /* One save path only: queue the complete Academic Profile draft.
+             Do not call saveAcademicGrades() here; that created a second DB write. */
+          if(window.APLUS_PROFILE_STORE&&window.APLUS_PROFILE_STORE.markDirty)window.APLUS_PROFILE_STORE.markDirty();
+          queueAcademicDraftSave();
+        });
       }
     });
     updateALevelScore();
@@ -348,10 +359,16 @@
         el.addEventListener("change",function(){refreshAcademicOutputs();if(window.APLUS_PROFILE_STORE&&window.APLUS_PROFILE_STORE.markDirty)window.APLUS_PROFILE_STORE.markDirty();queueAcademicDraftSave();});
       });
       document.querySelectorAll("#spSubjectSelector input[data-subject-key]").forEach(function(el){
-        el.addEventListener("change",queueAcademicDraftSave);
+        el.addEventListener("change",function(){
+          if(window.APLUS_PROFILE_STORE&&window.APLUS_PROFILE_STORE.markDirty)window.APLUS_PROFILE_STORE.markDirty();
+          queueAcademicDraftSave();
+        });
       });
       document.querySelectorAll('input[name="spWeakTopic"]').forEach(function(el){
-        el.addEventListener("change",queueAcademicDraftSave);
+        el.addEventListener("change",function(){
+          if(window.APLUS_PROFILE_STORE&&window.APLUS_PROFILE_STORE.markDirty)window.APLUS_PROFILE_STORE.markDirty();
+          queueAcademicDraftSave();
+        });
       });
     }
     // CRITICAL: save listeners are enabled only by the explicit post-restore gate.
