@@ -561,7 +561,7 @@ loadAPLUSDatabase();
 })();
 </script>
 <script src="js/aplus-subject-taxonomy.js?v=1.1"></script><script src="js/aplus-academic-analysis.js?v=1.8"></script><script src="js/aplus-alevel-score-engine.js?v=2.2"></script><script src="js/aplus-admission-academic.js?v=1.1"></script><script src="js/aplus-master-profile.js?v=1.5"></script>
-<script src="js/aplus-student-profile.js?v=39.0"></script><script src="js/aplus-diagnostic02.js?v=5.0"></script><script src="js/aplus-development-roadmap.js"></script><script src="js/aplus-application-combination-v2.js"></script>
+<script src="js/aplus-student-profile.js?v=40.0"></script><script src="js/aplus-diagnostic02.js?v=5.0"></script><script src="js/aplus-development-roadmap.js"></script><script src="js/aplus-application-combination-v2.js"></script>
 <script src="js/aplus-activity.js"></script>
 <script src="js/aplus-experience-profile.js?v=1.4"></script><script src="js/aplus-platform.js?v=1.1"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="js/aplus-database.js?v=2.9"></script><script src="js/aplus-requirements.js"></script><script>(function(){var planner=document.getElementById("planner");if(!planner||document.getElementById("centralSubmission"))return;var box=document.createElement("div");box.id="centralSubmission";box.className="planner";box.style.marginTop="22px";box.innerHTML='<div class="section-title" style="text-align:left;margin-bottom:18px"><div class="eyebrow" style="color:#2563eb">APLUS CENTRAL DATABASE</div><h2 style="font-size:28px">Save this student profile</h2><p>Submit the completed planning profile to the secure APLUS student database.</p></div><div class="formgrid"><div><label>Student name</label><input id="dbStudentName" placeholder="Student name" style="width:100%;padding:13px;border:1px solid #dbe1eb;border-radius:11px"></div><div><label>Parent / guardian name</label><input id="dbParentName" placeholder="Parent / guardian" style="width:100%;padding:13px;border:1px solid #dbe1eb;border-radius:11px"></div><div><label>Email</label><input id="dbEmail" type="email" placeholder="Email" style="width:100%;padding:13px;border:1px solid #dbe1eb;border-radius:11px"></div><div><label>Phone</label><input id="dbPhone" placeholder="Phone" style="width:100%;padding:13px;border:1px solid #dbe1eb;border-radius:11px"></div></div><label style="margin-top:16px"><input id="dbConsent" type="checkbox" style="width:auto;margin-right:8px"> I consent to APLUS storing and using this information for academic planning and follow-up.</label><button class="next" id="dbSubmitBtn">Submit to APLUS Database</button><div id="dbSubmitStatus" style="margin-top:12px;font-size:13px"></div>';planner.parentNode.insertBefore(box,document.getElementById("result"));document.getElementById("dbSubmitBtn").onclick=async function(){var status=document.getElementById("dbSubmitStatus"),btn=this;try{var master=null;try{master=JSON.parse(localStorage.getItem("APLUS_MASTER_PROFILE")||"null")}catch(e){}if(!master){status.textContent="Please generate the academic plan first.";return}if(!document.getElementById("dbConsent").checked){status.textContent="Please confirm consent before submitting.";return}btn.disabled=true;status.textContent="Submitting...";var extra={studentName:document.getElementById("dbStudentName").value.trim(),parentName:document.getElementById("dbParentName").value.trim(),email:document.getElementById("dbEmail").value.trim(),phone:document.getElementById("dbPhone").value.trim(),scholarshipInterest:false,consentGiven:true};var r=await window.APLUS_DATABASE.submit(master,extra,{status:"pending_submission"},[]);if(!r.ok)throw new Error(r.message||r.code||"Database error");status.innerHTML="Saved successfully. Student ID: <b>"+String(r.data&&r.data.student_id||master.studentId)+"</b>"}catch(e){status.textContent="Submission failed: "+(e.message||"Please try again.")}finally{btn.disabled=false}}})()</script><script>window.APLUS_setEntryYear=function(y){y=String(y||"");window.APLUS_SELECTED_ENTRY_YEAR=y;var s=document.getElementById("dbYearStatus");if(s)s.innerHTML="<b>Planning anchor:</b> Entry Year "+(y||"—")+" · Inherited from Diagnostic 01.";var e=document.getElementById("dbEntryYearInherited");if(e)e.textContent=y?"Entry "+y+" · From Diagnostic 01":"Complete Diagnostic 01 first.";};(function(){var y=null;try{var p=JSON.parse(localStorage.getItem("APLUS_MASTER_PROFILE")||"null");y=p&&p.target&&p.target.entryYear;}catch(e){}y=y||"2027";window.APLUS_setEntryYear(y);})();</script><script>(function(){async function render(){var y=(window.APLUS_SELECTED_ENTRY_YEAR||"2027");var box=document.getElementById("dbRequirementPreview");if(!box||!window.APLUS_REQUIREMENTS)return;var u="NUS",c="Medicine";try{var p=JSON.parse(localStorage.getItem("APLUS_MASTER_PROFILE")||"null");var t=p&&p.target||{};u=t.university||u;c=t.course||c;}catch(e){}box.innerHTML="<div class='dataCard'><b>Loading requirements · "+u+" · "+c+" · Entry Year "+y+"</b></div>";try{if(window.APLUS_REQUIREMENTS.sync)await window.APLUS_REQUIREMENTS.sync(u,c,Number(y));}catch(e){}var a=window.APLUS_REQUIREMENTS.get?window.APLUS_REQUIREMENTS.get(u,c,Number(y)):window.APLUS_REQUIREMENTS.records.filter(function(r){return r.university===u&&r.course===c&&String(r.entryYear)===String(y)});if(!a.length){box.innerHTML="<div class='dataCard'><b>No requirement records for "+u+" · "+c+" · Entry Year "+y+"</b><br><small>APLUS will not invent requirements. This year remains a verification task.</small></div>";return;}box.innerHTML="<div class='dataCard'><b>Database snapshot · "+u+" · "+c+" · Entry Year "+y+"</b><div style='margin-top:10px'>"+a.map(function(r){return "<div style='padding:10px 0;border-bottom:1px solid #e5e7eb'><b>"+r.university+" · "+r.category+"</b> · "+r.requirement+"<br><small>"+r.qualification+" · "+r.status+" · Verified "+r.verified+"</small></div>"}).join("")+"</div></div>";}var old=window.APLUS_setEntryYear;window.APLUS_setEntryYear=function(y){if(old)old(y);render()};document.addEventListener("DOMContentLoaded",render);setTimeout(render,500);})();</script><script>
 (function(){
@@ -613,7 +613,7 @@ window.addEventListener("load",function(){setTimeout(updateDash,300)});window.AP
       if(!r||!r.ok){
         window.APLUS_ACADEMIC_PROFILE_HYDRATED=true;
         window.APLUS_ACADEMIC_PROFILE_RESTORING=false;
-        document.dispatchEvent(new CustomEvent("APLUS_ACCOUNT_PROFILE_RESTORED"));if(window.APLUS_ENABLE_ACADEMIC_AUTOSAVE)window.APLUS_ENABLE_ACADEMIC_AUTOSAVE();if(window.APLUS_ENABLE_ACADEMIC_AUTOSAVE)window.APLUS_ENABLE_ACADEMIC_AUTOSAVE();
+        document.dispatchEvent(new CustomEvent("APLUS_ACCOUNT_PROFILE_RESTORED"));if(window.APLUS_ENABLE_ACADEMIC_AUTOSAVE)window.APLUS_ENABLE_ACADEMIC_AUTOSAVE();
         return;
       }
 
@@ -627,25 +627,34 @@ window.addEventListener("load",function(){setTimeout(updateDash,300)});window.AP
         return;
       }
 
-      // Wait for Diagnostic 01 to finish rendering. No polling loop and no repeated hydrate.
-      if(!(window.APLUS_STUDENT_PROFILE&&window.APLUS_STUDENT_PROFILE.hydrateSavedProfile&&document.getElementById("spSubjectSelector")&&document.getElementById("studentProfileEngine"))){
-        await new Promise(function(resolve){
-          var done=false;
-          var finish=function(){
-            if(done)return;
-            done=true;
-            window.removeEventListener("APLUS_STUDENT_PROFILE_READY",finish);
-            resolve();
-          };
-          window.addEventListener("APLUS_STUDENT_PROFILE_READY",finish,{once:true});
-          setTimeout(finish,5000);
-        });
+      // Wait until Diagnostic 01 is actually mounted, then hydrate exactly once.
+      // Do not depend on a one-shot READY event: the event may have fired before this
+      // restore path attached its listener. Loading remains strictly READ -> HYDRATE -> READY.
+      var readyForHydrate=false;
+      for(var attempt=0;attempt<100;attempt++){
+        if(window.APLUS_STUDENT_PROFILE&&window.APLUS_STUDENT_PROFILE.hydrateSavedProfile&&
+           document.getElementById("spSubjectSelector")&&document.getElementById("studentProfileEngine")){
+          readyForHydrate=true;
+          break;
+        }
+        await new Promise(function(resolve){setTimeout(resolve,50);});
       }
 
-      if(window.APLUS_STUDENT_PROFILE&&window.APLUS_STUDENT_PROFILE.hydrateSavedProfile){
+      if(readyForHydrate){
         var hydrated=window.APLUS_STUDENT_PROFILE.hydrateSavedProfile(row);
+        if(!hydrated){
+          // A DOM re-render can briefly invalidate the first hydration attempt.
+          // Retry against the same DB row; never write during these retries.
+          for(var retry=0;retry<20&&!hydrated;retry++){
+            await new Promise(function(resolve){setTimeout(resolve,100);});
+            if(document.getElementById("spSubjectSelector")&&document.getElementById("studentProfileEngine")){
+              hydrated=window.APLUS_STUDENT_PROFILE.hydrateSavedProfile(row);
+            }
+          }
+        }
         if(hydrated){
-          document.dispatchEvent(new CustomEvent("APLUS_ACCOUNT_PROFILE_RESTORED"));if(window.APLUS_ENABLE_ACADEMIC_AUTOSAVE)window.APLUS_ENABLE_ACADEMIC_AUTOSAVE();
+          document.dispatchEvent(new CustomEvent("APLUS_ACCOUNT_PROFILE_RESTORED"));
+          if(window.APLUS_ENABLE_ACADEMIC_AUTOSAVE)window.APLUS_ENABLE_ACADEMIC_AUTOSAVE();
         }
       }
     }catch(e){
