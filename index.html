@@ -673,6 +673,12 @@ window.addEventListener("load",function(){setTimeout(updateDash,300)});window.AP
       var sb=window.APLUS_DATABASE.client();
       if(!sb){error.textContent="Authentication service is not configured.";return;}
       sb.auth.getUser().then(function(result){
+        if(recoveryMode){
+          document.body.classList.remove("aplus-auth-pending");
+          gate.classList.remove("hidden");
+          if(result.data&&result.data.user){open("change");}
+          return;
+        }
         if(result.data&&result.data.user){
           if(forceLogin){
             document.body.classList.remove("aplus-auth-pending");
@@ -681,7 +687,12 @@ window.addEventListener("load",function(){setTimeout(updateDash,300)});window.AP
         }else document.body.classList.remove("aplus-auth-pending");
       });
       sb.auth.onAuthStateChange(function(event,session){
-        if(session&&session.user) openApp();
+        if(event==="PASSWORD_RECOVERY"&&session&&session.user){
+          recoveryMode=true;
+          document.body.classList.remove("aplus-auth-pending");
+          gate.classList.remove("hidden");
+          open("change");
+        }else if(session&&session.user&&!recoveryMode) openApp();
         else if(event==="SIGNED_OUT"){document.body.classList.remove("aplus-auth-pending");gate.classList.remove("hidden");document.getElementById("aplusUserBar").style.display="none";}
       });
       form.addEventListener("submit",async function(e){
@@ -908,12 +919,14 @@ window.APLUS_REFRESH_CLEAN_ARCHITECTURE=refresh;
   function el(id){return document.getElementById(id)}
   function client(){return window.APLUS_DATABASE&&window.APLUS_DATABASE.client?window.APLUS_DATABASE.client():null}
   var modal=el("aplusAuthModal"), mode="signup";
+  var recoveryMode=window.location.hash.indexOf("type=recovery")!==-1;
   function open(m){
     mode=m; modal.classList.add("open");
-    el("authModalTitle").textContent=m==="signup"?"Create student account":"Reset password";
-    el("authModalText").textContent=m==="signup"?"Create your personal APLUS planning account. Your planning records will be linked to this account.":"Enter your email and we will send a password reset link.";
-    el("authModalPasswordLabel").style.display=m==="signup"?"block":"none";
-    el("authModalPassword").style.display=m==="signup"?"block":"none";
+    el("authModalTitle").textContent=m==="signup"?"Create student account":m==="change"?"Set new password":"Reset password";
+    el("authModalText").textContent=m==="signup"?"Create your personal APLUS planning account. Your planning records will be linked to this account.":m==="change"?"Choose a new password for your APLUS student account.":"Enter your email and we will send a password reset link.";
+    el("authModalPasswordLabel").style.display=(m==="signup"||m==="change")?"block":"none";
+    el("authModalPassword").style.display=(m==="signup"||m==="change")?"block":"none";
+    el("authModalEmail").style.display=m==="change"?"none":"block";
     el("authModalPassword").value=""; el("authModalEmail").value=el("aplusAuthEmail").value||"";
     el("authModalStatus").textContent="";
   }
@@ -934,8 +947,17 @@ window.APLUS_REFRESH_CLEAN_ARCHITECTURE=refresh;
         if(r.error)throw r.error;
         status.textContent=r.data&&r.data.session?"Account created. Signing you in…":"Account created. Check your email if confirmation is required.";
         if(r.data&&r.data.session){close();location.reload()}
+      }else if(mode==="change"){
+        if(!password){status.textContent="Please enter a new password.";return}
+        if(password.length<6){status.textContent="Password must be at least 6 characters.";return}
+        var r3=await sb.auth.updateUser({password:password});
+        if(r3.error)throw r3.error;
+        status.textContent="Password updated successfully. Please sign in again.";
+        await sb.auth.signOut();
+        setTimeout(function(){close();location.hash="";location.reload()},700);
       }else{
-        var r2=await sb.auth.resetPasswordForEmail(email,{redirectTo:location.origin+location.pathname});
+        var resetUrl=location.origin+location.pathname;
+        var r2=await sb.auth.resetPasswordForEmail(email,{redirectTo:resetUrl});
         if(r2.error)throw r2.error;
         status.textContent="Password reset instructions have been sent if the account exists.";
       }
