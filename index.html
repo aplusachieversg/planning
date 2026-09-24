@@ -646,13 +646,18 @@ window.addEventListener("load",function(){setTimeout(updateDash,300)});window.AP
     gate.classList.add("hidden");
     restoreSavedProfile();
   }
+  var forceLogin=new URLSearchParams(location.search).get("login")==="1";
   function waitForDatabase(){
     if(window.APLUS_DATABASE&&window.APLUS_DATABASE.client){
       var sb=window.APLUS_DATABASE.client();
       if(!sb){error.textContent="Authentication service is not configured.";return;}
       sb.auth.getUser().then(function(result){
-        if(result.data&&result.data.user) openApp();
-        else document.body.classList.remove("aplus-auth-pending");
+        if(result.data&&result.data.user){
+          if(forceLogin){
+            document.body.classList.remove("aplus-auth-pending");
+            gate.classList.remove("hidden");
+          }else openApp();
+        }else document.body.classList.remove("aplus-auth-pending");
       });
       sb.auth.onAuthStateChange(function(event,session){
         if(session&&session.user) openApp();
