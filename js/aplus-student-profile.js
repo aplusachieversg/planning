@@ -182,7 +182,17 @@
 
   const labels={strong:"Strong",developing:"Developing",needs_work:"Needs building",unknown:"Not assessed"};
 
+  function syncCurrentGradeControls(){
+    document.querySelectorAll("#spStrengthSummary select[data-grade-key]").forEach(function(el){
+      const key=el.getAttribute("data-grade-key");
+      if(key) subjectGrades[key]=el.value||"not_available";
+    });
+  }
+
   function collect(){
+    // Always read the live grade selectors immediately before collecting.
+    // This prevents the in-memory grade map from becoming stale after UI re-renders.
+    syncCurrentGradeControls();
     let activities=[];try{const saved=JSON.parse(localStorage.getItem("aplus_experience_profile_v1")||"[]");activities=Array.isArray(saved)?saved:[]}catch(e){}if(!activities.length)activities=arr(window.APLUS_UI_ACTIVITIES);
     const readiness={academic:"unknown",test:"unknown",communication:"unknown",leadership:"unknown",service:"unknown",application:"unknown"};
     const targetField=read("spTargetField")||read("field")||"Medicine";
