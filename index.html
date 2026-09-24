@@ -532,7 +532,13 @@ loadAPLUSDatabase();
 })();
 </script>
 <script src="js/aplus-activity.js"></script>
-<script src="js/aplus-platform.js"></script>
+<script src="js/aplus-platform.js"></script><script>
+window.addEventListener("APLUS_EVIDENCE_STATE",function(e){
+  var el=document.getElementById("evidenceLayerStatus");
+  if(el) el.textContent="Evidence status: "+String(e.detail&&e.detail.state||"ready").toUpperCase();
+});
+</script>
+
 <script>
 /* APLUS PLATFORM UI v1.0 */
 (function(){
