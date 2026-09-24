@@ -662,12 +662,22 @@ window.addEventListener("load",function(){setTimeout(updateDash,300)});window.AP
     bar.style.display="flex";
   }
   var openingApp=false;
+  function waitForDomReady(){
+    if(document.readyState==="complete")return Promise.resolve();
+    return new Promise(function(resolve){
+      document.addEventListener("DOMContentLoaded",function(){resolve();},{once:true});
+    });
+  }
   async function openApp(){
     if(openingApp)return;
     openingApp=true;
     document.body.classList.remove("aplus-auth-pending");
     gate.classList.add("hidden");
     try{
+      // Standard website lifecycle: finish page/module initialization first,
+      // then READ the database once and HYDRATE the UI. Loading must never write.
+      await waitForDomReady();
+      await new Promise(function(resolve){setTimeout(resolve,50);});
       await restoreSavedProfile();
       var sb=window.APLUS_DATABASE&&window.APLUS_DATABASE.client?window.APLUS_DATABASE.client():null;
       var u=sb?await sb.auth.getUser():null;
