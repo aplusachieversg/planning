@@ -32,6 +32,9 @@
         try{
           var evidence=lastRow&&lastRow.evidence_profile;
           var activities=evidence&&Array.isArray(evidence.activities)?evidence.activities:[];
+          if(window.APLUSEvidenceProfile&&window.APLUSEvidenceProfile.hydrateSavedProfile){
+            window.APLUSEvidenceProfile.hydrateSavedProfile(activities);
+          }
           if(window.APLUSExperienceProfile&&window.APLUSExperienceProfile.hydrateSavedProfile){
             window.APLUSExperienceProfile.hydrateSavedProfile(activities);
           }
