@@ -19,12 +19,13 @@ function render(){
  '<div class="formgrid">'+
  '<div class="aplus-small-card"><label>Assessment / test</label><select id="apAssessmentType"><option value="">Not specified</option><option>UCAT</option><option>FSA</option><option>MMI</option><option>Interview / other</option></select></div>'+
  '<div class="aplus-small-card"><label>Assessment preparation</label><select id="apAssessmentReady"><option>Not started</option><option>Preparing</option><option>Ready</option></select></div>'+
- '<div class="aplus-small-card"><label>Personal statement</label><select id="apPersonalStatement"><option>Not started</option><option>Drafting</option><option>Ready</option></select></div>'+
+ '<div class="aplus-small-card"><label>Personal statement</label><select id="apPersonalStatement"><option>NOT STARTED</option><option>LEARNING</option><option>DRAFTING</option><option>READY</option></select></div>'+
  '<div class="aplus-small-card"><label>Referee reports</label><select id="apReferees"><option value="0">Not arranged</option><option value="1">1 referee</option><option value="2">2 referees</option><option value="3">3+ referees</option></select></div>'+
  '<div class="aplus-small-card"><label>Interview readiness</label><select id="apInterview"><option>Not started</option><option>Preparing</option><option>Ready</option></select></div>'+
  '<div class="aplus-small-card"><label>Application documents</label><select id="apDocuments"><option>Not started</option><option>In progress</option><option>Ready</option></select></div>'+
  '</div><button class="aplus-save" id="apAdmissionSave" style="margin-top:16px">Save Admission Profile</button><div id="apAdmissionStatus" class="aplus-status">Records application preparation only. It does not assess admission chances.</div>';
  ["apAssessmentType","apAssessmentReady","apPersonalStatement","apReferees","apInterview","apDocuments"].forEach(function(id){var el=document.getElementById(id);if(el&&a[id]!==undefined)el.value=String(a[id])});
+ var ps=document.getElementById("apPersonalStatement");if(ps){var pv=String(a.personalStatement||"").toUpperCase();if(pv==="NOT STARTED"||pv==="LEARNING"||pv==="DRAFTING"||pv==="READY")ps.value=pv;else if(pv==="NOT STARTED"||pv==="NOT STARTED")ps.value="NOT STARTED";else if(pv==="LEARNING")ps.value="LEARNING";else if(pv==="DRAFTING")ps.value="DRAFTING";else if(pv==="READY")ps.value="READY";else ps.value="NOT STARTED"}
  document.getElementById("apAdmissionSave").onclick=save;
 }
 async function save(){
